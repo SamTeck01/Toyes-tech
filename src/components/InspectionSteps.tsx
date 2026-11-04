@@ -20,10 +20,10 @@ const InspectionSteps = () => (
           Shop UK-used
         </Link>
       </div>
-      <ol className="grid gap-px overflow-hidden rounded-2xl bg-white/10 sm:grid-cols-2">
+      <ol className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10">
         {steps.map((s, i) => (
-          <li key={s.title} className="bg-[#16161A] p-6 md:p-8">
-            <span className="font-display text-4xl font-extrabold text-primary">{i + 1}</span>
+          <li key={s.title} className="bg-[#16161A] p-4 sm:p-6 md:p-8">
+            <span className="font-display text-3xl font-extrabold text-primary md:text-4xl">{i + 1}</span>
             <h3 className="mt-3 text-lg font-bold">{s.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-white/65">{s.body}</p>
           </li>

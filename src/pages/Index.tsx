@@ -1,18 +1,15 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ChevronLeft, ChevronRight } from "@/components/icons";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import ProductCard from "@/components/ProductCard";
 import CategoryCircles from "@/components/CategoryCircles";
+import ProductRow from "@/components/ProductRow";
+import BudgetTiles from "@/components/BudgetTiles";
 import DealsGrid from "@/components/DealsGrid";
-import TabbedProducts from "@/components/TabbedProducts";
 import InspectionSteps from "@/components/InspectionSteps";
+import RecentlyViewed from "@/components/RecentlyViewed";
+import HomeFAQ from "@/components/HomeFAQ";
+import StoreStrip from "@/components/StoreStrip";
 import BrandStrip from "@/components/BrandStrip";
 import SocialBar from "@/components/SocialBar";
 import Footer from "@/components/Footer";
@@ -20,26 +17,26 @@ import BottomNav from "@/components/BottomNav";
 import { useProducts } from "@/context/ProductContext";
 import type { Product } from "@/data/products";
 
-const SectionHeader = ({ title, to, children }: { title: string; to?: string; children?: React.ReactNode }) => (
-  <div className="mb-6 flex items-end justify-between gap-4 md:mb-8">
-    <h2 className="text-2xl font-extrabold md:text-3xl">{title}</h2>
-    <div className="flex items-center gap-4">
-      {to && <Link to={to} className="text-sm font-semibold text-primary hover:underline underline-offset-4">See all</Link>}
-      {children}
-    </div>
-  </div>
-);
-
 const Index = () => {
   const { products } = useProducts();
 
-  const featured = useMemo(() => {
-    const list: Product[] = [];
-    // Interleave the three departments so none dominates: gadget, phone, laptop, gadget...
-    const byCat = ["Gadgets", "Phones", "Laptops"].map((c) => products.filter((p) => p.category === c));
-    for (let i = 0; i < 4; i++) byCat.forEach((list_) => list_[i] && list.push(list_[i]));
-    return list;
+  const byCategory = useMemo(() => {
+    const pick = (c: string) => products.filter((p) => p.category === c);
+    // Round-robin gadgets by type so the row shows variety (speaker, watch, controller...), not five of one kind.
+    const gadgets = pick("Gadgets");
+    const groups = [...new Set(gadgets.map((g) => g.subcategory ?? ""))].map((t) => gadgets.filter((g) => (g.subcategory ?? "") === t));
+    const mixed: Product[] = [];
+    for (let i = 0; mixed.length < gadgets.length; i++) groups.forEach((g) => g[i] && mixed.push(g[i]));
+    return { Gadgets: mixed, Phones: pick("Phones"), Laptops: pick("Laptops") };
   }, [products]);
+
+  // Interleave the three departments so none dominates: gadget, phone, laptop, gadget...
+  const popular = useMemo(() => {
+    const list: Product[] = [];
+    const lists = [byCategory.Gadgets.filter((p) => p.badge || p.originalPrice), byCategory.Phones, byCategory.Laptops];
+    for (let i = 0; i < 4; i++) lists.forEach((l) => l[i] && list.push(l[i]));
+    return list;
+  }, [byCategory]);
 
   return (
     <div className="min-h-screen bg-white pb-16 md:pb-0">
@@ -48,34 +45,19 @@ const Index = () => {
       <main>
         <HeroSection />
         <CategoryCircles />
-
-        <section className="container py-12 md:py-16">
-          <SectionHeader title="Popular right now" to="/shop">
-            <div className="hidden gap-2 sm:flex">
-              <button aria-label="Previous products" className="feat-prev flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-black/40 disabled:opacity-30">
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button aria-label="Next products" className="feat-next flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-black/40 disabled:opacity-30">
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          </SectionHeader>
-          <Swiper
-            modules={[Navigation]}
-            navigation={{ prevEl: ".feat-prev", nextEl: ".feat-next" }}
-            spaceBetween={14}
-            slidesPerView={1.6}
-            breakpoints={{ 540: { slidesPerView: 2.4, spaceBetween: 18 }, 768: { slidesPerView: 3.3, spaceBetween: 20 }, 1100: { slidesPerView: 4.4, spaceBetween: 24 } }}
-          >
-            {featured.map((p, i) => (
-              <SwiperSlide key={p.id} className="!h-auto"><ProductCard product={p} index={i} /></SwiperSlide>
-            ))}
-          </Swiper>
-        </section>
-
+        <ProductRow id="popular" title="Popular right now" to="/shop" products={popular} />
+        <BudgetTiles />
         <DealsGrid />
+
+        {/* One row per department, so gadgets, phones and laptops each get equal room. */}
+        <ProductRow id="gadgets" tone="tinted" title="Gadgets" subtitle="Audio, smartwatches, gaming, chargers and more" to="/shop?category=Gadgets" linkLabel="All gadgets" products={byCategory.Gadgets} />
+        <ProductRow id="phones" title="Phones" subtitle="New and UK-used iPhone, Samsung and Google" to="/shop?category=Phones" linkLabel="All phones" products={byCategory.Phones} />
+        <ProductRow id="laptops" tone="tinted" title="Laptops" subtitle="For lectures, projects, work and play" to="/shop?category=Laptops" linkLabel="All laptops" products={byCategory.Laptops} />
+
         <InspectionSteps />
-        <TabbedProducts />
+        <RecentlyViewed />
+        <HomeFAQ />
+        <StoreStrip />
         <BrandStrip />
       </main>
       <SocialBar />

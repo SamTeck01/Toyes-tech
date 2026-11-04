@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
 import ProductCard from "@/components/ProductCard";
 import { SlidersHorizontal, Search as SearchIcon, X } from "@/components/icons";
-import { formatPrice } from "@/lib/format";
+import { PRICE_RANGES } from "@/lib/budgets";
 
 const SORTS = {
   featured: "Featured",
@@ -17,13 +17,6 @@ const SORTS = {
 } as const;
 type SortKey = keyof typeof SORTS;
 
-const PRICE_RANGES = [
-  { id: "", label: "Any price", min: 0, max: Infinity },
-  { id: "0-100000", label: `Under ${formatPrice(100000)}`, min: 0, max: 100000 },
-  { id: "100000-500000", label: `${formatPrice(100000)} – ${formatPrice(500000)}`, min: 100000, max: 500000 },
-  { id: "500000-1000000", label: `${formatPrice(500000)} – ${formatPrice(1000000)}`, min: 500000, max: 1000000 },
-  { id: "1000000-", label: `Over ${formatPrice(1000000)}`, min: 1000000, max: Infinity },
-];
 
 const Shop = () => {
   const { products } = useProducts();

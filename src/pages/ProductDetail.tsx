@@ -10,6 +10,7 @@ import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useReviews } from "@/context/ReviewContext";
 import { toast } from "sonner";
+import { addRecentlyViewed } from "@/lib/recentlyViewed";
 import ProductCard from "@/components/ProductCard";
 import { formatPrice } from "@/lib/format";
 import { Helmet } from "react-helmet-async";
@@ -26,6 +27,10 @@ const ProductDetail = () => {
   const { id } = useParams();
   const { products } = useProducts();
   const product = useMemo(() => products.find((p) => p.id === id), [id, products]);
+
+  useEffect(() => {
+    if (product) addRecentlyViewed(product.id);
+  }, [product]);
   
   const [quantity, setQuantity] = useState(1);
   
