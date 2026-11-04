@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from "@/components/icons";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { STORE } from "@/config/store";
 import { useState } from "react";
 
 const Contact = () => {
@@ -43,7 +44,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-black/50 mb-1">Email</p>
-                    <p className="text-sm font-bold">hello@toyestech.com</p>
+                    <p className="text-sm font-bold">{STORE.email}</p>
                   </div>
                 </div>
 
@@ -53,7 +54,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-black/50 mb-1">Phone</p>
-                    <p className="text-sm font-bold">+234 800 000 0000</p>
+                    <p className="text-sm font-bold">{STORE.phoneDisplay}</p>
                   </div>
                 </div>
 

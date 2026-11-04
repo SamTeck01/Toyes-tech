@@ -337,7 +337,7 @@ export const products: Product[] = [
     name: "iPhone 14 Pro",
     brand: "Apple",
     price: 890000,
-    image: "/images/iphone-dynamic-island.jpg",
+    image: "/images/iphone-pro.jpg",
     inStock: true,
     stock: 8,
     category: "Phones",

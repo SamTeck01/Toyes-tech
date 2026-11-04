@@ -8,6 +8,7 @@ import BottomNav from "@/components/BottomNav";
 import ProductCard from "@/components/ProductCard";
 import { SlidersHorizontal, Search as SearchIcon, X } from "@/components/icons";
 import { PRICE_RANGES } from "@/lib/budgets";
+import { searchProducts, POPULAR_SEARCHES } from "@/lib/search";
 
 const SORTS = {
   featured: "Featured",
@@ -45,10 +46,10 @@ const Shop = () => {
   const conditions = useMemo(() => [...new Set(products.map((p) => p.condition).filter(Boolean))] as string[], [products]);
 
   const filteredProducts = useMemo(() => {
-    const q = query.toLowerCase();
     const range = PRICE_RANGES.find((r) => r.id === price) ?? PRICE_RANGES[0];
-    const list = products.filter((p) =>
-      (q === "" || [p.name, p.brand, p.category, p.subcategory ?? ""].some((v) => v.toLowerCase().includes(q))) &&
+    // With a search term, start from relevance-ranked matches (typo-tolerant, understands synonyms).
+    const base = query.trim() ? searchProducts(products, query) : products;
+    const list = base.filter((p) =>
       (category === "" || p.category === category) &&
       (condition === "" || p.condition === condition) &&
       (brand === "" || p.brand === brand) &&
@@ -174,6 +175,11 @@ const Shop = () => {
                 </div>
                 <h2 className="mb-2 text-2xl font-bold tracking-tight">No products found</h2>
                 <p className="max-w-xs text-sm text-black/50">Try removing a filter or searching for something else.</p>
+                <div className="mt-5 flex max-w-md flex-wrap justify-center gap-2">
+                  {POPULAR_SEARCHES.map((t) => (
+                    <button key={t} onClick={() => setSearchParams({ q: t }, { replace: true })} className="rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold hover:bg-gray-200">{t}</button>
+                  ))}
+                </div>
                 <button onClick={() => setSearchParams({}, { replace: true })} className="mt-6 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground">
                   Clear filters
                 </button>

@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { useProducts } from "@/context/ProductContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice } from "@/lib/format";
+import { searchProducts, POPULAR_SEARCHES } from "@/lib/search";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/context/AuthContext";
 
@@ -41,12 +42,23 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const suggestions = searchQuery.trim() 
-    ? products.filter(p => 
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        p.brand.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 5)
-    : [];
+  const suggestions = searchQuery.trim() ? searchProducts(products, searchQuery).slice(0, 5) : [];
+  const runSearch = (term: string) => {
+    navigate(`/shop?q=${encodeURIComponent(term)}`);
+    setSearchQuery(term);
+    setShowSuggestions(false);
+    setMenuOpen(false);
+  };
+  const popular = (
+    <div className="p-4">
+      <p className="mb-2 text-xs font-semibold text-black/50">Popular searches</p>
+      <div className="flex flex-wrap gap-2">
+        {POPULAR_SEARCHES.map((t) => (
+          <button key={t} onMouseDown={(e) => e.preventDefault()} onClick={() => runSearch(t)} className="rounded-full bg-gray-100 px-3.5 py-1.5 text-sm font-semibold hover:bg-gray-200">{t}</button>
+        ))}
+      </div>
+    </div>
+  );
 
   const handleSearch = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && searchQuery.trim()) {
@@ -80,6 +92,7 @@ const Navbar = () => {
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               onKeyDown={handleSearch}
               placeholder="Search gadgets, phones, laptops..."
               className="w-full bg-gray-50 text-[13px] px-6 py-2.5 border border-transparent focus:border-black/10 focus:bg-white outline-none transition-all rounded-full"
@@ -94,6 +107,9 @@ const Navbar = () => {
               }} 
             />
 
+            {showSuggestions && !searchQuery.trim() && (
+              <div className="absolute left-0 top-full z-20 mt-2 w-full overflow-hidden rounded-[20px] border border-gray-100 bg-white shadow-2xl">{popular}</div>
+            )}
             {/* Suggestions Dropdown */}
             <AnimatePresence>
               {showSuggestions && suggestions.length > 0 && (
@@ -196,6 +212,7 @@ const Navbar = () => {
               setShowSuggestions(true);
             }}
             onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             onKeyDown={handleSearch}
             placeholder="Search gadgets, phones, laptops..."
             className="w-full bg-gray-50 text-[13px] pl-10 pr-4 py-2.5 border border-transparent focus:border-black/10 focus:bg-white outline-none transition-all rounded-full"
@@ -203,6 +220,9 @@ const Navbar = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/50 group-focus-within:text-black transition-colors" />
         </div>
 
+        {showSuggestions && !searchQuery.trim() && (
+          <div className="absolute left-0 top-full z-[70] w-full border-t border-gray-100 bg-white shadow-2xl">{popular}</div>
+        )}
         {/* Mobile Suggestions Dropdown */}
         <AnimatePresence>
           {showSuggestions && suggestions.length > 0 && (

@@ -9,7 +9,7 @@ interface ProductContextType {
   getProductById: (id: string) => Product | undefined;
 }
 
-const STORAGE_KEY = "toyes_products_v3";
+const STORAGE_KEY = "toyes_products_v4";
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 

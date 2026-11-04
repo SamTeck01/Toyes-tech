@@ -11,6 +11,8 @@ import { useWishlist } from "@/context/WishlistContext";
 import { useReviews } from "@/context/ReviewContext";
 import { toast } from "sonner";
 import { addRecentlyViewed } from "@/lib/recentlyViewed";
+import { whatsappLink } from "@/config/store";
+import { WhatsAppGlyph } from "@/components/WhatsAppButton";
 import ProductCard from "@/components/ProductCard";
 import { formatPrice } from "@/lib/format";
 import { Helmet } from "react-helmet-async";
@@ -419,6 +421,15 @@ const ProductDetail = () => {
                 </div>
               </div>
             </div>
+
+            <a
+              href={whatsappLink(`Hi Toyes Tech, is the ${product.name} (${product.condition ?? "New"}, ${formatPrice(unitPrice)}) available? ${typeof window !== "undefined" ? window.location.href : ""}`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mb-6 flex items-center justify-center gap-2 rounded-full border border-[#25D366] py-3 text-sm font-bold text-[#128C7E] transition hover:bg-[#25D366]/10"
+            >
+              <WhatsAppGlyph className="h-5 w-5" /> Ask about this item on WhatsApp
+            </a>
 
             {/* Delivery, warranty and stock: answers the questions people have right before buying. */}
             <div className="mb-8 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-[#FAFAFA]">

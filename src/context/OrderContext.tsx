@@ -23,7 +23,11 @@ export interface Order {
     name: string;
     email: string;
     address: string;
+    phone?: string;
   };
+  subtotal?: number;
+  deliveryFee?: number;
+  fulfilment?: "delivery" | "pickup";
 }
 
 interface OrderContextType {
@@ -61,7 +65,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const addOrder = (orderData: Omit<Order, "id" | "date" | "status">) => {
-    const newId = `LOGO-${Math.floor(1000 + Math.random() * 9000)}-${Math.random().toString(36).substring(2, 4).toUpperCase()}`;
+    const newId = `TOY-${Math.floor(1000 + Math.random() * 9000)}-${Math.random().toString(36).substring(2, 4).toUpperCase()}`;
     const newOrder: Order = {
       ...orderData,
       id: newId,

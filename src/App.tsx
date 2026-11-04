@@ -25,6 +25,7 @@ import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
 import ScrollToTop from "./components/ScrollToTop";
 import CartDrawer from "./components/CartDrawer";
+import WhatsAppButton from "./components/WhatsAppButton";
 import { AuthProvider } from "./context/AuthContext";
 
 // Admin area is code-split so shoppers don't download it.
@@ -56,6 +57,7 @@ const App = () => (
                       <ThemeWatcher />
                       <ScrollToTop />
                       <CartDrawer />
+                      <WhatsAppButton />
                       <Suspense fallback={<div className="min-h-screen" />}>
                       <Routes>
                         <Route path="/" element={<Index />} />
