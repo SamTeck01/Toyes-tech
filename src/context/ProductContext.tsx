@@ -9,25 +9,25 @@ interface ProductContextType {
   getProductById: (id: string) => Product | undefined;
 }
 
+const STORAGE_KEY = "toyes_products_v3";
+
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([]);
-
-  // Load from localStorage or initial data
-  useEffect(() => {
-    const savedProducts = localStorage.getItem("toyes_products_v2");
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      setProducts(initialProducts);
+  // Bump STORAGE_KEY whenever the built-in catalogue changes so visitors get the new range.
+  const [products, setProducts] = useState<Product[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : initialProducts;
+    } catch {
+      return initialProducts;
     }
-  }, []);
+  });
 
   // Save to localStorage
   useEffect(() => {
     if (products.length > 0) {
-      localStorage.setItem("toyes_products_v2", JSON.stringify(products));
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); } catch { /* storage unavailable */ }
     }
   }, [products]);
 

@@ -424,7 +424,7 @@ const ProductDetail = () => {
               <div className="space-y-3">
                 {(product.specs || [
                   { label: "Availability", value: product.inStock ? "In Stock & Ready to Ship" : "Out of Stock" },
-                  { label: "Category", value: product.category },
+                  { label: "Category", value: product.subcategory ? `${product.category} · ${product.subcategory}` : product.category },
                   { label: "Brand Origin", value: "Verified Authentic" },
                 ]).map((spec, i) => (
                   <div key={i} className="flex justify-between items-center text-xs font-medium border-b border-gray-50 pb-3">
@@ -458,7 +458,7 @@ const ProductDetail = () => {
             <TabsContent value="description" className="prose prose-sm max-w-none text-black/70 animate-in fade-in duration-500">
                <div className="space-y-6">
                  <div>
-                   <h3 className="text-lg font-bold text-black mb-2">About this {product.category === "Phones" ? "phone" : "product"}</h3>
+                   <h3 className="text-lg font-bold text-black mb-2">About this {product.category === "Phones" ? "phone" : product.category === "Laptops" ? "laptop" : "gadget"}</h3>
                    <p>{product.description}</p>
                  </div>
                  <div>

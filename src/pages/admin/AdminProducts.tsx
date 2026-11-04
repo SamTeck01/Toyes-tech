@@ -19,7 +19,7 @@ import {
 } from "@/components/icons";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useProducts } from "@/context/ProductContext";
-import { Product } from "@/data/products";
+import { Product, gadgetTypes } from "@/data/products";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/format";
 
@@ -32,7 +32,10 @@ const AdminProducts = () => {
   const [localStocks, setLocalStocks] = useState<Record<string, number>>({});
 
   // Form State
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string; brand: string; price: number; stock: number; category: string; subcategory?: string;
+    image: string; inStock: boolean; condition: "New" | "UK Used" | "Used"; description: string; featured: boolean; badge: string;
+  }>({
     name: "",
     brand: "",
     price: 0,
@@ -54,6 +57,7 @@ const AdminProducts = () => {
         price: editingProduct.price,
         stock: editingProduct.stock || 0,
         category: editingProduct.category,
+        subcategory: editingProduct.subcategory,
         image: editingProduct.image,
         inStock: editingProduct.inStock,
         condition: editingProduct.condition || "New",
@@ -157,7 +161,7 @@ const AdminProducts = () => {
            </div>
            
            <div className="flex gap-2 bg-white p-2 rounded-[32px] border border-gray-100 shadow-sm overflow-x-auto scrollbar-hide">
-              {["All", "Phones", "Laptops", "Watches", "Accessories", "Audio"].map(cat => (
+              {["All", "Gadgets", "Phones", "Laptops"].map(cat => (
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
@@ -354,11 +358,24 @@ const AdminProducts = () => {
                               onChange={(e) => setFormData({...formData, category: e.target.value})}
                               className="w-full bg-gray-50 border border-transparent focus:border-black/10 focus:bg-white p-4 rounded-2xl outline-none text-xs font-bold transition-all shadow-inner cursor-pointer"
                             >
-                               {["Phones", "Laptops", "Watches", "Accessories", "Audio"].map(c => (
+                               {["Gadgets", "Phones", "Laptops"].map(c => (
                                  <option key={c} value={c}>{c}</option>
                                ))}
                             </select>
                          </div>
+                         {formData.category === "Gadgets" && (
+                           <div className="space-y-2">
+                              <label className="text-xs font-bold text-black/50 px-1">Gadget type</label>
+                              <select
+                                value={formData.subcategory ?? ""}
+                                onChange={(e) => setFormData({...formData, subcategory: e.target.value || undefined})}
+                                className="w-full bg-gray-50 border border-transparent focus:border-black/10 focus:bg-white p-4 rounded-2xl outline-none text-xs font-bold transition-all shadow-inner cursor-pointer"
+                              >
+                                 <option value="">Choose a type</option>
+                                 {gadgetTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                           </div>
+                         )}
                          <div className="space-y-2">
                             <label className="text-xs font-bold text-black/50 px-1">Condition</label>
                             <select 

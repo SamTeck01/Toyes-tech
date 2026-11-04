@@ -34,6 +34,7 @@ const Shop = () => {
   const category = searchParams.get("category") || "";
   const condition = searchParams.get("condition") || "";
   const brand = searchParams.get("brand") || "";
+  const type = searchParams.get("type") || "";
   const price = searchParams.get("price") || "";
   const inStockOnly = searchParams.get("stock") === "1";
   const sort = (searchParams.get("sort") as SortKey) || "featured";
@@ -45,7 +46,8 @@ const Shop = () => {
     setSearchParams(next, { replace: true });
   };
 
-  const categories = useMemo(() => [...new Set(products.map((p) => p.category))].sort(), [products]);
+  const categories = ["Gadgets", "Phones", "Laptops"].filter((c) => products.some((p) => p.category === c));
+  const types = useMemo(() => [...new Set(products.map((p) => p.subcategory).filter(Boolean))].sort() as string[], [products]);
   const brands = useMemo(() => [...new Set(products.map((p) => p.brand))].sort(), [products]);
   const conditions = useMemo(() => [...new Set(products.map((p) => p.condition).filter(Boolean))] as string[], [products]);
 
@@ -53,10 +55,11 @@ const Shop = () => {
     const q = query.toLowerCase();
     const range = PRICE_RANGES.find((r) => r.id === price) ?? PRICE_RANGES[0];
     const list = products.filter((p) =>
-      (q === "" || [p.name, p.brand, p.category].some((v) => v.toLowerCase().includes(q))) &&
+      (q === "" || [p.name, p.brand, p.category, p.subcategory ?? ""].some((v) => v.toLowerCase().includes(q))) &&
       (category === "" || p.category === category) &&
       (condition === "" || p.condition === condition) &&
       (brand === "" || p.brand === brand) &&
+      (type === "" || p.subcategory === type) &&
       p.price >= range.min && p.price < range.max &&
       (!inStockOnly || (p.inStock && p.stock > 0)),
     );
@@ -65,10 +68,11 @@ const Shop = () => {
     if (sort === "price-desc") sorted.sort((a, b) => b.price - a.price);
     if (sort === "name") sorted.sort((a, b) => a.name.localeCompare(b.name));
     return sorted;
-  }, [query, category, condition, brand, price, inStockOnly, sort, products]);
+  }, [query, category, condition, brand, type, price, inStockOnly, sort, products]);
 
   const activeFilters = [
     category && { key: "category", label: category },
+    type && { key: "type", label: type },
     brand && { key: "brand", label: brand },
     condition && { key: "condition", label: condition },
     price && { key: "price", label: PRICE_RANGES.find((r) => r.id === price)?.label ?? price },
@@ -99,6 +103,9 @@ const Shop = () => {
   const filterPanel = (
     <div className="space-y-5">
       <Group title="Category" name="category" options={[{ value: "", label: "All categories" }, ...categories.map((c) => ({ value: c, label: c }))]} />
+      {(category === "" || category === "Gadgets") && types.length > 0 && (
+        <Group title="Gadget type" name="type" options={[{ value: "", label: "All gadgets" }, ...types.map((t) => ({ value: t, label: t }))]} />
+      )}
       <Group title="Brand" name="brand" options={[{ value: "", label: "All brands" }, ...brands.map((b) => ({ value: b, label: b }))]} />
       <Group title="Condition" name="condition" options={[{ value: "", label: "Any condition" }, ...conditions.map((c) => ({ value: c, label: c }))]} />
       <Group title="Price" name="price" options={PRICE_RANGES.map((r) => ({ value: r.id, label: r.label }))} />
@@ -109,7 +116,7 @@ const Shop = () => {
     </div>
   );
 
-  const title = query ? `Results for “${query}”` : category || "All Products";
+  const title = query ? `Results for “${query}”` : type || category || "All products";
 
   return (
     <div className="min-h-screen bg-white pb-16 md:pb-0">

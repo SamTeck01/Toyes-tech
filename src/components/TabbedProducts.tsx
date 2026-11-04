@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import { useProducts } from "@/context/ProductContext";
 import ProductCard from "./ProductCard";
 
-const TABS = ["Phones", "Laptops", "Watches", "Audio", "Accessories"];
+const TABS = ["Gadgets", "Phones", "Laptops"];
 
 const TabbedProducts = () => {
   const { products } = useProducts();
-  const [active, setActive] = useState("Phones");
+  const [active, setActive] = useState("Gadgets");
   const filtered = products.filter((p) => p.category === active).slice(0, 8);
 
   return (

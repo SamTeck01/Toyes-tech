@@ -170,7 +170,7 @@ const AdminDashboard = () => {
                 <p className="text-xs font-bold text-black/50">What you have in stock</p>
              </div>
              <div className="space-y-6 flex-1">
-                {["Phones", "Laptops", "Watches", "Accessories", "Audio"].map((cat) => {
+                {["Gadgets", "Phones", "Laptops"].map((cat) => {
                   const count = products.filter(p => p.category === cat).length;
                   const percentage = products.length > 0 ? (count / products.length) * 100 : 0;
                   return (

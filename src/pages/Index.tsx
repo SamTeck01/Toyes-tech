@@ -35,15 +35,15 @@ const Index = () => {
 
   const featured = useMemo(() => {
     const list: Product[] = [];
-    ["Phones", "Laptops", "Watches", "Audio", "Accessories"].forEach((cat) =>
-      list.push(...products.filter((p) => p.category === cat).slice(0, 2)),
-    );
+    // Interleave the three departments so none dominates: gadget, phone, laptop, gadget...
+    const byCat = ["Gadgets", "Phones", "Laptops"].map((c) => products.filter((p) => p.category === c));
+    for (let i = 0; i < 4; i++) byCat.forEach((list_) => list_[i] && list.push(list_[i]));
     return list;
   }, [products]);
 
   return (
     <div className="min-h-screen bg-white pb-16 md:pb-0">
-      <Helmet><title>Toyes Tech | Phones & Gadgets in Nigeria</title></Helmet>
+      <Helmet><title>Toyes Tech | Gadgets, Phones & Laptops</title></Helmet>
       <Navbar />
       <main>
         <HeroSection />

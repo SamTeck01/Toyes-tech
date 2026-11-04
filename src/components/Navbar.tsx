@@ -9,19 +9,20 @@ import Logo from "@/components/Logo";
 import { useAuth } from "@/context/AuthContext";
 
 const navCategories = [
+  { label: "Gadgets", to: "/shop?category=Gadgets" },
   { label: "Phones", to: "/shop?category=Phones" },
   { label: "Laptops", to: "/shop?category=Laptops" },
-  { label: "Accessories", to: "/shop?category=Accessories" },
 ];
 
 const subCategories = [
   { label: "All Categories", to: "/shop" },
+  { label: "Gadgets", to: "/shop?category=Gadgets" },
   { label: "Phones", to: "/shop?category=Phones" },
   { label: "Laptops", to: "/shop?category=Laptops" },
-  { label: "Accessories", to: "/shop?category=Accessories" },
-  { label: "Apple", to: "/shop?q=Apple" },
-  { label: "Samsung", to: "/shop?q=Samsung" },
-  { label: "MacBooks", to: "/shop?q=MacBook" }
+  { label: "Audio", to: "/shop?category=Gadgets&type=Audio" },
+  { label: "Gaming", to: "/shop?category=Gadgets&type=Gaming" },
+  { label: "Smartwatches", to: "/shop?category=Gadgets&type=Smartwatches" },
+  { label: "Chargers & Power", to: "/shop?category=Gadgets&type=Power%20%26%20Charging" }
 ];
 
 const Navbar = () => {
@@ -80,7 +81,7 @@ const Navbar = () => {
               }}
               onFocus={() => setShowSuggestions(true)}
               onKeyDown={handleSearch}
-              placeholder="Search phones and gadgets..."
+              placeholder="Search gadgets, phones, laptops..."
               className="w-full bg-gray-50 text-[13px] px-6 py-2.5 border border-transparent focus:border-black/10 focus:bg-white outline-none transition-all rounded-full"
             />
             <Search 
@@ -196,7 +197,7 @@ const Navbar = () => {
             }}
             onFocus={() => setShowSuggestions(true)}
             onKeyDown={handleSearch}
-            placeholder="Search phones and gadgets..."
+            placeholder="Search gadgets, phones, laptops..."
             className="w-full bg-gray-50 text-[13px] pl-10 pr-4 py-2.5 border border-transparent focus:border-black/10 focus:bg-white outline-none transition-all rounded-full"
           />
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/50 group-focus-within:text-black transition-colors" />

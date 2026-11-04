@@ -8,7 +8,8 @@ export interface Product {
   images?: string[];
   inStock: boolean;
   stock: number;
-  category: string;
+  category: string; // "Phones" | "Laptops" | "Gadgets"
+  subcategory?: string; // e.g. "Audio", "Smartwatches", "Gaming"
   condition?: "New" | "UK Used" | "Used";
   
   // Variants
@@ -218,7 +219,8 @@ export const products: Product[] = [
     images: ["/images/products/w1.jpg", "/images/products/w1-b.jpg"],
     inStock: true,
     stock: 10,
-    category: "Watches",
+    category: "Gadgets",
+    subcategory: "Smartwatches",
     condition: "New"
   },
   {
@@ -230,7 +232,8 @@ export const products: Product[] = [
     images: ["/images/products/w2.jpg", "/images/products/w2-b.jpg"],
     inStock: true,
     stock: 10,
-    category: "Watches",
+    category: "Gadgets",
+    subcategory: "Smartwatches",
     condition: "UK Used",
     description: "Flawless condition UK Used Apple Watch SE. Essential fitness tracking."
   },
@@ -245,7 +248,8 @@ export const products: Product[] = [
     images: ["/images/products/a1.jpg", "/images/products/a1-b.jpg"],
     inStock: true,
     stock: 10,
-    category: "Accessories",
+    category: "Gadgets",
+    subcategory: "Power & Charging",
     condition: "New",
     description: "10000mAh Portable Charger. Essential daily power carrying."
   },
@@ -257,7 +261,8 @@ export const products: Product[] = [
     image: "/images/products/a2.jpg",
     inStock: true,
     stock: 10,
-    category: "Accessories",
+    category: "Gadgets",
+    subcategory: "Computer Accessories",
     condition: "New"
   },
   {
@@ -268,7 +273,8 @@ export const products: Product[] = [
     image: "/images/charger.jpg",
     inStock: true,
     stock: 10,
-    category: "Accessories",
+    category: "Gadgets",
+    subcategory: "Power & Charging",
     condition: "New"
   },
 
@@ -281,7 +287,8 @@ export const products: Product[] = [
     image: "/images/products/au1.jpg",
     inStock: true,
     stock: 10,
-    category: "Audio",
+    category: "Gadgets",
+    subcategory: "Audio",
     condition: "New"
   },
   {
@@ -292,7 +299,8 @@ export const products: Product[] = [
     image: "/images/products/au2.jpg",
     inStock: true,
     stock: 10,
-    category: "Audio",
+    category: "Gadgets",
+    subcategory: "Audio",
     condition: "UK Used",
     description: "Clean, sterilized UK used AirPods with full battery capacity."
   },
@@ -304,10 +312,268 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&q=80&w=800",
     inStock: true,
     stock: 10,
-    category: "Audio",
+    category: "Gadgets",
+    subcategory: "Audio",
     condition: "New",
     description: "Industry leading noise cancellation."
-  }
+  },
+  // MORE PHONES ---------------------------------------
+  {
+    id: "p6",
+    name: "Galaxy S23 Ultra",
+    brand: "Samsung",
+    price: 1150000,
+    originalPrice: 1300000,
+    image: "/images/products/p6.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Phones",
+    condition: "UK Used",
+    description: "200MP camera, built-in S Pen and all-day battery, tested and graded A.",
+    specs: [{ label: "Screen", value: "6.8\" Dynamic AMOLED" }, { label: "Storage", value: "256GB" }, { label: "Battery health", value: "90%+" }]
+  },
+  {
+    id: "p7",
+    name: "iPhone 14 Pro",
+    brand: "Apple",
+    price: 890000,
+    image: "/images/iphone-dynamic-island.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Phones",
+    condition: "UK Used",
+    description: "Dynamic Island, 48MP main camera and A16 Bionic chip.",
+    specs: [{ label: "Screen", value: "6.1\" Super Retina XDR" }, { label: "Storage", value: "128GB" }, { label: "Battery health", value: "88%+" }]
+  },
+  // MORE LAPTOPS --------------------------------------
+  {
+    id: "l5",
+    name: "Lenovo ThinkPad T14",
+    brand: "Lenovo",
+    price: 720000,
+    image: "/images/products/l5.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Laptops",
+    condition: "UK Used",
+    description: "The tough, reliable laptop students and offices trust. Great keyboard, long battery life.",
+    badge: "Student pick",
+    specs: [{ label: "Processor", value: "Intel Core i5, 10th Gen" }, { label: "RAM", value: "16GB" }, { label: "Storage", value: "512GB SSD" }]
+  },
+  {
+    id: "l6",
+    name: "HP ProBook x360 11",
+    brand: "HP",
+    price: 380000,
+    originalPrice: 420000,
+    image: "/images/products/l6.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Laptops",
+    condition: "UK Used",
+    description: "Rugged 2-in-1 touchscreen laptop built for school bags and lecture halls.",
+    specs: [{ label: "Processor", value: "Intel Pentium Silver" }, { label: "RAM", value: "8GB" }, { label: "Storage", value: "256GB SSD" }]
+  },
+  {
+    id: "l7",
+    name: "Dell Latitude 5420",
+    brand: "Dell",
+    price: 560000,
+    image: "/images/products/l7.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Laptops",
+    condition: "UK Used",
+    description: "A light business laptop with a full HD screen and all the ports you need.",
+    specs: [{ label: "Processor", value: "Intel Core i5, 11th Gen" }, { label: "RAM", value: "8GB" }, { label: "Storage", value: "256GB SSD" }]
+  },
+  // MORE GADGETS --------------------------------------
+  {
+    id: "g1",
+    name: "SoundLink Revolve+ II",
+    brand: "Bose",
+    price: 320000,
+    image: "/images/bose-revolve.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Gadgets",
+    subcategory: "Audio",
+    condition: "New",
+    description: "360° sound, 17-hour battery and a handle to carry the party anywhere.",
+    badge: "Popular"
+  },
+  {
+    id: "g2",
+    name: "SoundLink Flex Speaker",
+    brand: "Bose",
+    price: 185000,
+    image: "/images/bose-speaker.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Gadgets",
+    subcategory: "Audio",
+    condition: "New",
+    description: "Waterproof, dustproof Bluetooth speaker with surprisingly big sound."
+  },
+  {
+    id: "g3",
+    name: "Flip 6 Bluetooth Speaker",
+    brand: "JBL",
+    price: 135000,
+    originalPrice: 150000,
+    image: "/images/bt-speaker.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Gadgets",
+    subcategory: "Audio",
+    condition: "New",
+    description: "Bold JBL sound, 12 hours of playtime and IP67 waterproofing."
+  },
+  {
+    id: "g4",
+    name: "WH-CH720N Headphones",
+    brand: "Sony",
+    price: 145000,
+    image: "/images/headphones-black.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Gadgets",
+    subcategory: "Audio",
+    condition: "New",
+    description: "Lightweight noise-cancelling headphones with up to 35 hours of battery."
+  },
+  {
+    id: "g5",
+    name: "Wireless Over-Ear Headphones",
+    brand: "Oraimo",
+    price: 38000,
+    image: "/images/headphones-gold.jpg",
+    inStock: true,
+    stock: 25,
+    category: "Gadgets",
+    subcategory: "Audio",
+    condition: "New",
+    description: "Soft cushions, deep bass and 40-hour battery at a student-friendly price.",
+    badge: "Best value"
+  },
+  {
+    id: "g6",
+    name: "EarPods (USB-C)",
+    brand: "Apple",
+    price: 28000,
+    image: "/images/earpods.jpg",
+    inStock: true,
+    stock: 30,
+    category: "Gadgets",
+    subcategory: "Audio",
+    condition: "New",
+    description: "Apple's classic wired earbuds with a USB-C connector and built-in mic."
+  },
+  {
+    id: "g7",
+    name: "LSX II Wireless Speakers",
+    brand: "KEF",
+    price: 1150000,
+    image: "/images/kef-speakers.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Gadgets",
+    subcategory: "Audio",
+    condition: "New",
+    description: "Hi-fi stereo speakers for music, TV and gaming, with Wi-Fi streaming."
+  },
+  {
+    id: "g8",
+    name: "Smart Band 8",
+    brand: "Xiaomi",
+    price: 42000,
+    image: "/images/fitness-band.jpg",
+    inStock: true,
+    stock: 20,
+    category: "Gadgets",
+    subcategory: "Smartwatches",
+    condition: "New",
+    description: "Tracks steps, sleep, heart rate and workouts, with 16-day battery life."
+  },
+  {
+    id: "g9",
+    name: "Xbox Wireless Controller",
+    brand: "Microsoft",
+    price: 75000,
+    image: "/images/game-controller.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Gadgets",
+    subcategory: "Gaming",
+    condition: "New",
+    description: "Works with Xbox, PC and phones. Textured grip and Bluetooth built in."
+  },
+  {
+    id: "g10",
+    name: "Quest 3 VR Headset (128GB)",
+    brand: "Meta",
+    price: 780000,
+    image: "/images/vr-headset.jpg",
+    inStock: true,
+    stock: 8,
+    category: "Gadgets",
+    subcategory: "Gaming",
+    condition: "New",
+    description: "Mixed-reality headset for games, fitness and movies. No PC needed.",
+    badge: "New arrival"
+  },
+  {
+    id: "g11",
+    name: "M711 Cobra RGB Gaming Mouse",
+    brand: "Redragon",
+    price: 18000,
+    image: "/images/gaming-mouse.jpg",
+    inStock: true,
+    stock: 30,
+    category: "Gadgets",
+    subcategory: "Gaming",
+    condition: "New",
+    description: "Precise 10,000 DPI sensor, 7 programmable buttons and RGB lighting."
+  },
+  {
+    id: "g12",
+    name: "K552 Mechanical Keyboard",
+    brand: "Redragon",
+    price: 35000,
+    image: "/images/keyboard.jpg",
+    inStock: true,
+    stock: 20,
+    category: "Gadgets",
+    subcategory: "Computer Accessories",
+    condition: "New",
+    description: "Compact tenkeyless mechanical keyboard with satisfying switches and RGB."
+  },
+  {
+    id: "g13",
+    name: "3-in-1 Wireless Charging Stand",
+    brand: "Anker",
+    price: 48000,
+    image: "/images/wireless-charger.jpg",
+    inStock: true,
+    stock: 15,
+    category: "Gadgets",
+    subcategory: "Power & Charging",
+    condition: "New",
+    description: "Charge your phone, earbuds and watch together on one tidy stand."
+  },
+  {
+    id: "g14",
+    name: "Tapo C200 Wi-Fi Security Camera",
+    brand: "TP-Link",
+    price: 32000,
+    image: "/images/security-cam.jpg",
+    inStock: true,
+    stock: 12,
+    category: "Gadgets",
+    subcategory: "Smart Home",
+    condition: "New",
+    description: "1080p indoor camera with night vision, motion alerts and phone viewing."
+  },
 ];
 
 export const testimonials: Testimonial[] = [
@@ -337,5 +603,6 @@ export const testimonials: Testimonial[] = [
   },
 ];
 
-export const categories = ["All", "Phones", "Laptops", "Watches", "Accessories", "Audio"];
+export const categories = ["All", "Gadgets", "Phones", "Laptops"];
+export const gadgetTypes = ["Audio", "Smartwatches", "Gaming", "Power & Charging", "Computer Accessories", "Smart Home"];
 export const brandFilters = ["All", "Apple", "Samsung", "Google", "Dell", "Logitech", "Nothing", "ASUS"];

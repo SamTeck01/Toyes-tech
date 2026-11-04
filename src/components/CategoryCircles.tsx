@@ -1,30 +1,39 @@
 import { Link } from "react-router-dom";
 import { useProducts } from "@/context/ProductContext";
 
-const tiles = [
-  { name: "Phones", image: "/images/products/p4.jpg" },
-  { name: "Laptops", image: "/images/products/l1.jpg" },
-  { name: "Watches", image: "/images/products/w2.jpg" },
-  { name: "Audio", image: "/images/products/au2.jpg" },
-  { name: "Accessories", image: "/images/products/a2.jpg" },
+const types = [
+  { name: "Audio", image: "/images/bose-revolve.jpg" },
+  { name: "Smartwatches", image: "/images/smartwatch.jpg" },
+  { name: "Gaming", image: "/images/game-controller.jpg" },
+  { name: "Power & Charging", image: "/images/wireless-charger.jpg" },
+  { name: "Computer Accessories", image: "/images/keyboard.jpg" },
+  { name: "Smart Home", image: "/images/security-cam.jpg" },
 ];
 
-/** Photo tiles linking to each shop category. */
+/** Gadget types: the store's biggest department, broken down so shoppers can jump straight in. */
 const CategoryCircles = () => {
   const { products } = useProducts();
   return (
-    <section className="container pb-6 md:pb-10" aria-labelledby="cat-heading">
-      <h2 id="cat-heading" className="mb-5 text-2xl font-extrabold md:text-3xl">Shop by category</h2>
-      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide md:mx-0 md:grid md:grid-cols-5 md:gap-4 md:overflow-visible md:px-0">
-        {tiles.map((t) => {
-          const count = products.filter((p) => p.category === t.name).length;
+    <section className="container py-10 md:py-14" aria-labelledby="gadget-types">
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <h2 id="gadget-types" className="text-2xl font-extrabold md:text-3xl">Gadgets for everything</h2>
+        <Link to="/shop?category=Gadgets" className="text-sm font-semibold text-primary underline-offset-4 hover:underline">All gadgets</Link>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-6">
+        {types.map((t) => {
+          const count = products.filter((p) => p.subcategory === t.name).length;
           return (
-            <Link key={t.name} to={`/shop?category=${t.name}`} className="group relative block aspect-[4/5] w-[42%] shrink-0 snap-start overflow-hidden rounded-2xl bg-gray-100 sm:w-[30%] md:w-auto">
-              <img src={t.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-4 text-white">
-                <p className="text-lg font-bold leading-tight">{t.name}</p>
-                <p className="text-xs text-white/75">{count} {count === 1 ? "product" : "products"}</p>
+            <Link
+              key={t.name}
+              to={`/shop?category=Gadgets&type=${encodeURIComponent(t.name)}`}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-[#F6F6F7] transition hover:border-primary/40"
+            >
+              <div className="aspect-square overflow-hidden bg-white">
+                <img src={t.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              </div>
+              <div className="p-3 md:p-4">
+                <p className="text-sm font-bold leading-tight">{t.name}</p>
+                <p className="text-xs text-black/55">{count} {count === 1 ? "item" : "items"}</p>
               </div>
             </Link>
           );

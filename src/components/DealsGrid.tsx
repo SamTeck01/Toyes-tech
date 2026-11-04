@@ -8,9 +8,13 @@ const DealsGrid = () => {
   const discounted = products
     .filter((p) => p.originalPrice && p.originalPrice > p.price)
     .sort((a, b) => (b.originalPrice! - b.price) - (a.originalPrice! - a.price));
-  const deals = [...discounted, ...products.filter((p) => !discounted.includes(p))].slice(0, 5);
-  if (!deals.length) return null;
-  const [big, ...rest] = deals;
+  // Lead with a gadget deal (the store's best-selling department), then mix in phones and laptops.
+  const pool = [...discounted, ...products.filter((p) => !discounted.includes(p))];
+  const big = pool.find((p) => p.category === "Gadgets" && p.originalPrice) ?? pool[0];
+  if (!big) return null;
+  const rest = ["Phones", "Laptops", "Gadgets", "Phones"]
+    .map((cat, i, arr) => pool.filter((p) => p !== big && p.category === cat)[arr.slice(0, i).filter((c) => c === cat).length])
+    .filter(Boolean);
   const saving = big.originalPrice && big.originalPrice > big.price ? big.originalPrice - big.price : 0;
 
   return (

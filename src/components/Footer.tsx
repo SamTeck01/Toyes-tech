@@ -5,9 +5,9 @@ const footerLinks = [
   {
     title: "Shop",
     links: [
+      { label: "Gadgets", to: "/shop?category=Gadgets" },
       { label: "Phones", to: "/shop?category=Phones" },
       { label: "Laptops", to: "/shop?category=Laptops" },
-      { label: "Accessories", to: "/shop?category=Accessories" },
       { label: "Our Catalog", to: "/shop" },
     ]
   },
@@ -40,7 +40,7 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <Logo className="mb-6" />
             <p className="text-sm text-black/60 leading-relaxed max-w-xs">
-              Toyes Tech sells verified new and UK-used phones and gadgets, with fast delivery across Nigeria.
+              Toyes Tech sells gadgets, phones and laptops, new and UK-used, with fast delivery across Nigeria.
             </p>
           </div>
 

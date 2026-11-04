@@ -1,4 +1,4 @@
-const brands = ["Apple", "Samsung", "Google", "Sony", "Dell", "HP", "Logitech", "Anker"];
+const brands = ["Apple", "Samsung", "JBL", "Bose", "Sony", "Lenovo", "HP", "Dell", "Xiaomi", "Redragon", "Anker", "Oraimo"];
 
 const BrandStrip = () => (
   <section className="container py-12 md:py-16" aria-label="Brands we sell">
