@@ -1,4 +1,4 @@
-import { Smartphone, Watch, Monitor, Headphones, Gamepad2, Home } from "lucide-react";
+import { Smartphone, Watch, Monitor, Headphones, Gamepad2, Home } from "@/components/icons";
 
 const cats = [
   { icon: Smartphone, label: "Mobile &\nAccessories" },

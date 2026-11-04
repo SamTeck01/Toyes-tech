@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube } from "@/components/icons";
 
 const socials = [
   { Icon: Instagram, label: "Instagram" },

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Heart, ShoppingCart, User } from "lucide-react";
+import { Home, Heart, ShoppingCart, User } from "@/components/icons";
 import { useCart } from "@/context/CartContext";
 import { motion } from "framer-motion";
 

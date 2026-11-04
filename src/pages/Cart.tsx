@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, ShieldCheck } from "@/components/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";

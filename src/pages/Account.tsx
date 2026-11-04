@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { LogOut, Package, Heart, MapPin, ChevronRight } from "lucide-react";
+import { LogOut, Package, Heart, MapPin, ChevronRight } from "@/components/icons";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";

@@ -1,6 +1,6 @@
 # Toyes Tech
 
-Online store for new and UK-used phones, laptops, watches, audio and accessories in Nigeria.
+Online store for new and UK-used phones and gadgets (laptops, smartwatches, audio and accessories) in Nigeria.
 
 ## Features
 - Product catalogue with variants (storage, RAM, colour) and condition (New / UK Used / Used)

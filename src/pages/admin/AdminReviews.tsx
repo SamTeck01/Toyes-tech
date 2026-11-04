@@ -10,7 +10,7 @@ import {
   Clock,
   User,
   ShoppingBag
-} from "lucide-react";
+} from "@/components/icons";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useReviews } from "@/context/ReviewContext";
 import { useProducts } from "@/context/ProductContext";

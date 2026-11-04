@@ -9,7 +9,7 @@ import {
   ArrowDownRight,
   Package,
   Clock
-} from "lucide-react";
+} from "@/components/icons";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useOrders } from "@/context/OrderContext";
 import { useProducts } from "@/context/ProductContext";

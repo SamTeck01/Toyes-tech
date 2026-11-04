@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Lock, User } from "lucide-react";
+import { Lock, User } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 

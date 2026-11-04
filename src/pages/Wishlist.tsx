@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useWishlist } from "@/context/WishlistContext";
 import { Link } from "react-router-dom";
-import { Heart, ArrowRight } from "lucide-react";
+import { Heart, ArrowRight } from "@/components/icons";
 import { motion } from "framer-motion";
 
 const Wishlist = () => {

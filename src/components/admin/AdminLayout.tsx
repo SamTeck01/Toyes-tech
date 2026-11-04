@@ -10,7 +10,7 @@ import {
   X, 
   ChevronRight,
   User
-} from "lucide-react";
+} from "@/components/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 

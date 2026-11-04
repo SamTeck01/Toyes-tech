@@ -40,7 +40,7 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <Logo className="mb-6" />
             <p className="text-sm text-black/60 leading-relaxed max-w-xs">
-              Toyes Tech brings you verified new and UK-used phones, laptops and accessories, with fast delivery across Nigeria.
+              Toyes Tech sells verified new and UK-used phones and gadgets, with fast delivery across Nigeria.
             </p>
           </div>
 

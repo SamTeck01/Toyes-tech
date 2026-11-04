@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
 import ProductCard from "@/components/ProductCard";
-import { SlidersHorizontal, Search as SearchIcon, X } from "lucide-react";
+import { SlidersHorizontal, Search as SearchIcon, X } from "@/components/icons";
 import { formatPrice } from "@/lib/format";
 
 const SORTS = {

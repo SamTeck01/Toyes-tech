@@ -2,7 +2,7 @@ import { useOrders } from "@/context/OrderContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
-import { Package, ChevronRight, Clock, MapPin } from "lucide-react";
+import { Package, ChevronRight, Clock, MapPin } from "@/components/icons";
 import { motion } from "framer-motion";
 import { formatPrice } from "@/lib/format";
 

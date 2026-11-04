@@ -13,7 +13,7 @@ import {
   Zap,
   Mail,
   LucideIcon
-} from "lucide-react";
+} from "@/components/icons";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 

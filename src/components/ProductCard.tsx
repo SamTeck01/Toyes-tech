@@ -1,4 +1,4 @@
-import { ShoppingCart, Heart } from "lucide-react";
+import { ShoppingCart, Heart } from "@/components/icons";
 import { Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";

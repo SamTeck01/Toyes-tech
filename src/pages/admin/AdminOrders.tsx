@@ -16,7 +16,7 @@ import {
   ShoppingBag,
   User,
   Star
-} from "lucide-react";
+} from "@/components/icons";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useOrders, OrderStatus, Order } from "@/context/OrderContext";
 import { toast } from "sonner";

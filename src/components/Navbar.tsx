@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, ShoppingCart, Menu, X, ChevronDown, LayoutGrid, Heart, User } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, ChevronDown, LayoutGrid, Heart, User } from "@/components/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useProducts } from "@/context/ProductContext";
@@ -80,7 +80,7 @@ const Navbar = () => {
               }}
               onFocus={() => setShowSuggestions(true)}
               onKeyDown={handleSearch}
-              placeholder="Search phones, laptops, accessories..."
+              placeholder="Search phones and gadgets..."
               className="w-full bg-gray-50 text-[13px] px-6 py-2.5 border border-transparent focus:border-black/10 focus:bg-white outline-none transition-all rounded-full"
             />
             <Search 
@@ -196,7 +196,7 @@ const Navbar = () => {
             }}
             onFocus={() => setShowSuggestions(true)}
             onKeyDown={handleSearch}
-            placeholder="Search phones, laptops, accessories..."
+            placeholder="Search phones and gadgets..."
             className="w-full bg-gray-50 text-[13px] pl-10 pr-4 py-2.5 border border-transparent focus:border-black/10 focus:bg-white outline-none transition-all rounded-full"
           />
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/50 group-focus-within:text-black transition-colors" />

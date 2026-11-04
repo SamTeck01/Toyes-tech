@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronRight, Minus, Plus, Share2, Heart, Check, Info, Star, Upload } from "lucide-react";
+import { ChevronRight, Minus, Plus, Share2, Heart, Check, Info, Star, Upload } from "@/components/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";

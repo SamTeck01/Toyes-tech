@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/components/icons";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
@@ -43,7 +43,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white pb-16 md:pb-0">
-      <Helmet><title>Toyes Tech | Phones, Laptops & Gadgets in Nigeria</title></Helmet>
+      <Helmet><title>Toyes Tech | Phones & Gadgets in Nigeria</title></Helmet>
       <Navbar />
       <main>
         <HeroSection />

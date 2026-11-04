@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShieldCheck, Truck, RotateCcw } from "lucide-react";
+import { ShieldCheck, Truck, RotateCcw } from "@/components/icons";
 import { motion } from "framer-motion";
 import { useProducts } from "@/context/ProductContext";
 import { formatPrice } from "@/lib/format";
@@ -13,17 +13,17 @@ const HeroSection = () => {
       <div className="grid items-center gap-8 overflow-hidden rounded-[28px] bg-[#F4F3F1] md:grid-cols-[1.05fr_1fr] md:gap-0">
         <div className="order-2 px-6 pb-8 md:order-1 md:py-16 md:pl-14 md:pr-6 lg:pl-16">
           <h1 className="font-display text-[2.5rem] font-extrabold leading-[0.98] text-black sm:text-5xl lg:text-[4.25rem]">
-            Phones and laptops, checked before they reach you.
+            Phones and gadgets, checked before they reach you.
           </h1>
           <p className="mt-5 max-w-md text-base leading-relaxed text-black/65 md:text-lg">
-            New and UK-used devices from Apple, Samsung, Google and more. Every one is tested, covered by warranty and delivered across Nigeria.
+            New and UK-used phones, laptops, smartwatches, earbuds and accessories from Apple, Samsung, Google and more. Every one is tested, covered by warranty and delivered across Nigeria.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/shop?category=Phones" className="rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-110">
               Shop phones
             </Link>
-            <Link to="/shop?category=Laptops" className="rounded-full border border-black/15 bg-white px-7 py-3.5 text-sm font-bold text-black transition hover:border-black/40">
-              Shop laptops
+            <Link to="/shop" className="rounded-full border border-black/15 bg-white px-7 py-3.5 text-sm font-bold text-black transition hover:border-black/40">
+              Shop gadgets
             </Link>
           </div>
           <ul className="mt-10 grid gap-3 text-sm text-black/70 sm:grid-cols-3 sm:gap-4">

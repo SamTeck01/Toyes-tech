@@ -16,7 +16,7 @@ import {
   Info,
   Star,
   Minus
-} from "lucide-react";
+} from "@/components/icons";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useProducts } from "@/context/ProductContext";
 import { Product } from "@/data/products";

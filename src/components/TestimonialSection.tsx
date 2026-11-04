@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Star } from "@/components/icons";
 import { testimonials } from "@/data/products";
 
 const TestimonialSection = () => {

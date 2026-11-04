@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from "@/components/icons";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useState } from "react";

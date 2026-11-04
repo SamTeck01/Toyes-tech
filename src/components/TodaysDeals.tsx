@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight } from "@/components/icons";
 import { Link } from "react-router-dom";
 import { useProducts } from "@/context/ProductContext";
 import { formatPrice } from "@/lib/format";
