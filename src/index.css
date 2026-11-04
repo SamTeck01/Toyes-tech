@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 30% 8%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    
+    --primary: 225 91% 55%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
+    
+    --muted: 0 0% 98%;
+    --muted-foreground: 0 0% 45%;
+    
+    --accent: 0 0% 0%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
+    --ring: 225 91% 55%;
+    
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary selection:text-primary-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Minimalist Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+html { scroll-behavior: smooth; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { scrollbar-width: none; }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
