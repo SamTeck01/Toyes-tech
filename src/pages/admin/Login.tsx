@@ -54,7 +54,7 @@ const AdminLogin = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full bg-gray-50 border border-transparent focus:border-black focus:bg-white px-12 py-4 text-sm outline-none transition-all rounded-2xl"
-                  placeholder="admin"
+                  placeholder="Username"
                   required
                 />
               </div>

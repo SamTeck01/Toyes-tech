@@ -1,78 +1,164 @@
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShieldCheck, Truck, RotateCcw } from "@/components/icons";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperType } from "swiper";
+import { Autoplay, EffectFade } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-fade";
+import { ArrowUpRight } from "@/components/icons";
 import { useProducts } from "@/context/ProductContext";
 import { formatPrice } from "@/lib/format";
 
-const departments = [
-  { name: "Gadgets", image: "/images/products/hero-gadgets.jpg", position: "24% 50%" },
-  { name: "Phones", image: "/images/products/hero-phones.jpg", position: "45% 40%" },
-  { name: "Laptops", image: "/images/products/hero-laptops.jpg", position: "50% 60%" },
+const slides = [
+  {
+    dept: "Gadgets",
+    title: "Gadgets for\nevery day",
+    blurb: "Speakers, earbuds, smartwatches, gaming gear and chargers.",
+    image: "/images/products/hero-gadgets-wide.jpg",
+    position: "50% 50%",
+  },
+  {
+    dept: "Phones",
+    title: "Pristine\nphones",
+    blurb: "iPhone, Samsung and Google. New and tested UK-used.",
+    image: "/images/products/hero-phones-wide.jpg",
+    position: "50% 35%",
+  },
+  {
+    dept: "Laptops",
+    title: "Laptops for\nschool and work",
+    blurb: "MacBook, ThinkPad, HP and Dell for lectures, projects and play.",
+    image: "/images/products/hero-laptops-wide.jpg",
+    position: "50% 30%",
+  },
+];
+
+const sidePanels = [
+  {
+    eyebrow: "Grade A condition",
+    title: "Tested UK-used",
+    cta: "Shop UK-used",
+    to: "/shop?condition=UK%20Used",
+    image: "/images/products/l5.jpg",
+  },
+  {
+    eyebrow: "Student budget",
+    title: "Gadgets under ₦50k",
+    cta: "Shop deals",
+    to: "/shop?category=Gadgets&price=0-50000&sort=price-asc",
+    image: "/images/headphones-gold.jpg",
+  },
 ];
 
 /**
- * Split hero: headline and promises on the left, and on the right three equal photo
- * strips so gadgets, phones and laptops each get a third of the showcase.
+ * Bento hero: a large carousel that rotates gadgets, phones and laptops equally,
+ * with two stacked promo panels beside it.
  */
 const HeroSection = () => {
   const { products } = useProducts();
-  const stats = departments.map((d) => {
-    const items = products.filter((p) => p.category === d.name);
-    return { ...d, count: items.length, from: items.length ? Math.min(...items.map((p) => p.price)) : 0 };
-  });
+  const swiperRef = useRef<SwiperType | null>(null);
+  const [active, setActive] = useState(0);
+
+  const meta = (dept: string) => {
+    const items = products.filter((p) => p.category === dept);
+    return { count: items.length, from: items.length ? Math.min(...items.map((p) => p.price)) : 0 };
+  };
 
   return (
-    <section className="container pt-6 pb-10 md:pt-10 md:pb-16">
-      <div className="grid overflow-hidden rounded-[28px] bg-[#F4F3F1] md:grid-cols-[1fr_1.05fr]">
-        <div className="order-2 px-6 py-8 md:order-1 md:py-16 md:pl-14 md:pr-8 lg:pl-16">
-          <h1 className="font-display text-[2.4rem] font-extrabold leading-[0.98] text-black sm:text-5xl lg:text-[4rem]">
-            Gadgets, phones and laptops, checked before they reach you.
-          </h1>
-          <p className="mt-5 max-w-md text-base leading-relaxed text-black/65 md:text-lg">
-            Speakers, earbuds, smartwatches and gaming gear, plus new and UK-used phones and laptops. Every one is tested, covered by warranty and delivered across Nigeria.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-2.5">
-            {stats.map((d, i) => (
-              <Link
-                key={d.name}
-                to={`/shop?category=${d.name}`}
-                className={
-                  i === 0
-                    ? "rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-110"
-                    : "rounded-full border border-black/15 bg-white px-6 py-3.5 text-sm font-bold text-black transition hover:border-black/40"
-                }
+    <section className="container pt-5 pb-8 md:pt-8 md:pb-12">
+      <div className="grid gap-3 md:h-[520px] md:grid-cols-3 md:gap-5">
+        {/* Main carousel */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative h-[420px] overflow-hidden rounded-[24px] bg-black sm:h-[460px] md:col-span-2 md:h-full"
+        >
+          <Swiper
+            modules={[Autoplay, EffectFade]}
+            effect="fade"
+            fadeEffect={{ crossFade: true }}
+            loop
+            autoplay={{ delay: 5500, disableOnInteraction: false, pauseOnMouseEnter: true }}
+            onSwiper={(s) => (swiperRef.current = s)}
+            onSlideChange={(s) => setActive(s.realIndex)}
+            className="h-full w-full"
+          >
+            {slides.map((s, i) => {
+              const m = meta(s.dept);
+              return (
+                <SwiperSlide key={s.dept} className="relative h-full">
+                  <img
+                    src={s.image}
+                    alt=""
+                    style={{ objectPosition: s.position }}
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading={i === 0 ? "eager" : "lazy"}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 md:bg-gradient-to-r md:from-black/75 md:via-black/35 md:to-transparent" />
+                  <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-20 text-white md:max-w-md md:justify-center md:p-12 md:pb-12">
+                    <p className="text-sm text-white/80">
+                      {m.count} {s.dept.toLowerCase()}{m.from ? ` · from ${formatPrice(m.from)}` : ""}
+                    </p>
+                    <h1 className="mt-2 whitespace-pre-line font-display text-[2.6rem] font-extrabold leading-[0.98] md:text-6xl">
+                      {s.title}
+                    </h1>
+                    <p className="mt-3 max-w-xs text-sm text-white/80 md:text-base">{s.blurb}</p>
+                    <div className="mt-6">
+                      <Link
+                        to={`/shop?category=${s.dept}`}
+                        className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition hover:brightness-110"
+                      >
+                        Shop {s.dept.toLowerCase()} <ArrowUpRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+
+          {/* Department tabs double as carousel pagination, so all three are always visible. */}
+          <div role="tablist" aria-label="Departments" className="absolute bottom-4 left-4 right-4 z-20 flex gap-1.5 md:bottom-6 md:left-12 md:right-auto">
+            {slides.map((s, i) => (
+              <button
+                key={s.dept}
+                role="tab"
+                aria-selected={active === i}
+                onClick={() => swiperRef.current?.slideToLoop(i)}
+                className={`flex-1 rounded-full px-4 py-2 text-xs font-bold backdrop-blur transition md:flex-none md:text-sm ${
+                  active === i ? "bg-white text-black" : "bg-white/15 text-white hover:bg-white/25"
+                }`}
               >
-                Shop {d.name.toLowerCase()}
-              </Link>
+                {s.dept}
+              </button>
             ))}
           </div>
-          <ul className="mt-10 grid gap-3 text-sm text-black/70 sm:grid-cols-3 sm:gap-4">
-            <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Warranty on every device</li>
-            <li className="flex items-center gap-2"><Truck className="h-4 w-4 shrink-0 text-primary" /> Nationwide delivery</li>
-            <li className="flex items-center gap-2"><RotateCcw className="h-4 w-4 shrink-0 text-primary" /> 7-day returns</li>
-          </ul>
-        </div>
+        </motion.div>
 
-        <div className="order-1 grid h-[300px] grid-cols-3 gap-1 sm:h-[400px] md:order-2 md:h-full md:min-h-[580px]">
-          {stats.map((d, i) => (
-            <Link key={d.name} to={`/shop?category=${d.name}`} className="group relative block overflow-hidden" aria-label={`Shop ${d.name}`}>
-              <motion.img
-                initial={{ scale: 1.08, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.9, delay: i * 0.12, ease: [0.2, 0.7, 0.2, 1] }}
-                src={d.image}
-                alt=""
-                style={{ objectPosition: d.position }}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-2 right-2 rounded-2xl bg-white/95 px-3 py-2 shadow-lg backdrop-blur md:bottom-6 md:left-4 md:right-4 md:px-4 md:py-3">
-                <p className="text-sm font-extrabold text-black md:text-lg">{d.name}</p>
-                <p className="whitespace-nowrap text-[11px] text-black/55 md:text-xs">
-                  {d.count} items<span className="hidden md:inline">{d.from ? ` · from ${formatPrice(d.from)}` : ""}</span>
-                </p>
-              </div>
-            </Link>
+        {/* Side panels */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-1 md:grid-rows-2 md:gap-5">
+          {sidePanels.map((p, i) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, x: 14 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 + i * 0.1 }}
+              className="md:h-full"
+            >
+              <Link to={p.to} className="group relative flex h-[190px] flex-col justify-end overflow-hidden rounded-[24px] bg-gray-200 p-4 text-white sm:h-[220px] md:h-full md:p-7">
+                <img src={p.image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="relative">
+                  <p className="text-[11px] text-white/75 md:text-xs">{p.eyebrow}</p>
+                  <h2 className="mt-1 text-lg font-extrabold leading-tight md:text-2xl">{p.title}</h2>
+                  <span className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-white/90 group-hover:text-white md:mt-3 md:text-sm">
+                    {p.cta} <ArrowUpRight className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </div>

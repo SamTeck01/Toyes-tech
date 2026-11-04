@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronRight, Minus, Plus, Share2, Heart, Check, Info, Star, Upload } from "@/components/icons";
+import { ChevronRight, Minus, Plus, Share2, Heart, Check, Info, Star, Upload, Package, Truck, ShieldCheck } from "@/components/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -46,7 +46,7 @@ const ProductDetail = () => {
   const [isAdded, setIsAdded] = useState(false);
   const [activeCartItemId, setActiveCartItemId] = useState("");
 
-  const { items, addToCart, updateQuantity: updateCartQuantity } = useCart();
+  const { items, addToCart, updateQuantity: updateCartQuantity, setCartOpen } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { getReviewsByProduct, addReview } = useReviews();
   
@@ -133,7 +133,7 @@ const ProductDetail = () => {
     
     setIsAdded(true);
     setActiveCartItemId(cartItemId);
-    toast.success(`${product.name}${variantTag} added to cart`);
+    setCartOpen(true);
   };
 
   const handleUpdateCartQuantity = (delta: number) => {
@@ -416,6 +416,33 @@ const ProductDetail = () => {
                   }} className="flex-1 rounded-full border border-gray-200 py-3 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
                     <Share2 className="w-3 h-3" /> Share
                   </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Delivery, warranty and stock: answers the questions people have right before buying. */}
+            <div className="mb-8 divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-[#FAFAFA]">
+              <div className="flex items-start gap-3 p-4">
+                <Package className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div>
+                  <p className="text-sm font-bold">
+                    {!product.inStock || product.stock <= 0 ? "Out of stock" : product.stock <= 5 ? `Only ${product.stock} left in stock` : "In stock, ready to ship"}
+                  </p>
+                  <p className="text-xs text-black/55">Pick up at a Toyes Tech store or get it delivered.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4">
+                <Truck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div>
+                  <p className="text-sm font-bold">Nationwide delivery</p>
+                  <p className="text-xs text-black/55">Delivery fee and date are shown at checkout before you pay.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4">
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div>
+                  <p className="text-sm font-bold">{product.condition === "New" ? "Manufacturer warranty" : "Toyes Tech warranty"}</p>
+                  <p className="text-xs text-black/55">Plus 7 days to return it if it isn't right.</p>
                 </div>
               </div>
             </div>

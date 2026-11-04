@@ -28,11 +28,14 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  isCartOpen: boolean;
+  setCartOpen: (open: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const [isCartOpen, setCartOpen] = useState(false);
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
       return JSON.parse(localStorage.getItem("toyes-cart") || "[]");
@@ -103,7 +106,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const totalPrice = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}>
+    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, isCartOpen, setCartOpen }}>
       {children}
     </CartContext.Provider>
   );

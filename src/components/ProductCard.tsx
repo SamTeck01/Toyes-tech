@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import type { Product } from "@/data/products";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { formatPrice } from "@/lib/format";
 
@@ -13,7 +12,7 @@ interface Props {
 }
 
 const ProductCard = ({ product, index = 0 }: Props) => {
-  const { addToCart } = useCart();
+  const { addToCart, setCartOpen } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const wishlisted = isInWishlist(product.id);
 
@@ -21,7 +20,7 @@ const ProductCard = ({ product, index = 0 }: Props) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(product, 1, product.price, product.condition);
-    toast.success(`${product.name} added to cart`);
+    setCartOpen(true);
   };
 
   const handleWishlist = (e: React.MouseEvent) => {

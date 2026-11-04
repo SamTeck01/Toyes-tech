@@ -30,7 +30,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const { totalItems } = useCart();
+  const { totalItems, setCartOpen } = useCart();
   const { products } = useProducts();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -161,7 +161,7 @@ const Navbar = () => {
               <Heart className="w-5 h-5 text-black group-hover:scale-110 transition-transform" />
             </Link>
             
-            <Link to="/cart" className="hidden md:block relative group p-1 shrink-0" aria-label="Cart">
+            <button type="button" onClick={() => setCartOpen(true)} className="hidden md:block relative group p-1 shrink-0" aria-label={`Open cart, ${totalItems} items`}>
               <ShoppingCart className="w-5 h-5 text-black group-hover:scale-110 transition-transform" />
               {totalItems > 0 && (
                 <motion.span 
@@ -172,7 +172,7 @@ const Navbar = () => {
                   {totalItems}
                 </motion.span>
               )}
-            </Link>
+            </button>
 
             <button
               className="md:hidden p-1"
