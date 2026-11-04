@@ -1,41 +1,34 @@
-import { motion } from "framer-motion";
-import { Smartphone, Laptop, MousePointer2, Watch, Home, Headphones } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useProducts } from "@/context/ProductContext";
 
-import { useNavigate } from "react-router-dom";
-
-const cats = [
-  { name: "Phones", icon: Smartphone },
-  { name: "Laptops", icon: Laptop },
-  { name: "Watches", icon: Watch },
-  { name: "Accessories", icon: MousePointer2 },
-  { name: "Audio", icon: Headphones },
+const tiles = [
+  { name: "Phones", image: "/images/products/p4.jpg" },
+  { name: "Laptops", image: "/images/products/l1.jpg" },
+  { name: "Watches", image: "/images/products/w2.jpg" },
+  { name: "Audio", image: "/images/products/au2.jpg" },
+  { name: "Accessories", image: "/images/products/a2.jpg" },
 ];
 
+/** Photo tiles linking to each shop category. */
 const CategoryCircles = () => {
-  const navigate = useNavigate();
-
+  const { products } = useProducts();
   return (
-    <section className="container py-8 md:py-12">
-      <h3 className="text-xl font-bold tracking-tighter mb-4 md:hidden">Featured Categories</h3>
-      <div className="flex flex-nowrap md:flex-wrap justify-start md:justify-between gap-6 md:gap-4 overflow-x-auto pb-4 scrollbar-hide">
-        {cats.map((cat, i) => (
-          <motion.button
-            key={cat.name}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.1 }}
-            viewport={{ once: true }}
-            onClick={() => navigate(`/shop?category=${cat.name}`)}
-            className="flex flex-col items-center gap-4 group min-w-[100px]"
-          >
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 group-hover:bg-primary group-hover:border-primary transition-all duration-300">
-              <cat.icon className="w-8 h-8 text-black/40 group-hover:text-primary-foreground transition-colors" />
-            </div>
-            <span className="text-xs font-bold uppercase tracking-widest text-black/40 group-hover:text-primary transition-colors">
-              {cat.name}
-            </span>
-          </motion.button>
-        ))}
+    <section className="container pb-6 md:pb-10" aria-labelledby="cat-heading">
+      <h2 id="cat-heading" className="mb-5 text-2xl font-extrabold md:text-3xl">Shop by category</h2>
+      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide md:mx-0 md:grid md:grid-cols-5 md:gap-4 md:overflow-visible md:px-0">
+        {tiles.map((t) => {
+          const count = products.filter((p) => p.category === t.name).length;
+          return (
+            <Link key={t.name} to={`/shop?category=${t.name}`} className="group relative block aspect-[4/5] w-[42%] shrink-0 snap-start overflow-hidden rounded-2xl bg-gray-100 sm:w-[30%] md:w-auto">
+              <img src={t.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute bottom-0 left-0 p-4 text-white">
+                <p className="text-lg font-bold leading-tight">{t.name}</p>
+                <p className="text-xs text-white/75">{count} {count === 1 ? "product" : "products"}</p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

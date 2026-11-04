@@ -69,8 +69,8 @@ const AdminDashboard = () => {
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tighter">Sales Overview</h1>
-            <p className="text-black/40 text-[11px] font-bold uppercase tracking-widest mt-1">A quick look at how the store is doing</p>
+            <h1 className="text-3xl font-bold tracking-tight">Sales Overview</h1>
+            <p className="text-black/40 text-[11px] font-bold mt-1">A quick look at how the store is doing</p>
           </div>
           <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-gray-100 italic font-medium px-6 text-sm">
              <Clock className="w-4 h-4 text-black/50" />
@@ -92,7 +92,7 @@ const AdminDashboard = () => {
                 <div className={`w-14 h-14 rounded-2xl ${stat.color} flex items-center justify-center transition-transform group-hover:scale-110`}>
                    <stat.icon className="w-6 h-6" />
                 </div>
-                <div className={`flex items-center gap-1 text-xs font-bold uppercase tracking-tighter ${stat.increasing ? 'text-green-500' : 'text-red-500'}`}>
+                <div className={`flex items-center gap-1 text-xs font-bold tracking-tight ${stat.increasing ? 'text-green-500' : 'text-red-500'}`}>
                    {stat.increasing ? (
                      <ArrowUpRight className="w-3 h-3" />
                    ) : (
@@ -102,8 +102,8 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-1">{stat.label}</p>
-                <p className="text-3xl font-black tracking-tighter">{stat.value}</p>
+                <p className="text-xs font-bold text-black/50 mb-1">{stat.label}</p>
+                <p className="text-3xl font-black tracking-tight">{stat.value}</p>
               </div>
             </motion.div>
           ))}
@@ -113,18 +113,18 @@ const AdminDashboard = () => {
           {/* Recent Orders Table */}
           <div className="lg:col-span-8 bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
             <div className="p-8 border-b border-gray-50 flex items-center justify-between">
-               <h3 className="text-sm font-bold uppercase tracking-widest">Recent Orders</h3>
-               <button className="text-xs font-bold uppercase tracking-widest text-black/50 hover:text-black transition-colors">View All</button>
+               <h3 className="text-sm font-bold">Recent Orders</h3>
+               <button className="text-xs font-bold text-black/50 hover:text-black transition-colors">View All</button>
             </div>
             <div className="flex-1 overflow-x-auto min-h-[400px]">
               {orders.length > 0 ? (
                 <table className="w-full">
                   <thead>
                     <tr className="bg-gray-50/50">
-                      <th className="px-8 py-4 text-left text-[11px] font-black uppercase tracking-[0.2em] text-black/50">Order Info</th>
-                      <th className="px-8 py-4 text-left text-[11px] font-black uppercase tracking-[0.2em] text-black/50">Customer</th>
-                      <th className="px-8 py-4 text-left text-[11px] font-black uppercase tracking-[0.2em] text-black/50">Total</th>
-                      <th className="px-8 py-4 text-left text-[11px] font-black uppercase tracking-[0.2em] text-black/50">Status</th>
+                      <th className="px-8 py-4 text-left text-[11px] font-black text-black/50">Order Info</th>
+                      <th className="px-8 py-4 text-left text-[11px] font-black text-black/50">Customer</th>
+                      <th className="px-8 py-4 text-left text-[11px] font-black text-black/50">Total</th>
+                      <th className="px-8 py-4 text-left text-[11px] font-black text-black/50">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -146,11 +146,7 @@ const AdminDashboard = () => {
                            {formatPrice(order.total)}
                         </td>
                         <td className="px-8 py-6">
-                           <span className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest ${
-                             order.status === "completed" ? "bg-green-50 text-green-600" :
-                             order.status === "transporting" ? "bg-orange-50 text-orange-600" :
-                             "bg-gray-100 text-black/40"
-                           }`}>
+                           <span className={`px-4 py-1.5 rounded-full text-[11px] font-black ${ order.status === "completed" ? "bg-green-50 text-green-600" : order.status === "transporting" ? "bg-orange-50 text-orange-600" : "bg-gray-100 text-black/40" }`}>
                               {order.status}
                            </span>
                         </td>
@@ -161,7 +157,7 @@ const AdminDashboard = () => {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center py-20 opacity-20">
                    <ShoppingBag className="w-12 h-12 mb-4" />
-                   <p className="text-xs font-bold uppercase tracking-widest">No orders recorded yet</p>
+                   <p className="text-xs font-bold">No orders recorded yet</p>
                 </div>
               )}
             </div>
@@ -170,8 +166,8 @@ const AdminDashboard = () => {
           {/* Top Products / Inventory Summary */}
           <div className="lg:col-span-4 bg-white rounded-[40px] border border-gray-100 shadow-sm p-8 flex flex-col">
              <div className="mb-10">
-                <h3 className="text-sm font-bold uppercase tracking-widest mb-2">Inventory</h3>
-                <p className="text-xs font-bold uppercase tracking-widest text-black/50">What you have in stock</p>
+                <h3 className="text-sm font-bold mb-2">Inventory</h3>
+                <p className="text-xs font-bold text-black/50">What you have in stock</p>
              </div>
              <div className="space-y-6 flex-1">
                 {["Phones", "Laptops", "Watches", "Accessories", "Audio"].map((cat) => {
@@ -179,7 +175,7 @@ const AdminDashboard = () => {
                   const percentage = products.length > 0 ? (count / products.length) * 100 : 0;
                   return (
                     <div key={cat} className="space-y-3">
-                      <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest">
+                      <div className="flex items-center justify-between text-xs font-bold">
                          <span>{cat}</span>
                          <span className="text-black/50">{count} items</span>
                       </div>
@@ -197,12 +193,12 @@ const AdminDashboard = () => {
              </div>
              
              <div className="mt-12 bg-[#F8F9FA] rounded-[32px] p-6 text-center">
-                <p className="text-xs font-bold uppercase tracking-[0.15em] text-black/50 mb-4 block">Total Stock Value</p>
-                <p className="text-4xl font-black tracking-tighter mb-4 italic">
+                <p className="text-xs font-bold text-black/50 mb-4 block">Total Stock Value</p>
+                <p className="text-4xl font-black tracking-tight mb-4 italic">
                   {formatPrice(products.reduce((sum, p) => sum + p.price, 0))}
                 </p>
                 <div className="flex justify-center">
-                   <span className="inline-flex items-center gap-2 bg-white px-6 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest border border-gray-100">
+                   <span className="inline-flex items-center gap-2 bg-white px-6 py-2 rounded-full text-[11px] font-bold border border-gray-100">
                       System Status: Online
                    </span>
                 </div>

@@ -82,7 +82,7 @@ const OrderTracking = () => {
       <Navbar />
       
       <main className="container py-12 px-4 max-w-5xl mx-auto">
-        <Link to="/orders" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-black/40 hover:text-black transition-colors mb-12">
+        <Link to="/orders" className="inline-flex items-center gap-2 text-xs font-bold text-black/40 hover:text-black transition-colors mb-12">
           <ChevronLeft className="w-3 h-3" /> Back to Orders
         </Link>
 
@@ -91,11 +91,11 @@ const OrderTracking = () => {
           {/* Timeline & Progress */}
           <div className="lg:col-span-8">
             <header className="mb-16">
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/40 mb-3 block">Live Acquisition Status</span>
-              <h1 className="text-5xl font-bold tracking-tighter mb-4">Tracking ID: {order.id}</h1>
+              <span className="text-xs font-bold text-black/40 mb-3 block">Live Acquisition Status</span>
+              <h1 className="text-5xl font-bold tracking-tight mb-4">Tracking ID: {order.id}</h1>
               <div className="flex items-center gap-3 text-green-600">
                  <Zap className="w-4 h-4 fill-green-600" />
-                 <span className="text-xs font-bold uppercase tracking-widest animate-pulse">Live Updates Active</span>
+                 <span className="text-xs font-bold animate-pulse">Live Updates Active</span>
               </div>
             </header>
 
@@ -134,7 +134,7 @@ const OrderTracking = () => {
                       {isCurrent && stage.status === "reached" && (
                         <button 
                           onClick={handleConfirmOrder}
-                          className="mt-6 bg-primary text-primary-foreground px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-xl shadow-primary/10"
+                          className="mt-6 bg-primary text-primary-foreground px-8 py-3 rounded-full text-xs font-bold hover:opacity-90 transition-all shadow-xl shadow-primary/10"
                         >
                           Confirm Order Receipt
                         </button>
@@ -152,17 +152,17 @@ const OrderTracking = () => {
               
               {/* Order Summary Card */}
               <div className="bg-gray-50 rounded-[40px] p-8 border border-gray-100">
-                <h2 className="text-xs font-bold uppercase tracking-widest mb-8 pb-4 border-b border-gray-100">Shipment Details</h2>
+                <h2 className="text-xs font-bold mb-8 pb-4 border-b border-gray-100">Shipment Details</h2>
                 
                 <div className="space-y-6">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-widest text-black/50 block mb-2">Deliver To</span>
+                    <span className="text-xs font-bold text-black/50 block mb-2">Deliver To</span>
                     <p className="text-xs font-bold leading-relaxed">{order.customer.name}</p>
                     <p className="text-xs text-black/50 leading-relaxed italic">{order.customer.address}</p>
                   </div>
                   
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-widest text-black/50 block mb-2">Package Contents</span>
+                    <span className="text-xs font-bold text-black/50 block mb-2">Package Contents</span>
                     <div className="space-y-3">
                        {order.items.map((item, idx) => (
                          <div key={idx} className="flex items-center gap-3">
@@ -184,18 +184,18 @@ const OrderTracking = () => {
                     <ShieldCheck className="w-20 h-20" />
                  </div>
                  <div className="relative z-10">
-                    <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-yellow-700/60 mb-6 font-mono italic">--- Admin Demo Mode ---</h3>
+                    <h3 className="text-xs font-bold text-yellow-700/60 mb-6 font-mono italic">--- Admin Demo Mode ---</h3>
                     <p className="text-xs text-yellow-700/50 mb-6 font-medium leading-relaxed">
                       Use these controls to simulate the Admin moving the order through its lifecycle. This will trigger the "Email Sent" notifications.
                     </p>
                     <button 
                       onClick={handleNextStage}
                       disabled={currentStageIndex >= stages.length - 1}
-                      className="w-full bg-yellow-700 text-white py-4 rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-3"
+                      className="w-full bg-yellow-700 text-white py-4 rounded-2xl text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-3"
                     >
                       Process Stage <ArrowRight className="w-3 h-3" />
                     </button>
-                    <div className="flex items-center gap-2 justify-center text-[11px] font-bold text-yellow-700/30 uppercase tracking-widest">
+                    <div className="flex items-center gap-2 justify-center text-[11px] font-bold text-yellow-700/30">
                        <Mail className="w-3 h-3" /> Triggers Simulated Email
                     </div>
                  </div>

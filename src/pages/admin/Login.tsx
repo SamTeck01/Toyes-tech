@@ -18,8 +18,8 @@ const AdminLogin = () => {
 
     // Mock Authentication Logic
     setTimeout(() => {
-      if (username === "admin" && password === "logo2026") {
-        localStorage.setItem("logo_admin_session", "active");
+      if (username === "admin" && password === (import.meta.env.VITE_ADMIN_PASSWORD || "toyes2026")) {
+        localStorage.setItem("toyes_admin_session", "active");
         toast.success("Welcome back, Admin.");
         navigate("/admin/dashboard");
       } else {
@@ -40,13 +40,13 @@ const AdminLogin = () => {
           className="w-full max-w-md"
         >
           <div className="text-center mb-10">
-            <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/50 mb-3 block">Admin Login</span>
-            <h1 className="text-4xl font-bold tracking-tighter">Welcome Back</h1>
+            <span className="text-xs font-bold text-black/50 mb-3 block">Admin Login</span>
+            <h1 className="text-4xl font-bold tracking-tight">Welcome Back</h1>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-black/40 px-1">Username</label>
+              <label className="text-xs font-bold text-black/40 px-1">Username</label>
               <div className="relative group">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/50 group-focus-within:text-black transition-colors" />
                 <input 
@@ -61,7 +61,7 @@ const AdminLogin = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-black/40 px-1">Password</label>
+              <label className="text-xs font-bold text-black/40 px-1">Password</label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/50 group-focus-within:text-black transition-colors" />
                 <input 
@@ -78,15 +78,12 @@ const AdminLogin = () => {
             <button 
               type="submit" 
               disabled={isLoading}
-              className="w-full bg-primary text-primary-foreground py-5 px-8 rounded-2xl text-xs font-bold uppercase tracking-[0.15em] hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-primary/10"
+              className="w-full bg-primary text-primary-foreground py-5 px-8 rounded-2xl text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-primary/10"
             >
               {isLoading ? "Checking..." : "Login"}
             </button>
           </form>
 
-          <p className="mt-8 text-center text-xs font-bold uppercase tracking-widest text-black/50">
-            For Demo Use: admin / logo2026
-          </p>
         </motion.div>
       </main>
 

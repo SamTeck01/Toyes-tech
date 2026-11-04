@@ -49,8 +49,8 @@ const AdminReviews = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tighter">Customer Reviews</h1>
-            <p className="text-black/40 text-[11px] font-bold uppercase tracking-widest mt-1">See what customers are saying</p>
+            <h1 className="text-3xl font-bold tracking-tight">Customer Reviews</h1>
+            <p className="text-black/40 text-[11px] font-bold mt-1">See what customers are saying</p>
           </div>
           <div className="bg-white px-6 py-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3">
              <MessageSquare className="w-4 h-4 text-black/50" />
@@ -75,11 +75,7 @@ const AdminReviews = () => {
                 <button
                   key={r}
                   onClick={() => setRatingFilter(r as any)}
-                  className={`px-6 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                    ratingFilter === r 
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/10" 
-                      : "text-black/50 hover:bg-gray-50 hover:text-primary"
-                  }`}
+                  className={`px-6 py-2 rounded-xl text-[11px] font-black transition-all ${ ratingFilter === r ? "bg-primary text-primary-foreground shadow-lg shadow-primary/10" : "text-black/50 hover:bg-gray-50 hover:text-primary" }`}
                 >
                   {r === "all" ? "All Stars" : `${r} Star`}
                 </button>
@@ -111,7 +107,7 @@ const AdminReviews = () => {
                                  className={`w-2.5 h-2.5 ${i < review.rating ? 'fill-primary text-primary' : 'text-black/10'}`} 
                                />
                             ))}
-                            <span className="text-[11px] font-black uppercase text-black/50 ml-2 tracking-widest flex items-center gap-1">
+                            <span className="text-[11px] font-black text-black/50 ml-2 flex items-center gap-1">
                                <Clock className="w-2.5 h-2.5" />
                                {new Date(review.date).toLocaleDateString()}
                             </span>
@@ -133,11 +129,11 @@ const AdminReviews = () => {
                 <div className="flex items-center justify-between border-t border-gray-50 pt-6">
                     <div className="flex items-center gap-2">
                         <ShoppingBag className="w-3 h-3 text-black/50" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-black/40">Product:</span>
-                        <span className="text-xs font-bold uppercase tracking-widest text-black/80">{review.productName}</span>
+                        <span className="text-xs font-bold text-black/40">Product:</span>
+                        <span className="text-xs font-bold text-black/80">{review.productName}</span>
                     </div>
                    {review.isUserSubmitted && (
-                     <div className="flex items-center gap-2 bg-green-50 text-green-600 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest">
+                     <div className="flex items-center gap-2 bg-green-50 text-green-600 px-4 py-1.5 rounded-full text-[11px] font-black">
                         <CheckCircle2 className="w-3 h-3" />
                         Verified Purchase
                      </div>
@@ -149,7 +145,7 @@ const AdminReviews = () => {
            {filteredReviews.length === 0 && (
              <div className="col-span-full py-40 text-center opacity-20">
                 <MessageSquare className="w-16 h-16 mx-auto mb-6" />
-                 <p className="text-xs font-bold uppercase tracking-[0.15em]">No reviews found</p>
+                 <p className="text-xs font-bold">No reviews found</p>
              </div>
            )}
         </div>

@@ -1,30 +1,14 @@
-import { motion } from "framer-motion";
+const brands = ["Apple", "Samsung", "Google", "Sony", "Dell", "HP", "Logitech", "Anker"];
 
-const brands = [
-  "Apple", "Samsung", "Google", "Microsoft", "Sony", "Logitech", "Dell", "Asus"
-];
-
-const BrandStrip = () => {
-  return (
-    <section className="container py-24 border-t border-gray-50">
-       <div className="flex flex-col items-center gap-12">
-         <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/50">Authorized Selection Partners</span>
-         <div className="flex flex-wrap justify-center items-center gap-12 lg:gap-20 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
-           {brands.map((brand, i) => (
-             <motion.span
-               key={brand}
-               initial={{ opacity: 0 }}
-               whileInView={{ opacity: 1 }}
-               transition={{ delay: i * 0.05 }}
-               className="text-xl md:text-2xl font-bold tracking-tighter"
-             >
-               {brand}
-             </motion.span>
-           ))}
-         </div>
-       </div>
-    </section>
-  );
-};
+const BrandStrip = () => (
+  <section className="container py-12 md:py-16" aria-label="Brands we sell">
+    <p className="mb-6 text-center text-sm text-black/55">Brands you'll find at Toyes Tech</p>
+    <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 md:gap-x-16">
+      {brands.map((b) => (
+        <span key={b} className="font-display text-xl font-bold text-black/35 md:text-2xl">{b}</span>
+      ))}
+    </div>
+  </section>
+);
 
 export default BrandStrip;

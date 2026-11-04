@@ -96,7 +96,7 @@ const ProductDetail = () => {
     );
   }
 
-  const allImages = product.images || [product.image, product.image, product.image]; 
+  const allImages = product.images?.length ? product.images : [product.image]; 
 
 
   const unitPrice = product.price + (selectedStorage?.priceModifier || 0) + (selectedRam?.priceModifier || 0);
@@ -211,7 +211,7 @@ const ProductDetail = () => {
 
       <main className="container pt-10 pb-16">
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-black/50 mb-8 px-2">
+        <nav className="flex items-center gap-2 text-xs font-bold text-black/50 mb-8 px-2">
           <Link to="/" className="hover:text-black">Home</Link>
           <ChevronRight className="w-3 h-3" />
           <span className="text-black/60">{product.category}</span>
@@ -228,7 +228,7 @@ const ProductDetail = () => {
                 modules={[Pagination]}
                 pagination={{ clickable: true }}
                 loop={true}
-                className="w-full h-full pb-8"
+                className="w-full h-full"
                 style={{
                   "--swiper-theme-color": "hsl(var(--primary))",
                   "--swiper-pagination-bullet-inactive-color": "hsl(var(--primary))",
@@ -242,13 +242,13 @@ const ProductDetail = () => {
                     <img 
                       src={img} 
                       alt={`${product.name} View ${i + 1}`} 
-                      className="w-full h-full object-contain p-8 md:p-16 mix-blend-multiply transition-transform duration-700 select-none cursor-grab active:cursor-grabbing"
+                      className="w-full h-full object-cover select-none cursor-grab active:cursor-grabbing"
                     />
                   </SwiperSlide>
                 ))}
               </Swiper>
               {product.badge && (
-                <span className="absolute top-6 left-6 md:top-8 md:left-8 z-10 bg-primary text-primary-foreground text-[11px] font-bold uppercase tracking-widest px-3 py-1.5">
+                <span className="absolute top-6 left-6 md:top-8 md:left-8 z-10 rounded-full bg-white text-black shadow-sm text-xs font-bold px-3 py-1.5">
                   {product.badge}
                 </span>
               )}
@@ -259,18 +259,18 @@ const ProductDetail = () => {
           <div className="lg:col-span-5 flex flex-col">
             <div className="border-b border-gray-100 pb-8 mb-8">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/40">
+                <span className="text-xs font-bold text-black/40">
                   {product.brand}
                 </span>
                 {product.condition && (
-                  <span className="text-xs font-bold uppercase tracking-widest px-3 py-1 border border-black/10 rounded-sm bg-gray-50 text-black/80">
+                  <span className="text-xs font-bold px-3 py-1 border border-black/10 rounded-sm bg-gray-50 text-black/80">
                     {product.condition}
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tighter mb-4">{product.name}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{product.name}</h1>
               <div className="flex items-center gap-4">
-                <p className="text-3xl md:text-4xl font-bold tracking-tighter">{formatPrice(unitPrice)}</p>
+                <p className="text-3xl md:text-4xl font-bold tracking-tight">{formatPrice(unitPrice)}</p>
                 {product.originalPrice && (
                   <span className="text-base text-black/50 line-through">{formatPrice(product.originalPrice)}</span>
                 )}
@@ -288,7 +288,7 @@ const ProductDetail = () => {
                   
                   {product.colors && (
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-black/40 mb-3">Color: <span className="text-black ml-1">{selectedColor?.name}</span></p>
+                      <p className="text-xs font-bold text-black/40 mb-3">Color: <span className="text-black ml-1">{selectedColor?.name}</span></p>
                       <div className="flex gap-3">
                         {product.colors.map(color => (
                           <button 
@@ -309,17 +309,13 @@ const ProductDetail = () => {
 
                   {product.ramOptions && (
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-black/40 mb-3">Memory (RAM)</p>
+                      <p className="text-xs font-bold text-black/40 mb-3">Memory (RAM)</p>
                       <div className="flex flex-wrap gap-2">
                         {product.ramOptions.map(ram => (
                           <button
                             key={ram.capacity}
                             onClick={() => setSelectedRam(ram)}
-                            className={`px-6 py-3 text-xs font-bold uppercase tracking-wider border rounded-sm transition-all ${
-                              selectedRam?.capacity === ram.capacity 
-                                ? 'border-primary bg-primary text-primary-foreground' 
-                                : 'border-gray-200 text-black/60 hover:border-primary hover:text-primary'
-                            }`}
+                            className={`px-6 py-3 text-xs font-bold border rounded-full transition-all ${ selectedRam?.capacity === ram.capacity ? 'border-primary bg-primary text-primary-foreground' : 'border-gray-200 text-black/60 hover:border-primary hover:text-primary' }`}
                           >
                             {ram.capacity}
                           </button>
@@ -330,17 +326,13 @@ const ProductDetail = () => {
 
                   {product.storageOptions && (
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-black/40 mb-3">Storage Capacity</p>
+                      <p className="text-xs font-bold text-black/40 mb-3">Storage Capacity</p>
                       <div className="flex flex-wrap gap-2">
                         {product.storageOptions.map(storage => (
                           <button
                             key={storage.capacity}
                             onClick={() => setSelectedStorage(storage)}
-                            className={`px-6 py-3 text-xs font-bold uppercase tracking-wider border rounded-sm transition-all ${
-                              selectedStorage?.capacity === storage.capacity 
-                                ? 'border-primary bg-primary text-primary-foreground' 
-                                : 'border-gray-200 text-black/60 hover:border-primary hover:text-primary'
-                            }`}
+                            className={`px-6 py-3 text-xs font-bold border rounded-full transition-all ${ selectedStorage?.capacity === storage.capacity ? 'border-primary bg-primary text-primary-foreground' : 'border-gray-200 text-black/60 hover:border-primary hover:text-primary' }`}
                           >
                             {storage.capacity}
                           </button>
@@ -380,7 +372,7 @@ const ProductDetail = () => {
                       </div>
                       <Link 
                         to="/checkout"
-                        className="flex-1 bg-primary text-primary-foreground py-4 px-2 text-[11px] sm:text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all text-center"
+                        className="flex-1 rounded-full bg-primary text-primary-foreground py-4 px-2 text-[11px] sm:text-xs font-bold hover:opacity-90 transition-all text-center"
                       >
                         Checkout Now
                       </Link>
@@ -395,9 +387,9 @@ const ProductDetail = () => {
                     >
                       <button 
                         onClick={handleAddToCart}
-                        className="w-full bg-primary text-primary-foreground py-4 px-2 text-[11px] sm:text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all whitespace-nowrap"
+                        className="w-full rounded-full bg-primary text-primary-foreground py-4 px-2 text-[11px] sm:text-xs font-bold hover:opacity-90 transition-all whitespace-nowrap"
                       >
-                        Add to Cart — {formatPrice(unitPrice)}
+                        Add to cart · {formatPrice(unitPrice)}
                       </button>
                     </motion.div>
                   )}
@@ -405,12 +397,18 @@ const ProductDetail = () => {
                 <div className="flex gap-4">
                   <button 
                     onClick={() => toggleWishlist(product)}
-                    className="flex-1 border border-gray-100 py-3 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+                    className="flex-1 rounded-full border border-gray-200 py-3 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
                   >
                     <Heart className={`w-3 h-3 ${wishlisted ? 'fill-red-500 text-red-500' : 'text-black'}`} />
                     {wishlisted ? 'Wishlisted' : 'Wishlist'}
                   </button>
-                  <button className="flex-1 border border-gray-100 py-3 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+                  <button onClick={async () => {
+                    const url = window.location.href;
+                    try {
+                      if (navigator.share) await navigator.share({ title: product.name, url });
+                      else { await navigator.clipboard.writeText(url); toast.success("Link copied"); }
+                    } catch { /* share cancelled */ }
+                  }} className="flex-1 rounded-full border border-gray-200 py-3 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
                     <Share2 className="w-3 h-3" /> Share
                   </button>
                 </div>
@@ -421,7 +419,7 @@ const ProductDetail = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-4">
                 <Info className="w-4 h-4 text-black/40" />
-                <h3 className="text-xs font-bold uppercase tracking-[0.2em]">Specifications & Details</h3>
+                <h3 className="text-xs font-bold">Specifications & Details</h3>
               </div>
               <div className="space-y-3">
                 {(product.specs || [
@@ -445,13 +443,13 @@ const ProductDetail = () => {
             <TabsList className="w-full justify-start bg-transparent border-b border-gray-100 h-auto p-0 mb-8 rounded-none overflow-x-auto">
               <TabsTrigger 
                 value="description" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-xs font-bold uppercase tracking-widest text-black/40 data-[state=active]:text-primary transition-colors"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-xs font-bold text-black/40 data-[state=active]:text-primary transition-colors"
               >
                 Description
               </TabsTrigger>
               <TabsTrigger 
                 value="reviews" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-xs font-bold uppercase tracking-widest text-black/40 data-[state=active]:text-primary transition-colors"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-xs font-bold text-black/40 data-[state=active]:text-primary transition-colors"
               >
                 Customer Reviews ({3 + productReviews.length})
               </TabsTrigger>
@@ -460,21 +458,24 @@ const ProductDetail = () => {
             <TabsContent value="description" className="prose prose-sm max-w-none text-black/70 animate-in fade-in duration-500">
                <div className="space-y-6">
                  <div>
-                   <h3 className="text-lg font-bold text-black mb-2">Designed for the Modern Ecosystem</h3>
-                   <p>Welcome to the ultimate tech experience. This {product.brand} device operates flawlessly, delivering premium performance precisely when you need it. Designed directly for users who appreciate meticulous engineering and a clean aesthetic interface.</p>
+                   <h3 className="text-lg font-bold text-black mb-2">About this {product.category === "Phones" ? "phone" : "product"}</h3>
+                   <p>{product.description}</p>
                  </div>
                  <div>
-                   <h3 className="text-lg font-bold text-black mb-2">Package Integrity</h3>
-                   <p>Whether you select a New, UK Used, or certified Used class variant, we guarantee the internal component lifecycle. <br/>Each box contents generally include:</p>
+                   <h3 className="text-lg font-bold text-black mb-2">What's in the box</h3>
+                   <p>Every order includes:</p>
                    <ul className="list-disc pl-5 mt-2 space-y-1">
                      <li>The authentic {product.brand} {product.name}</li>
-                     <li>Approved continuous charging architecture accessories</li>
+                     <li>A compatible charging cable</li>
                      <li>Toyes Tech quality inspection report</li>
                    </ul>
                  </div>
                  <div>
-                   <h3 className="text-lg font-bold text-black mb-2">Our Quality Promise</h3>
-                   <p>Toyes Tech operates on strict certification rules. Our secondary market devices (UK/Nigerian Used) have undergone a 30-point evaluation. Batteries are tested, sensory arrays are aligned, and the final structural enclosure is detailed for a pristine out-of-the-box presentation.</p>
+                   <h3 className="text-lg font-bold text-black mb-2">Condition and warranty</h3>
+                   <p>{product.condition === "New"
+                     ? "Brand new and sealed, with the full manufacturer warranty."
+                     : "UK-used devices are tested before listing: screen, cameras, speakers, biometrics, ports, network and battery health. Devices with battery health below 80% are not sold."}{" "}
+                     Every order is covered by a Toyes Tech warranty and can be returned within 7 days.</p>
                  </div>
                </div>
             </TabsContent>
@@ -499,7 +500,7 @@ const ProductDetail = () => {
                        </div>
                        <h4 className="text-sm font-bold text-black mb-1">Verified Acquisition</h4>
                        <p className="text-sm text-black/70 mb-2">{review.comment}</p>
-                       <p className="text-xs font-bold uppercase text-black/40">- {review.userName}</p>
+                       <p className="text-xs font-bold text-black/40">- {review.userName}</p>
                      </div>
                    ))}
 
@@ -512,7 +513,7 @@ const ProductDetail = () => {
                      </div>
                      <h4 className="text-sm font-bold text-black mb-1">Excellent Condition!</h4>
                      <p className="text-sm text-black/70 mb-2">Got the UK Used version and it looks completely brand new. Battery health was at 98%. The delivery was prompt and unboxing experience was very premium.</p>
-                     <p className="text-xs font-bold uppercase text-black/40">- Sarah Jenkins</p>
+                     <p className="text-xs font-bold text-black/40">- Sarah Jenkins</p>
                    </div>
                    
                    <div className="border-b border-gray-50 pb-6">
@@ -524,7 +525,7 @@ const ProductDetail = () => {
                      </div>
                      <h4 className="text-sm font-bold text-black mb-1">Works flawlessly, minor scratch</h4>
                      <p className="text-sm text-black/70 mb-2">Upgraded the RAM on this and it flies through tasks. There was a tiny scratch on the bezel (since it was listed as Used) but functionally it is an absolute beast.</p>
-                     <p className="text-xs font-bold uppercase text-black/40">- Michael T.</p>
+                     <p className="text-xs font-bold text-black/40">- Michael T.</p>
                    </div>
 
                    <div className="border-b border-gray-50 pb-6">
@@ -536,7 +537,7 @@ const ProductDetail = () => {
                      </div>
                        <h4 className="text-sm font-bold text-black mb-1">Authentic and Verified</h4>
                        <p className="text-sm text-black/70 mb-2">Verified the serial number online and everything checks out. Good price for the storage capacity. Would heavily recommend this store for tech gadgets.</p>
-                       <p className="text-xs font-bold uppercase text-black/40">- O. Emmanuel</p>
+                       <p className="text-xs font-bold text-black/40">- O. Emmanuel</p>
                    </div>
                  </div>
                  
@@ -547,7 +548,7 @@ const ProductDetail = () => {
                    
                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                      <DialogTrigger asChild>
-                       <button className="w-full bg-primary text-primary-foreground px-6 py-4 text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-xl shadow-primary/10">
+                       <button className="w-full bg-primary text-primary-foreground px-6 py-4 text-xs font-bold hover:opacity-90 transition-all shadow-xl shadow-primary/10 rounded-full">
                          Write a Review
                        </button>
                      </DialogTrigger>
@@ -560,7 +561,7 @@ const ProductDetail = () => {
                        </DialogHeader>
                        <div className="grid gap-5 py-4 mt-2">
                           <div className="grid gap-2">
-                            <label className="text-xs font-bold uppercase tracking-widest text-black/60">Overall Rating</label>
+                            <label className="text-xs font-bold text-black/60">Overall Rating</label>
                             <div className="flex gap-2">
                               {[1,2,3,4,5].map(star => (
                                 <Star 
@@ -573,48 +574,48 @@ const ProductDetail = () => {
                           </div>
                          <div className="grid grid-cols-2 gap-4">
                            <div className="grid gap-2">
-                             <label className="text-xs font-bold uppercase tracking-widest text-black/60">Name</label>
+                             <label className="text-xs font-bold text-black/60">Name</label>
                              <input 
                                type="text" 
                                value={reviewName}
                                onChange={(e) => setReviewName(e.target.value)}
                                placeholder="John Doe" 
-                               className="border border-gray-200 p-3 text-xs bg-gray-50 focus:bg-white focus:outline-none focus:border-black transition-colors rounded-none" 
+                               className="border border-gray-200 p-3 text-xs bg-gray-50 focus:bg-white focus:outline-none focus:border-primary transition-colors rounded-xl" 
                              />
                            </div>
                            <div className="grid gap-2">
-                             <label className="text-xs font-bold uppercase tracking-widest text-black/60">Email</label>
+                             <label className="text-xs font-bold text-black/60">Email</label>
                              <input 
                                type="email" 
                                value={reviewEmail}
                                onChange={(e) => setReviewEmail(e.target.value)}
                                placeholder="john@example.com" 
-                               className="border border-gray-200 p-3 text-xs bg-gray-50 focus:bg-white focus:outline-none focus:border-black transition-colors rounded-none" 
+                               className="border border-gray-200 p-3 text-xs bg-gray-50 focus:bg-white focus:outline-none focus:border-primary transition-colors rounded-xl" 
                              />
                            </div>
                          </div>
                          <div className="grid gap-2">
-                           <label className="text-xs font-bold uppercase tracking-widest text-black/60">Your Review</label>
+                           <label className="text-xs font-bold text-black/60">Your Review</label>
                            <textarea 
                              placeholder="What did you like or dislike?" 
                              rows={4} 
                              value={reviewContent}
                              onChange={(e) => setReviewContent(e.target.value)}
-                             className="border border-gray-200 p-3 text-xs bg-gray-50 focus:bg-white focus:outline-none focus:border-black resize-none transition-colors rounded-none" 
+                             className="border border-gray-200 p-3 text-xs bg-gray-50 focus:bg-white focus:outline-none focus:border-primary resize-none transition-colors rounded-xl" 
                            />
                          </div>
                          <div className="grid gap-2">
-                           <label className="text-xs font-bold uppercase tracking-widest text-black/60">Add Photo (Optional)</label>
+                           <label className="text-xs font-bold text-black/60">Add Photo (Optional)</label>
                            <div className="border border-dashed border-gray-300 bg-gray-50 p-6 flex flex-col items-center justify-center text-black/40 cursor-pointer hover:border-black/50 hover:bg-gray-100 transition-colors">
                              <Upload className="w-4 h-4 mb-2" />
-                             <span className="text-xs uppercase font-bold tracking-widest">Upload Image</span>
+                             <span className="text-xs font-bold">Upload Image</span>
                            </div>
                          </div>
                        </div>
                        <DialogFooter>
                          <button 
                            onClick={handleReviewSubmit}
-                           className="w-full bg-primary text-primary-foreground px-6 py-4 text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all"
+                           className="w-full bg-primary text-primary-foreground px-6 py-4 text-xs font-bold hover:opacity-90 transition-all rounded-full"
                          >
                            Submit Review
                          </button>
@@ -631,8 +632,8 @@ const ProductDetail = () => {
         <section className="mt-24 md:mt-32">
           <div className="flex items-end justify-between mb-10 md:mb-16 px-2">
             <div>
-               <span className="text-xs font-bold uppercase tracking-[0.2em] text-black/40 mb-2 block">Related Selection</span>
-               <h2 className="text-3xl md:text-4xl font-bold tracking-tighter">You may also like</h2>
+               
+               <h2 className="text-2xl md:text-3xl font-extrabold">You may also like</h2>
             </div>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-10 gap-y-10 sm:gap-y-16">
@@ -655,12 +656,12 @@ const ProductDetail = () => {
             className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 px-6 z-50 flex items-center justify-between shadow-[0_-15px_30px_rgba(0,0,0,0.08)] pb-safe"
           >
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-black/40 mb-0.5">Total Price</p>
+              <p className="text-xs font-bold text-black/40 mb-0.5">Total Price</p>
               <p className="text-lg font-bold">{formatPrice(unitPrice * quantity)}</p>
             </div>
             <button 
               onClick={handleAddToCart}
-              className="bg-primary text-primary-foreground px-8 py-3.5 text-xs font-bold uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-black/10"
+              className="bg-primary text-primary-foreground px-8 py-3.5 text-xs font-bold active:scale-95 transition-all shadow-lg shadow-black/10 rounded-full"
             >
               Add to Cart
             </button>

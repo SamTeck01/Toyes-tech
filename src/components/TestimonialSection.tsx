@@ -6,8 +6,8 @@ const TestimonialSection = () => {
   return (
     <section className="container py-24 bg-gray-50/30">
       <div className="text-center mb-16">
-        <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/40 mb-4 block">Community Feedback</span>
-        <h2 className="text-4xl font-bold tracking-tighter">Trusted by Thousands.</h2>
+        <span className="text-xs font-bold text-black/40 mb-4 block">Community Feedback</span>
+        <h2 className="text-4xl font-bold tracking-tight">Trusted by Thousands.</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -29,8 +29,8 @@ const TestimonialSection = () => {
             <div className="flex flex-col items-center gap-3">
               <img src={t.image} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-gray-50" />
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-widest">{t.name}</h4>
-                <p className="text-xs text-black/40 uppercase tracking-widest font-bold">{t.role}</p>
+                <h4 className="text-xs font-bold">{t.name}</h4>
+                <p className="text-xs text-black/40 font-bold">{t.role}</p>
               </div>
             </div>
           </motion.div>

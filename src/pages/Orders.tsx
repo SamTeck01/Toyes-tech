@@ -23,8 +23,8 @@ const Orders = () => {
       <main className="container py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <header className="mb-12">
-            <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/40 mb-3 block">Account Center</span>
-            <h1 className="text-5xl font-bold tracking-tighter">Your Orders</h1>
+            
+            <h1 className="text-5xl font-bold tracking-tight">Your orders</h1>
           </header>
 
           {orders.length > 0 ? (
@@ -41,8 +41,8 @@ const Orders = () => {
                     {/* Info */}
                     <div className="flex-1 space-y-6">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase tracking-widest text-black/40">ID: {order.id}</span>
-                        <span className={`text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${statusColors[order.status]}`}>
+                        <span className="text-xs font-bold text-black/40">ID: {order.id}</span>
+                        <span className={`text-[11px] font-bold px-3 py-1 rounded-full ${statusColors[order.status]}`}>
                           {order.status}
                         </span>
                       </div>
@@ -74,12 +74,12 @@ const Orders = () => {
                     {/* Actions */}
                     <div className="flex flex-row md:flex-col justify-between items-end gap-4 shrink-0">
                       <div className="text-right">
-                         <span className="text-xs font-bold uppercase tracking-widest text-black/50 block mb-1">Total Amount</span>
+                         <span className="text-xs font-bold text-black/50 block mb-1">Total Amount</span>
                          <span className="text-xl font-bold">{formatPrice(order.total)}</span>
                       </div>
                       <Link 
                         to={`/track/${order.id}`}
-                        className="bg-primary text-primary-foreground px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-primary/10"
+                        className="bg-primary text-primary-foreground px-8 py-4 rounded-full text-xs font-bold hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-primary/10"
                       >
                         Track Shipment <ChevronRight className="w-3 h-3" />
                       </Link>
@@ -93,9 +93,9 @@ const Orders = () => {
               <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
                 <Package className="w-8 h-8 text-black/50" />
               </div>
-              <h2 className="text-2xl font-bold tracking-tight mb-2">No orders found.</h2>
-              <p className="text-black/40 max-w-xs text-sm">Your acquisition history will appear here once you've completed a purchase.</p>
-              <Link to="/shop" className="mt-8 text-xs font-bold uppercase tracking-widest border-b border-primary text-primary pb-1">Start Shopping</Link>
+              <h2 className="text-2xl font-bold tracking-tight mb-2">No orders yet</h2>
+              <p className="text-black/40 max-w-xs text-sm">Orders you place will appear here, with live tracking.</p>
+              <Link to="/shop" className="mt-8 text-xs font-bold border-b border-primary text-primary pb-1">Start shopping</Link>
             </div>
           )}
         </div>

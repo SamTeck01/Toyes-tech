@@ -26,9 +26,9 @@ const Contact = () => {
         <div className="max-w-6xl mx-auto">
           
           <header className="mb-20">
-            <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/40 mb-3 block">Connect With Us</span>
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tighter max-w-2xl">
-              We're here to assist with your next tech acquisition.
+            
+            <h1 className="text-5xl md:text-6xl font-bold tracking-tight max-w-2xl">
+              Talk to Toyes Tech.
             </h1>
           </header>
 
@@ -42,8 +42,8 @@ const Contact = () => {
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-1">Electronic Mail</p>
-                    <p className="text-sm font-bold">concierge@logostore.co</p>
+                    <p className="text-xs font-bold text-black/50 mb-1">Email</p>
+                    <p className="text-sm font-bold">hello@toyestech.com</p>
                   </div>
                 </div>
 
@@ -52,8 +52,8 @@ const Contact = () => {
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-1">Voice Communication</p>
-                    <p className="text-sm font-bold">+234 (0) 800 LOGO HELP</p>
+                    <p className="text-xs font-bold text-black/50 mb-1">Phone</p>
+                    <p className="text-sm font-bold">+234 800 000 0000</p>
                   </div>
                 </div>
 
@@ -62,7 +62,7 @@ const Contact = () => {
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-1">Physical Hub</p>
+                    <p className="text-xs font-bold text-black/50 mb-1">Visit us</p>
                     <p className="text-sm font-bold leading-relaxed">
                       Lekki Phase 1, Victoria Island,<br />
                       Lagos, Nigeria.
@@ -76,19 +76,19 @@ const Contact = () => {
                    <Clock className="w-24 h-24" />
                 </div>
                 <div className="relative z-10">
-                   <h3 className="text-xs font-bold uppercase tracking-widest mb-4">Concierge Hours</h3>
+                   <h3 className="text-xs font-bold mb-4">Opening hours</h3>
                    <div className="space-y-3 opacity-70">
-                      <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider">
+                      <div className="flex justify-between text-[11px] font-bold">
                          <span>Mon — Fri</span>
                          <span>9:00 — 18:00</span>
                       </div>
-                      <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider">
+                      <div className="flex justify-between text-[11px] font-bold">
                          <span>Saturday</span>
                          <span>10:00 — 15:00</span>
                       </div>
-                      <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider">
+                      <div className="flex justify-between text-[11px] font-bold">
                          <span>Sunday</span>
-                         <span>Digital Only</span>
+                         <span>Online only</span>
                       </div>
                    </div>
                 </div>
@@ -100,23 +100,23 @@ const Contact = () => {
               <div className="bg-gray-50 p-8 md:p-12 rounded-[40px] border border-gray-100">
                 <div className="flex items-center gap-3 mb-8">
                    <MessageSquare className="w-4 h-4 text-black/40" />
-                   <h2 className="text-xs font-bold uppercase tracking-widest">Inquiry Form</h2>
+                   <h2 className="text-xs font-bold">Send us a message</h2>
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-black/40">Full Name</label>
+                      <label className="text-xs font-bold text-black/40">Full Name</label>
                       <input required type="text" className="w-full border-b border-gray-200 bg-transparent py-3 text-xs focus:outline-none focus:border-black transition-colors" placeholder="John Doe" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-black/40">Email Address</label>
+                      <label className="text-xs font-bold text-black/40">Email Address</label>
                       <input required type="email" className="w-full border-b border-gray-200 bg-transparent py-3 text-xs focus:outline-none focus:border-black transition-colors" placeholder="john@example.com" />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-black/40">Subject</label>
+                    <label className="text-xs font-bold text-black/40">Subject</label>
                     <select className="w-full border-b border-gray-200 bg-transparent py-3 text-xs focus:outline-none focus:border-black transition-colors appearance-none">
                        <option>Product Inquiry</option>
                        <option>Order Tracking Help</option>
@@ -127,13 +127,13 @@ const Contact = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-black/40">Message</label>
-                    <textarea required rows={5} className="w-full border-b border-gray-200 bg-transparent py-3 text-xs focus:outline-none focus:border-black resize-none transition-colors" placeholder="How can we assist you today?"></textarea>
+                    <label className="text-xs font-bold text-black/40">Message</label>
+                    <textarea required rows={5} className="w-full border-b border-gray-200 bg-transparent py-3 text-xs focus:outline-none focus:border-black resize-none transition-colors" placeholder="Tell us what you need help with"></textarea>
                   </div>
 
                   <button 
                     disabled={isSubmitting}
-                    className="w-full bg-primary text-primary-foreground py-5 rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-primary/10"
+                    className="w-full bg-primary text-primary-foreground py-5 rounded-2xl text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-primary/10"
                   >
                     {isSubmitting ? "Dispatching..." : "Send Message"} <Send className="w-3 h-3" />
                   </button>

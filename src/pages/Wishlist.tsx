@@ -20,13 +20,9 @@ const Wishlist = () => {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col gap-4"
           >
-            <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-black/40">
-              <Heart className="w-3 h-3" />
-              Your Selection
-            </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-4">Wishlist</h1>
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-2">Your wishlist</h1>
             <p className="text-black/60 max-w-md text-sm leading-relaxed">
-              Curated items you've saved for later. Ready to make them yours?
+              Products you've saved for later.
             </p>
           </motion.div>
         </header>
@@ -49,14 +45,14 @@ const Wishlist = () => {
             <div className="space-y-4">
               <h2 className="text-2xl font-bold tracking-tight">Your wishlist is empty</h2>
               <p className="text-black/50 text-sm max-w-xs mx-auto">
-                Discover our latest collection of premium tech and find something you love.
+                Tap the heart on any product to save it here.
               </p>
             </div>
             <Link 
               to="/" 
-              className="group flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all rounded-sm shadow-lg shadow-primary/10"
+              className="group flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all rounded-sm shadow-lg shadow-primary/10"
             >
-              Start Shopping
+              Start shopping
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </motion.div>

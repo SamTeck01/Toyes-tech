@@ -39,7 +39,7 @@ const BottomNav = () => {
                   </motion.span>
                 )}
               </div>
-              <span className={`text-[11px] font-bold uppercase tracking-wider ${isActive ? "text-primary" : ""}`}>
+              <span className={`text-[11px] font-bold ${isActive ? "text-primary" : ""}`}>
                 {item.label}
               </span>
             </Link>

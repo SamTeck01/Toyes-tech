@@ -47,11 +47,11 @@ const Footer = () => {
           {/* Links */}
           {footerLinks.map((section) => (
             <div key={section.title}>
-              <h4 className="text-xs font-bold text-black mb-6 uppercase tracking-[0.2em]">{section.title}</h4>
+              <h4 className="text-xs font-bold text-black mb-6">{section.title}</h4>
               <ul className="space-y-4">
                 {section.links.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className="text-xs font-bold uppercase tracking-widest text-black/40 hover:text-primary transition-colors underline-offset-4 hover:underline">
+                    <Link to={link.to} className="text-xs font-bold text-black/40 hover:text-primary transition-colors underline-offset-4 hover:underline">
                       {link.label}
                     </Link>
                   </li>
@@ -62,7 +62,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-10 border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-6 text-[11px] font-medium uppercase tracking-widest text-black/50">
+        <div className="pt-10 border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-6 text-[11px] font-medium text-black/50">
           <div className="flex items-center gap-8">
             <span>© {new Date().getFullYear()} Toyes Tech</span>
             <div className="flex gap-6">

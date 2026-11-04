@@ -70,15 +70,15 @@ const AdminOrders = () => {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tighter">Orders</h1>
-            <p className="text-black/40 text-[11px] font-bold uppercase tracking-widest mt-1">Track and manage customer orders</p>
+            <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
+            <p className="text-black/40 text-[11px] font-bold mt-1">Track and manage customer orders</p>
           </div>
           
           <div className="flex bg-white rounded-2xl p-1 border border-gray-100 shadow-sm overflow-hidden min-w-[320px]">
              {dashboardStats.map((stat, i) => (
                <div key={stat.label} className={`flex-1 flex flex-col items-center py-3 px-4 ${i !== 0 ? 'border-l border-gray-50' : ''}`}>
                   <span className={`text-lg font-black tracking-tight ${stat.color}`}>{stat.count}</span>
-                  <span className="text-[11px] font-black uppercase text-black/50 tracking-tighter">{stat.label}</span>
+                  <span className="text-[11px] font-black text-black/50 tracking-tight">{stat.label}</span>
                </div>
              ))}
           </div>
@@ -100,7 +100,7 @@ const AdminOrders = () => {
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-gray-50/50 border border-transparent focus:border-black/10 px-8 py-4 outline-none rounded-2xl text-xs font-bold uppercase tracking-widest text-black/40 w-full cursor-pointer transition-all"
+              className="bg-gray-50/50 border border-transparent focus:border-black/10 px-8 py-4 outline-none rounded-2xl text-xs font-bold text-black/40 w-full cursor-pointer transition-all"
             >
               <option value="all">All Statuses</option>
               <option value="packing">Packing</option>
@@ -117,11 +117,11 @@ const AdminOrders = () => {
              <table className="w-full text-left border-collapse min-w-[1000px]">
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-50">
-                  <th className="px-10 py-6 text-left text-[11px] font-black uppercase tracking-[0.2em] text-black/50">Order Info</th>
-                  <th className="px-10 py-6 text-left text-[11px] font-black uppercase tracking-[0.2em] text-black/50">Customer</th>
-                  <th className="px-10 py-6 text-left text-[11px] font-black uppercase tracking-[0.2em] text-black/50">Price</th>
-                  <th className="px-10 py-6 text-left text-[11px] font-black uppercase tracking-[0.2em] text-black/50">Status</th>
-                  <th className="px-10 py-6 text-right text-[11px] font-black uppercase tracking-[0.2em] text-black/50">Actions</th>
+                  <th className="px-10 py-6 text-left text-[11px] font-black text-black/50">Order Info</th>
+                  <th className="px-10 py-6 text-left text-[11px] font-black text-black/50">Customer</th>
+                  <th className="px-10 py-6 text-left text-[11px] font-black text-black/50">Price</th>
+                  <th className="px-10 py-6 text-left text-[11px] font-black text-black/50">Status</th>
+                  <th className="px-10 py-6 text-right text-[11px] font-black text-black/50">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -137,7 +137,7 @@ const AdminOrders = () => {
                     <td className="px-10 py-8">
                        <div className="flex flex-col">
                           <span className="text-[11px] font-bold tracking-tight">{order.id}</span>
-                          <span className="text-xs text-black/50 font-bold uppercase tracking-widest mt-0.5">{new Date(order.date).toLocaleDateString()}</span>
+                          <span className="text-xs text-black/50 font-bold mt-0.5">{new Date(order.date).toLocaleDateString()}</span>
                        </div>
                     </td>
                     <td className="px-10 py-8">
@@ -152,11 +152,11 @@ const AdminOrders = () => {
                        </div>
                     </td>
                     <td className="px-10 py-8">
-                       <span className="text-[11px] font-black italic tracking-tighter">{formatPrice(order.total)}</span>
+                       <span className="text-[11px] font-black italic tracking-tight">{formatPrice(order.total)}</span>
                     </td>
                     <td className="px-10 py-8">
                        <div className="flex items-center gap-3">
-                          <span className={`px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.2em] ${getStatusColor(order.status)}`}>
+                          <span className={`px-5 py-2 rounded-full text-[11px] font-black ${getStatusColor(order.status)}`}>
                              {order.status}
                           </span>
                        </div>
@@ -179,7 +179,7 @@ const AdminOrders = () => {
                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-8">
                   <Filter className="w-8 h-8" />
                </div>
-                <p className="text-xs font-bold uppercase tracking-[0.15em]">No orders found</p>
+                <p className="text-xs font-bold">No orders found</p>
             </div>
           )}
         </div>
@@ -209,8 +209,8 @@ const AdminOrders = () => {
                          <ShoppingBag className="w-6 h-6" />
                       </div>
                        <div>
-                          <h2 className="text-2xl font-black tracking-tighter uppercase-none">Order: {selectedOrder.id}</h2>
-                          <p className="text-xs font-bold uppercase tracking-widest text-black/50">Full Order Details</p>
+                          <h2 className="text-2xl font-black tracking-tight uppercase-none">Order: {selectedOrder.id}</h2>
+                          <p className="text-xs font-bold text-black/50">Full Order Details</p>
                        </div>
                    </div>
                    <button 
@@ -226,7 +226,7 @@ const AdminOrders = () => {
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                       <div className="space-y-8">
                          <div>
-                             <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/50 mb-6 block">Customer Info</span>
+                             <span className="text-xs font-bold text-black/50 mb-6 block">Customer Info</span>
                             <div className="bg-gray-50 rounded-[32px] p-8 space-y-4 border border-gray-100/50">
                                <div className="flex items-center gap-4 border-b border-gray-200/50 pb-4">
                                   <User className="w-5 h-5 text-black/50" />
@@ -244,7 +244,7 @@ const AdminOrders = () => {
                          </div>
 
                          <div>
-                            <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/50 mb-6 block">Order Items</span>
+                            <span className="text-xs font-bold text-black/50 mb-6 block">Order Items</span>
                             <div className="space-y-4">
                                {selectedOrder.items.map((item, i) => (
                                  <div key={i} className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-[20px]">
@@ -254,7 +254,7 @@ const AdminOrders = () => {
                                        </div>
                                        <div>
                                           <p className="text-xs font-bold leading-none mb-1">{item.name}</p>
-                                          <p className="text-xs font-bold text-black/50 uppercase tracking-widest">Qty: {item.quantity}</p>
+                                          <p className="text-xs font-bold text-black/50">Qty: {item.quantity}</p>
                                        </div>
                                     </div>
                                     <span className="text-xs font-bold tracking-tight italic">{formatPrice(item.price * item.quantity)}</span>
@@ -266,7 +266,7 @@ const AdminOrders = () => {
 
                       <div className="space-y-8">
                          <div>
-                             <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/50 mb-6 block">Update Status</span>
+                             <span className="text-xs font-bold text-black/50 mb-6 block">Update Status</span>
                             <div className="space-y-3">
                                {(['packing', 'transporting', 'reached', 'completed'] as OrderStatus[]).map((status) => (
                                  <button
@@ -283,7 +283,7 @@ const AdminOrders = () => {
                                        {status === "transporting" && <Truck className="w-5 h-5" />}
                                        {status === "reached" && <CheckCircle2 className="w-5 h-5" />}
                                        {status === "completed" && <Star className="w-5 h-5" />}
-                                       <span className="text-[11px] font-bold uppercase tracking-[0.2em]">{status}</span>
+                                       <span className="text-[11px] font-bold">{status}</span>
                                     </div>
                                     {selectedOrder.status === status && <CheckCircle2 className="w-4 h-4 text-white" />}
                                  </button>
@@ -294,12 +294,12 @@ const AdminOrders = () => {
                          <div className="bg-primary rounded-[32px] p-8 text-primary-foreground relative overflow-hidden shadow-2xl shadow-primary/20">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-white/[0.05] rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
                              <div className="relative z-10">
-                               <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary-foreground/30 mb-4 block">Total Amount</span>
+                               <span className="text-[11px] font-bold text-primary-foreground/30 mb-4 block">Total Amount</span>
                                <div className="flex items-baseline gap-2">
-                                  <span className="text-5xl font-black italic tracking-tighter">{formatPrice(selectedOrder.total)}</span>
+                                  <span className="text-5xl font-black italic tracking-tight">{formatPrice(selectedOrder.total)}</span>
                                   <span className="text-primary-foreground/20 text-xs font-bold">NGN</span>
                                </div>
-                               <p className="text-xs font-bold text-primary-foreground/20 uppercase tracking-widest mt-6 bg-white/[0.05] w-fit px-4 py-2 rounded-full border border-white/10 uppercase-none italic">
+                               <p className="text-xs font-bold text-primary-foreground/20 mt-6 bg-white/[0.05] w-fit px-4 py-2 rounded-full border border-white/10 uppercase-none italic">
                                  Paid via secure checkout
                                </p>
                             </div>

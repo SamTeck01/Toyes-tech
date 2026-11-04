@@ -129,8 +129,8 @@ const AdminProducts = () => {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tighter text-black uppercase-none">Products</h1>
-            <p className="text-black/40 text-[11px] font-bold uppercase tracking-widest mt-1">Add and edit products in your store</p>
+            <h1 className="text-3xl font-bold tracking-tight text-black uppercase-none">Products</h1>
+            <p className="text-black/40 text-[11px] font-bold mt-1">Add and edit products in your store</p>
           </div>
           
           <button 
@@ -139,7 +139,7 @@ const AdminProducts = () => {
           >
              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
              <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
-             <span className="text-xs font-bold uppercase tracking-[0.15em]">Add Product</span>
+             <span className="text-xs font-bold">Add Product</span>
           </button>
         </div>
 
@@ -161,11 +161,7 @@ const AdminProducts = () => {
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
-                  className={`px-8 py-4 rounded-3xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                    categoryFilter === cat 
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/10" 
-                      : "text-black/50 hover:bg-gray-50 hover:text-primary"
-                  }`}
+                  className={`px-8 py-4 rounded-3xl text-[11px] font-black transition-all whitespace-nowrap ${ categoryFilter === cat ? "bg-primary text-primary-foreground shadow-lg shadow-primary/10" : "text-black/50 hover:bg-gray-50 hover:text-primary" }`}
                 >
                   {cat}
                 </button>
@@ -188,11 +184,11 @@ const AdminProducts = () => {
                    <img src={p.image} alt={p.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700" />
                    
                    <div className="absolute top-4 left-4 flex flex-col gap-2">
-                      <span className="bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-primary/20">
+                      <span className="bg-primary text-primary-foreground text-[11px] font-black px-4 py-1.5 rounded-full shadow-lg shadow-primary/20">
                          {p.category}
                       </span>
                       {p.condition && (
-                        <span className="bg-white/80 backdrop-blur-md text-black/60 text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm">
+                        <span className="bg-white/80 backdrop-blur-md text-black/60 text-[11px] font-black px-4 py-1.5 rounded-full shadow-sm">
                            {p.condition}
                         </span>
                       )}
@@ -218,11 +214,11 @@ const AdminProducts = () => {
                 <div className="px-1 md:px-4 pb-2 md:pb-4 flex-1 flex flex-col">
                    <div className="flex flex-col md:flex-row md:items-start justify-between mb-2">
                       <div>
-                         <span className="text-[11px] md:text-xs font-bold uppercase tracking-widest text-black/50 block mb-0.5 md:mb-1">{p.brand}</span>
+                         <span className="text-[11px] md:text-xs font-bold text-black/50 block mb-0.5 md:mb-1">{p.brand}</span>
                          <h3 className="text-sm md:text-lg font-black tracking-tight leading-tight">{p.name}</h3>
                       </div>
                       <div className="mt-1 md:mt-0">
-                         <span className="text-sm md:text-lg font-black tracking-tighter italic">{formatPrice(p.price)}</span>
+                         <span className="text-sm md:text-lg font-black tracking-tight italic">{formatPrice(p.price)}</span>
                       </div>
                    </div>
                    
@@ -236,10 +232,10 @@ const AdminProducts = () => {
                           </button>
                           
                           <div className="flex flex-col items-center">
-                             <span className="text-xs md:text-[14px] font-black tracking-tighter">
+                             <span className="text-xs md:text-[14px] font-black tracking-tight">
                                 {localStocks[p.id] !== undefined ? localStocks[p.id] : p.stock}
                              </span>
-                             <span className="text-[11px] md:text-[11px] font-bold uppercase tracking-widest text-black/50">Stock</span>
+                             <span className="text-[11px] md:text-[11px] font-bold text-black/50">Stock</span>
                           </div>
 
                           <button 
@@ -250,7 +246,7 @@ const AdminProducts = () => {
                           </button>
                        </div>
                       {p.featured && (
-                         <div className="hidden md:flex items-center gap-1.5 bg-yellow-400/10 text-yellow-600 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest">
+                         <div className="hidden md:flex items-center gap-1.5 bg-yellow-400/10 text-yellow-600 px-3 py-1 rounded-full text-[11px] font-black">
                             <Star className="w-2.5 h-2.5 fill-current" />
                             Featured
                          </div>
@@ -264,7 +260,7 @@ const AdminProducts = () => {
         {filteredProducts.length === 0 && (
           <div className="py-40 text-center opacity-20">
              <Box className="w-16 h-16 mx-auto mb-6" />
-             <p className="text-xs font-bold uppercase tracking-[0.15em]">No products found</p>
+             <p className="text-xs font-bold">No products found</p>
           </div>
         )}
       </div>
@@ -292,8 +288,8 @@ const AdminProducts = () => {
                          <Box className="w-6 h-6" />
                       </div>
                       <div>
-                         <h2 className="text-2xl font-black tracking-tighter">{editingProduct ? 'Edit Product' : 'New Product'}</h2>
-                         <p className="text-xs font-bold uppercase tracking-widest text-black/50">Change product details</p>
+                         <h2 className="text-2xl font-black tracking-tight">{editingProduct ? 'Edit Product' : 'New Product'}</h2>
+                         <p className="text-xs font-bold text-black/50">Change product details</p>
                       </div>
                    </div>
                    <button onClick={() => setIsModalOpen(false)} className="hover:rotate-90 transition-transform">
@@ -306,7 +302,7 @@ const AdminProducts = () => {
                       {/* Basic Info */}
                       <div className="space-y-6">
                          <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-widest text-black/50 px-1">Model Name</label>
+                            <label className="text-xs font-bold text-black/50 px-1">Model Name</label>
                             <input 
                               type="text" 
                               required
@@ -317,7 +313,7 @@ const AdminProducts = () => {
                             />
                          </div>
                          <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-widest text-black/50 px-1">Brand</label>
+                            <label className="text-xs font-bold text-black/50 px-1">Brand</label>
                             <input 
                               type="text" 
                               required
@@ -328,7 +324,7 @@ const AdminProducts = () => {
                             />
                          </div>
                          <div className="space-y-2">
-                             <label className="text-xs font-bold uppercase tracking-widest text-black/50 px-1">Price (₦)</label>
+                             <label className="text-xs font-bold text-black/50 px-1">Price (₦)</label>
                              <input 
                                type="number" 
                                required
@@ -338,7 +334,7 @@ const AdminProducts = () => {
                              />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-xs font-bold uppercase tracking-widest text-black/50 px-1">Stock Qty</label>
+                             <label className="text-xs font-bold text-black/50 px-1">Stock Qty</label>
                              <input 
                                type="number" 
                                required
@@ -352,11 +348,11 @@ const AdminProducts = () => {
                       {/* Attributes */}
                       <div className="space-y-6">
                          <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-widest text-black/50 px-1">Category</label>
+                            <label className="text-xs font-bold text-black/50 px-1">Category</label>
                             <select 
                               value={formData.category}
                               onChange={(e) => setFormData({...formData, category: e.target.value})}
-                              className="w-full bg-gray-50 border border-transparent focus:border-black/10 focus:bg-white p-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest transition-all shadow-inner cursor-pointer"
+                              className="w-full bg-gray-50 border border-transparent focus:border-black/10 focus:bg-white p-4 rounded-2xl outline-none text-xs font-bold transition-all shadow-inner cursor-pointer"
                             >
                                {["Phones", "Laptops", "Watches", "Accessories", "Audio"].map(c => (
                                  <option key={c} value={c}>{c}</option>
@@ -364,11 +360,11 @@ const AdminProducts = () => {
                             </select>
                          </div>
                          <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-widest text-black/50 px-1">Condition</label>
+                            <label className="text-xs font-bold text-black/50 px-1">Condition</label>
                             <select 
                               value={formData.condition}
                               onChange={(e) => setFormData({...formData, condition: e.target.value as any})}
-                              className="w-full bg-gray-50 border border-transparent focus:border-black/10 focus:bg-white p-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest transition-all shadow-inner cursor-pointer"
+                              className="w-full bg-gray-50 border border-transparent focus:border-black/10 focus:bg-white p-4 rounded-2xl outline-none text-xs font-bold transition-all shadow-inner cursor-pointer"
                             >
                                <option value="New">New / Sealed</option>
                                <option value="UK Used">Grade A - UK Used</option>
@@ -388,7 +384,7 @@ const AdminProducts = () => {
                                      <CheckCircle className="w-4 h-4 text-primary-foreground scale-0 peer-checked:scale-100 transition-transform" />
                                   </div>
                                </div>
-                               <span className="text-xs font-bold uppercase tracking-widest text-black/40 group-hover:text-black">In Stock</span>
+                               <span className="text-xs font-bold text-black/40 group-hover:text-black">In Stock</span>
                             </label>
 
                             <label className="flex items-center gap-3 cursor-pointer group">
@@ -403,14 +399,14 @@ const AdminProducts = () => {
                                      <Star className="w-4 h-4 text-white scale-0 peer-checked:scale-100 transition-transform fill-current" />
                                   </div>
                                </div>
-                               <span className="text-xs font-bold uppercase tracking-widest text-black/40 group-hover:text-black hover:text-yellow-600">Featured</span>
+                               <span className="text-xs font-bold text-black/40 group-hover:text-black hover:text-yellow-600">Featured</span>
                             </label>
                          </div>
                       </div>
                    </div>
 
                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-black/50 px-1">Image URL</label>
+                      <label className="text-xs font-bold text-black/50 px-1">Image URL</label>
                       <div className="relative group">
                          <input 
                            type="text" 
@@ -428,7 +424,7 @@ const AdminProducts = () => {
                    </div>
 
                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-black/50 px-1">Description</label>
+                      <label className="text-xs font-bold text-black/50 px-1">Description</label>
                       <textarea 
                         rows={4}
                         value={formData.description}
@@ -442,13 +438,13 @@ const AdminProducts = () => {
                       <button 
                          type="button" 
                          onClick={() => setIsModalOpen(false)}
-                         className="flex-1 px-8 py-5 rounded-[24px] border border-gray-100 text-xs font-bold uppercase tracking-widest hover:bg-gray-50 transition-all"
+                         className="flex-1 px-8 py-5 rounded-[24px] border border-gray-100 text-xs font-bold hover:bg-gray-50 transition-all"
                       >
                          Cancel
                       </button>
                       <button 
                          type="submit"
-                         className="flex-[2] bg-primary text-primary-foreground px-8 py-5 rounded-[24px] text-xs font-bold uppercase tracking-[0.15em] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                         className="flex-[2] bg-primary text-primary-foreground px-8 py-5 rounded-[24px] text-xs font-bold shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
                       >
                          Save Product
                       </button>

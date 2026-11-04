@@ -25,14 +25,14 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const location = useLocation();
 
   useEffect(() => {
-    const session = localStorage.getItem("logo_admin_session");
+    const session = localStorage.getItem("toyes_admin_session");
     if (session !== "active") {
       navigate("/admin/login");
     }
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("logo_admin_session");
+    localStorage.removeItem("toyes_admin_session");
     toast.info("Session terminated.");
     navigate("/admin/login");
   };
@@ -54,7 +54,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       >
         <div className="p-8 pb-12 flex items-center justify-between">
           {isSidebarOpen ? (
-            <Link to="/" className="text-xl font-black tracking-tighter">LOGO<span className="text-black/50">.Admin</span></Link>
+            <Link to="/" className="text-xl font-black tracking-tight">Toyes<span className="text-primary">Tech</span> <span className="text-black/50 text-sm font-semibold">Admin</span></Link>
           ) : (
             <div className="w-8 h-8 bg-primary rounded-lg mx-auto" />
           )}
@@ -73,7 +73,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             >
               <item.icon className={`w-5 h-5 ${location.pathname === item.path ? "text-white" : "group-hover:text-black"}`} />
               {isSidebarOpen && (
-                <span className="text-xs font-bold uppercase tracking-widest">{item.label}</span>
+                <span className="text-xs font-bold">{item.label}</span>
               )}
             </Link>
           ))}
@@ -86,7 +86,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           >
             <LogOut className="w-5 h-5" />
             {isSidebarOpen && (
-              <span className="text-xs font-bold uppercase tracking-widest">Logout</span>
+              <span className="text-xs font-bold">Logout</span>
             )}
           </button>
         </div>
@@ -110,15 +110,15 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                 <Menu className="w-5 h-5 text-primary" />
              </button>
              <div className="h-4 w-px bg-gray-100 mx-2 hidden md:block" />
-             <h2 className="text-xs font-bold uppercase tracking-[0.15em] text-black/50">
+             <h2 className="text-xs font-bold text-black/50">
                {menuItems.find(i => i.path === location.pathname)?.label || "Overview"}
              </h2>
           </div>
 
           <div className="flex items-center gap-6">
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-xs font-bold uppercase tracking-widest">System Admin</span>
-              <span className="text-[11px] text-green-500 font-bold uppercase">Online</span>
+              <span className="text-xs font-bold">System Admin</span>
+              <span className="text-[11px] text-green-500 font-bold">Online</span>
             </div>
             <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold ring-4 ring-primary/5">
                <User className="w-4 h-4" />
@@ -151,7 +151,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               className="fixed inset-y-0 left-0 w-80 bg-white z-[60] md:hidden p-8 flex flex-col"
             >
               <div className="flex items-center justify-between mb-12">
-                 <Link to="/" className="text-xl font-black tracking-tighter">LOGO</Link>
+                 <Link to="/" className="text-xl font-black tracking-tight">Toyes<span className="text-primary">Tech</span></Link>
                  <button onClick={() => setIsMobileMenuOpen(false)}>
                     <X className="w-6 h-6 text-black/40" />
                  </button>
@@ -171,7 +171,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                   >
                     <div className="flex items-center gap-4">
                       <item.icon className="w-5 h-5" />
-                      <span className="text-[11px] font-bold uppercase tracking-widest">{item.label}</span>
+                      <span className="text-[11px] font-bold">{item.label}</span>
                     </div>
                     <ChevronRight className={`w-4 h-4 ${location.pathname === item.path ? "text-white/40" : "text-black/10"}`} />
                   </Link>
@@ -180,7 +180,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
               <button 
                 onClick={handleLogout}
-                className="mt-auto flex items-center gap-4 px-6 py-5 w-full rounded-2xl text-red-500 bg-red-50 font-bold text-[11px] uppercase tracking-widest"
+                className="mt-auto flex items-center gap-4 px-6 py-5 w-full rounded-2xl text-red-500 bg-red-50 font-bold text-[11px]"
               >
                 <LogOut className="w-5 h-5" /> Logout
               </button>

@@ -117,15 +117,15 @@ const Navbar = () => {
                            onClick={() => handleSuggestionClick(p.id)}
                            className="w-full flex items-center gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-all group"
                          >
-                            <div className="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden p-2 shrink-0">
-                               <img src={p.image} alt={p.name} className="w-full h-full object-contain mix-blend-multiply" />
+                            <div className="w-12 h-12 bg-gray-50 rounded-xl overflow-hidden shrink-0">
+                               <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1 text-left">
                                <p className="text-[12px] font-bold tracking-tight group-hover:text-black">{p.name}</p>
                                <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-[11px] font-black uppercase tracking-widest text-black/50">{p.brand}</span>
+                                  <span className="text-[11px] font-black text-black/50">{p.brand}</span>
                                   <span className="text-[11px] font-black text-black/50">•</span>
-                                  <span className="text-[11px] font-black italic tracking-tighter">{formatPrice(p.price)}</span>
+                                  <span className="text-[11px] font-black italic tracking-tight">{formatPrice(p.price)}</span>
                                </div>
                             </div>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -138,7 +138,7 @@ const Navbar = () => {
                            navigate(`/shop?q=${searchQuery}`);
                            setShowSuggestions(false);
                          }}
-                         className="w-full p-4 mt-2 border-t border-gray-50 text-xs font-black uppercase tracking-[0.2em] text-black/50 hover:text-black transition-colors text-center"
+                         className="w-full p-4 mt-2 border-t border-gray-50 text-xs font-black text-black/50 hover:text-black transition-colors text-center"
                        >
                           View all matching items
                        </button>
@@ -212,19 +212,19 @@ const Navbar = () => {
               className="absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-2xl z-[70] overflow-hidden"
             >
                <div className="p-4 space-y-4">
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black/50 block">Live Results</span>
+                  <span className="text-[11px] font-black text-black/50 block">Live Results</span>
                   {suggestions.map((p) => (
                     <button
                       key={p.id}
                       onClick={() => handleSuggestionClick(p.id)}
                       className="w-full flex items-center gap-4 text-left"
                     >
-                       <div className="w-10 h-10 bg-gray-50 rounded-xl overflow-hidden p-2">
+                       <div className="w-10 h-10 bg-gray-50 rounded-xl overflow-hidden">
                           <img src={p.image} alt={p.name} className="w-full h-full object-contain" />
                        </div>
                        <div>
                           <p className="text-[11px] font-bold leading-none">{p.name}</p>
-                          <p className="text-[11px] text-black/50 font-bold uppercase tracking-widest mt-1">{formatPrice(p.price)}</p>
+                          <p className="text-[11px] text-black/50 font-bold mt-1">{formatPrice(p.price)}</p>
                        </div>
                     </button>
                   ))}
@@ -237,7 +237,7 @@ const Navbar = () => {
       {/* Secondary Sub-Navbar (Desktop) */}
       <div className="hidden md:block border-b border-gray-100 bg-white">
         <div className="container flex items-center gap-8 h-12">
-          <Link to="/shop" className="flex items-center gap-2 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest px-4 py-2 hover:bg-black/90 transition-colors shrink-0">
+          <Link to="/shop" className="flex items-center gap-2 bg-primary text-primary-foreground text-xs font-bold px-4 py-2 hover:bg-black/90 transition-colors shrink-0 rounded-full">
             <LayoutGrid className="w-3 h-3" />
             All Categories
           </Link>
@@ -247,7 +247,7 @@ const Navbar = () => {
               <Link
                 key={cat.label}
                 to={cat.to}
-                className="text-xs font-bold uppercase tracking-widest text-black/40 hover:text-black transition-colors whitespace-nowrap flex items-center gap-1"
+                className="text-xs font-bold text-black/40 hover:text-black transition-colors whitespace-nowrap flex items-center gap-1"
               >
                 {cat.label}
               </Link>
@@ -255,10 +255,10 @@ const Navbar = () => {
           </nav>
 
           <div className="ml-auto flex items-center gap-6">
-             <Link to="/orders" className="text-xs font-bold uppercase tracking-widest text-black flex items-center gap-2">
+             <Link to="/orders" className="text-xs font-bold text-black flex items-center gap-2">
                Track Order <ChevronDown className="w-3 h-3" />
              </Link>
-             <Link to="/contact" className="text-xs font-bold uppercase tracking-widest text-black/40 hover:text-black">
+             <Link to="/contact" className="text-xs font-bold text-black/40 hover:text-black">
                Help
              </Link>
           </div>
@@ -275,12 +275,12 @@ const Navbar = () => {
             className="fixed inset-0 top-32 bg-white z-[60] p-6 space-y-6 md:hidden overflow-y-auto"
           >
             <div className="space-y-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-black/40 block mb-4">Shop Categories</span>
+              <span className="text-xs font-bold text-black/40 block mb-4">Shop Categories</span>
               {subCategories.map((cat) => (
                 <Link 
                   key={cat.label} 
                   to={cat.to} 
-                  className="block text-2xl font-bold tracking-tighter"
+                  className="block text-2xl font-bold tracking-tight"
                   onClick={() => setMenuOpen(false)}
                 >
                   {cat.label}

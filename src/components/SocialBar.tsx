@@ -1,53 +1,54 @@
 import { toast } from "sonner";
-import { motion } from "framer-motion";
-import { Facebook, Twitter, Instagram, Youtube, Send } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 
-const SocialBar = () => {
-  return (
-    <div className="bg-primary text-primary-foreground py-12">
-      <div className="container flex flex-col lg:flex-row items-center justify-between gap-12">
-        {/* Left: Socials */}
-        <div className="flex items-center gap-8">
-          <div className="flex flex-col gap-1">
-             <span className="text-xs font-bold uppercase tracking-widest text-primary-foreground/40">Connect with us</span>
-             <h3 className="text-xl font-bold tracking-tighter">Follow Toyes Tech for drops &amp; deals.</h3>
-          </div>
-          <div className="flex items-center gap-4">
-            {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
-              <motion.a
-                key={i}
-                href="#"
-                whileHover={{ scale: 1.1, color: "hsl(var(--primary-foreground))" }}
-                className="w-10 h-10 rounded-full border border-primary-foreground/10 flex items-center justify-center text-primary-foreground/60 hover:border-primary-foreground/40 transition-colors"
-              >
-                <Icon className="w-4 h-4" />
-              </motion.a>
-            ))}
-          </div>
-        </div>
+const socials = [
+  { Icon: Instagram, label: "Instagram" },
+  { Icon: Twitter, label: "X (Twitter)" },
+  { Icon: Facebook, label: "Facebook" },
+  { Icon: Youtube, label: "YouTube" },
+];
 
-        {/* Right: Quick Newsletter */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-          <div className="flex flex-col gap-1 text-center lg:text-left">
-             <span className="text-xs font-bold uppercase tracking-widest text-primary-foreground/40">Newsletter</span>
-             <h3 className="text-xl font-bold tracking-tighter">Get deals in your inbox.</h3>
-          </div>
-          <form className="flex flex-1 lg:w-80 relative" onSubmit={(e) => { e.preventDefault(); const f = e.currentTarget; toast.success("You're subscribed! Watch your inbox for Toyes Tech deals."); f.reset(); }}>
-            <input 
-              type="email" 
-              required
-              aria-label="Email address"
-              placeholder="Your email address" 
-              className="w-full bg-primary-foreground/5 border border-primary-foreground/10 px-6 py-4 text-sm outline-none focus:border-primary-foreground/20 transition-all rounded-full placeholder:text-primary-foreground/30"
-            />
-            <button type="submit" aria-label="Subscribe" className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-foreground text-primary p-2 rounded-full hover:opacity-90 transition-opacity">
-              <Send className="w-4 h-4" />
-            </button>
-          </form>
+const SocialBar = () => (
+  <section className="bg-primary text-primary-foreground">
+    <div className="container grid gap-8 py-12 md:grid-cols-2 md:items-center md:py-14">
+      <div>
+        <h2 className="text-2xl font-extrabold md:text-3xl">Get new arrivals and deals first</h2>
+        <p className="mt-2 text-sm text-white/80">One email a week. Unsubscribe anytime.</p>
+        <div className="mt-5 flex gap-3">
+          {socials.map(({ Icon, label }) => (
+            <a
+              key={label}
+              href="#"
+              aria-label={`Toyes Tech on ${label}`}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 text-white transition hover:bg-white hover:text-primary"
+            >
+              <Icon className="h-4 w-4" />
+            </a>
+          ))}
         </div>
       </div>
+      <form
+        className="flex w-full flex-col gap-3 sm:flex-row md:justify-self-end md:max-w-md"
+        onSubmit={(e) => {
+          e.preventDefault();
+          toast.success("Subscribed. Watch your inbox for Toyes Tech deals.");
+          e.currentTarget.reset();
+        }}
+      >
+        <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+        <input
+          id="newsletter-email"
+          type="email"
+          required
+          placeholder="you@example.com"
+          className="min-w-0 flex-1 rounded-full bg-white px-5 py-3.5 text-sm text-black outline-none placeholder:text-black/40 focus:ring-2 focus:ring-white/60"
+        />
+        <button type="submit" className="rounded-full bg-black px-6 py-3.5 text-sm font-bold text-white transition hover:bg-black/85">
+          Subscribe
+        </button>
+      </form>
     </div>
-  );
-};
+  </section>
+);
 
 export default SocialBar;

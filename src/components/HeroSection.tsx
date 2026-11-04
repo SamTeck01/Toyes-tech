@@ -1,136 +1,59 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowUpRight } from "lucide-react";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Autoplay } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
-
-const slides = [
-  {
-    title: "Pristine \n iPhones",
-    image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&q=80&w=1200",
-    link: "/shop?category=Phones"
-  },
-  {
-    title: "Professional \n MacBooks",
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=1200",
-    link: "/shop?category=Laptops"
-  },
-  {
-    title: "Premium \n Androids",
-    image: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&q=80&w=1200",
-    link: "/shop?category=Phones"
-  }
-];
+import { ShieldCheck, Truck, RotateCcw } from "lucide-react";
+import { motion } from "framer-motion";
+import { useProducts } from "@/context/ProductContext";
+import { formatPrice } from "@/lib/format";
 
 const HeroSection = () => {
+  const { products } = useProducts();
+  const hero = products.find((p) => p.id === "p1") ?? products[0];
+
   return (
-    <section className="container py-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-[500px]">
-        
-        {/* Large Featured Panel (Left) */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="md:col-span-2 relative rounded-3xl overflow-hidden bg-gray-50 flex group"
-        >
-          <Swiper
-            modules={[Pagination, Autoplay]}
-            pagination={{ clickable: true }}
-            autoplay={{ delay: 5000, disableOnInteraction: false }}
-            loop={true}
-            className="w-full h-[300px] sm:h-[380px] md:h-full"
-            style={{
-              "--swiper-theme-color": "hsl(var(--primary))",
-              "--swiper-pagination-bullet-inactive-color": "hsl(var(--primary))",
-              "--swiper-pagination-bullet-inactive-opacity": "0.1",
-              "--swiper-pagination-bullet-size": "6px",
-              "--swiper-pagination-bottom": "24px"
-            } as React.CSSProperties}
-          >
-            {slides.map((slide, index) => (
-              <SwiperSlide key={index}>
-                <div className="absolute inset-0 z-0 after:absolute after:inset-0 after:bg-gradient-to-r after:from-white/90 after:via-white/50 after:to-transparent">
-                  <img 
-                    src={slide.image} 
-                    alt={slide.title.replace(/\n/, "")} 
-                    className="w-full h-full object-cover  group-hover:scale-105 transition-transform duration-1000"
-                  />
-                </div>
-                
-                <div className="relative z-10 p-10 md:p-16 max-w-sm h-full flex flex-col justify-center">
-                  <span className="mb-4 inline-flex w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">Toyes Tech · Verified quality</span>
-                  <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.05] mb-8 whitespace-pre-line text-black">
-                    {slide.title}
-                  </h1>
-                  <div>
-                    <Link
-                      to={slide.link}
-                      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-xl text-sm font-bold tracking-tight hover:opacity-90 transition-all shadow-lg shadow-primary/25"
-                    >
-                      Shop now <ArrowUpRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </motion.div>
-
-        {/* Right Stacked Panels */}
-        <div className="flex flex-row md:flex-col gap-4 md:gap-6">
-          
-          {/* Top Panel: UK Used Devices */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex-1 relative rounded-3xl overflow-hidden bg-primary group h-[160px] md:h-auto"
-          >
-            <div className="absolute inset-0">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent z-10"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&q=80&w=600" 
-                alt="Premium UK Used" 
-                className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
-              />
-            </div>
-            <div className="relative z-20 p-5 md:p-8 h-full flex flex-col justify-center">
-              <span className="hidden md:block text-xs font-bold uppercase tracking-[0.2em] text-white/70 mb-2">Grade A Condition</span>
-              <h2 className="text-xl font-bold text-white mb-6">Premium UK Used</h2>
-              <Link to="/shop?condition=UK Used" className="text-xs font-bold text-white/70 hover:text-white flex items-center gap-1 transition-colors">
-                Shop Devices <ArrowUpRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Bottom Panel: Accessories */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex-1 relative rounded-3xl overflow-hidden bg-primary group h-[160px] md:h-auto"
-          >
-            <div className="absolute inset-0">
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent z-10"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=600" 
-                alt="Accessories" 
-                className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
-              />
-            </div>
-            <div className="relative z-20 p-5 md:p-8 h-full flex flex-col justify-center">
-              <span className="hidden md:block text-xs font-bold uppercase tracking-[0.2em] text-white/70 mb-2">Essential Add-ons</span>
-              <h2 className="text-xl font-bold text-white mb-6">Watches & More</h2>
-              <Link to="/shop?category=Watches" className="text-xs font-bold text-white/70 hover:text-white flex items-center gap-1 transition-colors">
-                Shop Accessories <ArrowUpRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </motion.div>
-
+    <section className="container pt-6 pb-10 md:pt-10 md:pb-16">
+      <div className="grid items-center gap-8 overflow-hidden rounded-[28px] bg-[#F4F3F1] md:grid-cols-[1.05fr_1fr] md:gap-0">
+        <div className="order-2 px-6 pb-8 md:order-1 md:py-16 md:pl-14 md:pr-6 lg:pl-16">
+          <h1 className="font-display text-[2.5rem] font-extrabold leading-[0.98] text-black sm:text-5xl lg:text-[4.25rem]">
+            Phones and laptops, checked before they reach you.
+          </h1>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-black/65 md:text-lg">
+            New and UK-used devices from Apple, Samsung, Google and more. Every one is tested, covered by warranty and delivered across Nigeria.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/shop?category=Phones" className="rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground transition hover:brightness-110">
+              Shop phones
+            </Link>
+            <Link to="/shop?category=Laptops" className="rounded-full border border-black/15 bg-white px-7 py-3.5 text-sm font-bold text-black transition hover:border-black/40">
+              Shop laptops
+            </Link>
+          </div>
+          <ul className="mt-10 grid gap-3 text-sm text-black/70 sm:grid-cols-3 sm:gap-4">
+            <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Warranty on every device</li>
+            <li className="flex items-center gap-2"><Truck className="h-4 w-4 shrink-0 text-primary" /> Nationwide delivery</li>
+            <li className="flex items-center gap-2"><RotateCcw className="h-4 w-4 shrink-0 text-primary" /> 7-day returns</li>
+          </ul>
         </div>
+
+        {hero && (
+          <Link to={`/product/${hero.id}`} className="group relative order-1 block h-[340px] sm:h-[420px] md:order-2 md:h-full md:min-h-[560px]">
+            <motion.img
+              initial={{ scale: 1.06, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] }}
+              src={hero.image}
+              alt={hero.name}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute bottom-4 left-4 rounded-2xl bg-white/95 px-4 py-3 shadow-lg backdrop-blur md:bottom-8 md:left-8">
+              <p className="text-xs text-black/55">{hero.name}</p>
+              <p className="text-lg font-extrabold text-black">
+                {formatPrice(hero.price)}
+                {hero.originalPrice && hero.originalPrice > hero.price && (
+                  <span className="ml-2 text-sm font-semibold text-black/40 line-through">{formatPrice(hero.originalPrice)}</span>
+                )}
+              </p>
+            </div>
+          </Link>
+        )}
       </div>
     </section>
   );
