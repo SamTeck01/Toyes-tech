@@ -16,7 +16,7 @@ const themeConfigs: Record<ThemeColor, { primary: string; accent: string; ring: 
     ring: "0 0% 14.9%",
   },
   blue: {
-    primary: "225 91% 55%", // Toyes Blue (brand)
+    primary: "225 91% 55%", // Electric Blue
     accent: "225 91% 96%",
     ring: "225 91% 55%",
   },
@@ -26,20 +26,20 @@ const themeConfigs: Record<ThemeColor, { primary: string; accent: string; ring: 
     ring: "24.6 95% 53.1%",
   },
   red: {
-    primary: "0 84.2% 60.2%", // Bright Red
-    accent: "0 84.2% 96%",
-    ring: "0 84.2% 60.2%",
+    primary: "0 84% 48%", // Toyes Red (brand)
+    accent: "0 84% 96%",
+    ring: "0 84% 48%",
   },
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeColor>(() => {
-    return (localStorage.getItem("toyes-theme") as ThemeColor) || "blue";
+    return (localStorage.getItem("toyes-theme-v2") as ThemeColor) || "red";
   });
 
   const setTheme = (newTheme: ThemeColor) => {
     setThemeState(newTheme);
-    localStorage.setItem("toyes-theme", newTheme);
+    localStorage.setItem("toyes-theme-v2", newTheme);
   };
 
   useEffect(() => {
