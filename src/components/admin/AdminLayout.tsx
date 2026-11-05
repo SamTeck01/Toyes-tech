@@ -9,7 +9,9 @@ import {
   Menu, 
   X, 
   ChevronRight,
-  User
+  User,
+  CreditCard,
+  TrendingUp
 } from "@/components/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -39,7 +41,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Overview", path: "/admin/dashboard" },
-    { icon: ShoppingBag, label: "Orders", path: "/admin/orders" },
+    { icon: CreditCard, label: "Point of Sale", path: "/admin/pos" },
+    { icon: TrendingUp, label: "In-store sales", path: "/admin/sales" },
+    { icon: ShoppingBag, label: "Online orders", path: "/admin/orders" },
     { icon: Package, label: "Products", path: "/admin/products" },
     { icon: Star, label: "Reviews", path: "/admin/reviews" },
   ];

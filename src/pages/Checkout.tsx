@@ -6,6 +6,7 @@ import { CheckCircle2, ArrowRight, ShieldCheck, ChevronLeft, ChevronDown, Truck,
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
+import { useProducts } from "@/context/ProductContext";
 import { useOrders } from "@/context/OrderContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/format";
@@ -23,6 +24,7 @@ const inputCls = (invalid: boolean) =>
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { addOrder } = useOrders();
+  const { adjustStock } = useProducts();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -101,6 +103,7 @@ const Checkout = () => {
           address: fulfilment === "pickup" ? `Pickup: ${pickup.name}, ${pickup.address}` : `${form.address}, ${form.city}, ${form.state}`,
         },
       });
+      items.forEach((i) => adjustStock(i.product.id, -i.quantity)); // online and in-store share one stock count
       setOrderId(id);
       clearCart();
       setIsPaying(false);

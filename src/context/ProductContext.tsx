@@ -5,6 +5,8 @@ interface ProductContextType {
   products: Product[];
   addProduct: (product: Omit<Product, "id">) => void;
   updateProduct: (product: Product) => void;
+  /** Add (positive) or remove (negative) units; keeps inStock in sync. */
+  adjustStock: (id: string, delta: number) => void;
   deleteProduct: (id: string) => void;
   getProductById: (id: string) => Product | undefined;
 }
@@ -39,6 +41,16 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setProducts((prev) => [newProduct, ...prev]);
   };
 
+  const adjustStock = (id: string, delta: number) => {
+    setProducts((prev) =>
+      prev.map((p) => {
+        if (p.id !== id) return p;
+        const stock = Math.max(0, (p.stock ?? 0) + delta);
+        return { ...p, stock, inStock: stock > 0 };
+      }),
+    );
+  };
+
   const updateProduct = (updatedProduct: Product) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
@@ -52,7 +64,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const getProductById = (id: string) => products.find((p) => p.id === id);
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, getProductById }}>
+    <ProductContext.Provider value={{ products, addProduct, updateProduct, adjustStock, deleteProduct, getProductById }}>
       {children}
     </ProductContext.Provider>
   );

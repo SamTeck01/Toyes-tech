@@ -7,7 +7,7 @@ export const CURRENCY_SYMBOL = "₦";
  * @returns A formatted string like ₦1,200,000
  */
 export const formatPrice = (amount: number, includeDecimals?: boolean): string => {
-  const shouldIncludeDecimals = includeDecimals ?? amount < 1000;
+  const shouldIncludeDecimals = includeDecimals ?? !Number.isInteger(amount);
   
   return `${CURRENCY_SYMBOL}${amount.toLocaleString("en-NG", {
     minimumFractionDigits: shouldIncludeDecimals ? 2 : 0,

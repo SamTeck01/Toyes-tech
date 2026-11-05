@@ -68,3 +68,11 @@ html { scroll-behavior: smooth; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { scrollbar-width: none; }
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Printing: only the element marked .print-area is printed (POS receipts, sales summary). */
+@media print {
+  body * { visibility: hidden !important; }
+  .print-area, .print-area * { visibility: visible !important; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; border: 0 !important; }
+  .receipt { width: 72mm !important; padding: 0 !important; }
+}
