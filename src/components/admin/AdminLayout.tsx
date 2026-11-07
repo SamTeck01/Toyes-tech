@@ -40,11 +40,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   };
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Overview", path: "/admin/dashboard" },
-    { icon: CreditCard, label: "Point of Sale", path: "/admin/pos" },
-    { icon: TrendingUp, label: "In-store sales", path: "/admin/sales" },
-    { icon: ShoppingBag, label: "Online orders", path: "/admin/orders" },
-    { icon: Package, label: "Products", path: "/admin/products" },
+    { icon: LayoutDashboard, label: "Back to HQ", path: "/admin" },
+    { icon: ShoppingBag, label: "Website orders", path: "/admin/orders" },
     { icon: Star, label: "Reviews", path: "/admin/reviews" },
   ];
 

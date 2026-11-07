@@ -27,17 +27,12 @@ import ScrollToTop from "./components/ScrollToTop";
 import CartDrawer from "./components/CartDrawer";
 import WhatsAppButton from "./components/WhatsAppButton";
 import { AuthProvider } from "./context/AuthContext";
-import { SalesProvider } from "./context/SalesContext";
 
 // Admin area is code-split so shoppers don't download it.
-const AdminLogin = lazy(() => import("./pages/admin/Login"));
-const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
-const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
-const AdminPOS = lazy(() => import("./pages/admin/POS"));
-const AdminSales = lazy(() => import("./pages/admin/Sales"));
 const PosApp = lazy(() => import("./pages/pos/PosApp"));
+const HQArea = lazy(() => import("./pages/hq/HQArea"));
 
 import { ThemeProvider } from "./context/ThemeContext";
 import { ThemeWatcher } from "./components/ThemeWatcher";
@@ -52,7 +47,6 @@ const App = () => (
           <AuthProvider>
           <ReviewProvider>
             <ProductProvider>
-            <SalesProvider>
               <OrderProvider>
                 <WishlistProvider>
                   <CartProvider>
@@ -79,13 +73,11 @@ const App = () => (
                       <Route path="/account" element={<Account />} />
                       
                       {/* Admin Routes */}
-                      <Route path="/admin/login" element={<AdminLogin />} />
-                      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                      {/* Website order/review tools (owner) */}
                       <Route path="/admin/orders" element={<AdminOrders />} />
-                      <Route path="/admin/products" element={<AdminProducts />} />
                       <Route path="/admin/reviews" element={<AdminReviews />} />
-                      <Route path="/admin/pos" element={<AdminPOS />} />
-                      <Route path="/admin/sales" element={<AdminSales />} />
+                      {/* HQ: owner and managers, backed by the cloud database */}
+                      <Route path="/admin/*" element={<HQArea />} />
                       <Route path="/pos" element={<PosApp />} />
                       
                       <Route path="*" element={<NotFound />} />
@@ -95,7 +87,6 @@ const App = () => (
                 </CartProvider>
               </WishlistProvider>
             </OrderProvider>
-            </SalesProvider>
           </ProductProvider>
         </ReviewProvider>
         </AuthProvider>
