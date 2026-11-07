@@ -6,9 +6,9 @@
 export const STORE = {
   name: "Toyes Tech",
   /** WhatsApp number in international format, digits only. PLACEHOLDER */
-  whatsapp: "2348000000000",
+  whatsapp: "2349023036748",
   /** Shown on the contact page and footer. PLACEHOLDER */
-  phoneDisplay: "+234 800 000 0000",
+  phoneDisplay: "+234 902 303 6748",
   email: "hello@toyestech.com", // PLACEHOLDER
 };
 
