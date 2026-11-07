@@ -80,16 +80,19 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
   const [reprint, setReprint] = useState<LocalSale | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const stock = useMemo(() => new Map(inventory.map((i) => [i.product_id, i] as const)), [inventory]);
   const priceOf = (id: string) => stock.get(id)?.price ?? products.find((p) => p.id === id)?.base_price ?? 0;
   const qtyLeft = (id: string) => (stock.get(id)?.qty ?? 0) - lines.filter((l) => l.product_id === id).reduce((s, l) => s + l.quantity, 0);
 
+  const stock = useMemo(() => new Map(inventory.map((i) => [i.product_id, i] as const)), [inventory]);
   const visible = useMemo(() => {
     const asProducts = products.map((p) => ({ ...p, price: p.base_price, inStock: true, stock: 0 }) as unknown as Product);
     const base = query.trim() ? searchProducts(asProducts, query).map((p) => products.find((x) => x.id === p.id)!) : products;
     const barcodeHit = products.filter((p) => p.barcode && p.barcode === query.trim());
-    return [...barcodeHit, ...base.filter((p) => !barcodeHit.includes(p))].filter((p) => dept === "All" || p.category === dept);
-  }, [products, query, dept]);
+    const list = [...barcodeHit, ...base.filter((p) => !barcodeHit.includes(p))].filter((p) => dept === "All" || p.category === dept);
+    // Items this store actually has come first; when not searching, keep them in name order.
+    const inStock = (id: string) => ((stock.get(id)?.qty ?? 0) > 0 ? 0 : 1);
+    return query.trim() ? list : [...list].sort((a, b) => inStock(a.id) - inStock(b.id) || a.name.localeCompare(b.name));
+  }, [products, query, dept, stock]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

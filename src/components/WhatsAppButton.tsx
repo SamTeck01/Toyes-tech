@@ -8,7 +8,7 @@ export const WhatsAppGlyph = ({ className = "h-6 w-6" }: { className?: string })
   </svg>
 );
 
-const HIDDEN_ON = ["/checkout", "/admin"];
+const HIDDEN_ON = ["/checkout", "/admin", "/pos"];
 
 /** Floating "chat with us" button. Sits above the mobile bottom bar. */
 const WhatsAppButton = () => {

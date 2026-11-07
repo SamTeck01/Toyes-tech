@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local testing only
+supabase/functions/.local-ca.pem
+supabase/.env.local-test
+supabase/.temp
+supabase/.branches

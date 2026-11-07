@@ -55,7 +55,8 @@ beforeAll(async () => {
     grant usage on schema auth to anon, authenticated;
     grant usage on schema public to anon, authenticated;
   `);
-  for (const f of readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql")).sort()) {
+  // The schedules migration needs pg_cron/pg_net/vault (real Supabase only); it is tested against local Supabase instead.
+  for (const f of readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql") && !f.includes("schedules")).sort()) {
     await db.exec(readFileSync(join(MIGRATIONS, f), "utf8"));
   }
   await db.exec(`insert into auth.users values ('${CEO}'), ('${MGR_A}'), ('${CASH_A}'), ('${CASH_B}');`);

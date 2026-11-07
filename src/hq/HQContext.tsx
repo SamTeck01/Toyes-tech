@@ -62,8 +62,10 @@ export const HQProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     const { data } = await supabase.from("staff").select("id,full_name,username,role,store_id,active").eq("id", s.session.user.id).maybeSingle();
-    setMe(data && data.active ? (data as Staff) : null);
-    if (data) await reloadStores();
+    // HQ is for the owner and managers only. Cashiers work on the till.
+    const allowed = data && data.active && data.role !== "cashier";
+    setMe(allowed ? (data as Staff) : null);
+    if (allowed) await reloadStores();
     setLoading(false);
   }, [reloadStores]);
 

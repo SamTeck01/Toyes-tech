@@ -6,6 +6,13 @@ import { fetchSales, fetchStaffNames, takings, startOfDay, type SaleRow } from "
 import { supabase } from "@/lib/supabase";
 import { formatPrice } from "@/lib/format";
 
+/** "Mr Toye" → "Mr Toye", "Tolu Ade" → "Tolu": keep titles with the name they belong to. */
+const TITLES = /^(mr|mrs|ms|miss|dr|chief|engr|alhaji|alhaja|pastor|prof|barr|sir)\.?$/i;
+const greetName = (full: string) => {
+  const parts = full.trim().split(/\s+/);
+  return TITLES.test(parts[0] ?? "") ? parts.slice(0, 2).join(" ") : parts[0] ?? "";
+};
+
 const card = "rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5";
 
 /** Live view across all stores the signed-in person can see. Refreshes every 15 seconds. */
@@ -55,7 +62,7 @@ const Overview = () => {
       <Helmet><title>Overview | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-extrabold">Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, {me?.full_name.split(" ")[0]}</h1>
+          <h1 className="text-3xl font-extrabold">Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, {greetName(me?.full_name ?? "")}</h1>
           <p className="text-sm text-black/55">Today across {isOwner ? "all stores" : "your store"}{updated ? ` · updated ${updated.toLocaleTimeString("en-NG", { timeStyle: "short" })}` : ""}</p>
         </div>
         <Link to="/pos" className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white">Open POS</Link>
