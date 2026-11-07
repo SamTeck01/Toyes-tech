@@ -37,6 +37,7 @@ const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 const AdminPOS = lazy(() => import("./pages/admin/POS"));
 const AdminSales = lazy(() => import("./pages/admin/Sales"));
+const PosApp = lazy(() => import("./pages/pos/PosApp"));
 
 import { ThemeProvider } from "./context/ThemeContext";
 import { ThemeWatcher } from "./components/ThemeWatcher";
@@ -85,6 +86,7 @@ const App = () => (
                       <Route path="/admin/reviews" element={<AdminReviews />} />
                       <Route path="/admin/pos" element={<AdminPOS />} />
                       <Route path="/admin/sales" element={<AdminSales />} />
+                      <Route path="/pos" element={<PosApp />} />
                       
                       <Route path="*" element={<NotFound />} />
                     </Routes>
