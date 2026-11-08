@@ -64,10 +64,12 @@ beforeAll(async () => {
 });
 
 describe("accounts and stores", () => {
-  it("lets the first user become super admin, and only once", async () => {
-    const [ceo] = await as<{ role: string }>(CEO, "select * from public.claim_super_admin('Mr CEO', 'ceo')");
+  it("only allows one owner, and nobody can claim it directly", async () => {
+    // Signed-in users can't claim ownership directly (that goes through the staff-admin function).
+    await expect(as(MGR_A, "select public.claim_super_admin('Imposter', 'x')")).rejects.toThrow(/permission denied/);
+    const [ceo] = await db.query<{ role: string }>(`select role::text from (select set_config('request.jwt.claim.sub', '${CEO}', false)) s, public.claim_super_admin('Mr CEO', 'ceo')`).then((r) => r.rows);
     expect(ceo.role).toBe("super_admin");
-    await expect(as(MGR_A, "select public.claim_super_admin('Imposter', 'x')")).rejects.toThrow(/already exists/);
+    await expect(db.query("select public.claim_super_admin('Imposter', 'x')")).rejects.toThrow(/already exists/);
   });
 
   it("only the owner can create stores", async () => {

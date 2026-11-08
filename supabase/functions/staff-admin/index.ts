@@ -2,7 +2,7 @@
 // never in the browser. Every action re-checks the caller's role from the database.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { corsHeaders, json } from "../_shared/cors.ts";
+import { corsHeaders, json } from "./cors.ts";
 
 const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
