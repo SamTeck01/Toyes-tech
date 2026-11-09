@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useHQ, rpc } from "@/hq/HQContext";
 import { supabase } from "@/lib/supabase";
 import { formatPrice } from "@/lib/format";
+import MoneyInput from "@/components/MoneyInput";
 
 interface Row { id: string; name: string; category: string; base_price: number; barcode: string | null; qty: number; price: number | null; low: number }
 type Action = { kind: "receive" | "count" | "price" | "transfer"; row: Row };
@@ -141,7 +142,7 @@ const Inventory = () => {
           <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); void save(); }}>
             {action?.kind === "price" ? (
               <>
-                <label className="block text-sm font-semibold">Selling price (₦)<input autoFocus inputMode="numeric" className={`${input} mt-1.5`} value={a.price} onChange={(e) => setA({ ...a, price: e.target.value })} /></label>
+                <MoneyInput label="Selling price" autoFocus value={toNumber(a.price)} onChange={(n) => setA({ ...a, price: String(n || "") })} />
                 <label className="block text-sm font-semibold">Warn me when stock is at or below<input inputMode="numeric" className={`${input} mt-1.5`} value={a.low} onChange={(e) => setA({ ...a, low: e.target.value })} /></label>
               </>
             ) : (

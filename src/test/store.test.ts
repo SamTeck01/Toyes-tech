@@ -51,3 +51,16 @@ describe("sign-in names", () => {
     expect(staffEmail("Tolu@Gmail.com")).toBe("tolu@gmail.com");
   });
 });
+
+import { nairaInWords } from "@/components/MoneyInput";
+
+describe("naira in words", () => {
+  it("reads amounts the way people say them", () => {
+    expect(nairaInWords(1550000)).toBe("One million, five hundred and fifty thousand naira");
+    expect(nairaInWords(135000)).toBe("One hundred and thirty-five thousand naira");
+    expect(nairaInWords(18000)).toBe("Eighteen thousand naira");
+    expect(nairaInWords(1050)).toBe("One thousand and fifty naira");
+    expect(nairaInWords(2850000)).toBe("Two million, eight hundred and fifty thousand naira");
+    expect(nairaInWords(0)).toBe("Zero naira");
+  });
+});

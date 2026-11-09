@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { useHQ, rpc } from "@/hq/HQContext";
 import { supabase } from "@/lib/supabase";
 import { formatPrice } from "@/lib/format";
+import MoneyInput from "@/components/MoneyInput";
 import { uploadProductPhoto } from "@/hq/upload";
 import { products as websiteCatalogue, gadgetTypes } from "@/data/products";
 import { PageHeader, Pill, EmptyState, btn, field, label } from "@/components/hq/kit";
@@ -267,12 +268,7 @@ const Products = () => {
                 <input autoFocus={!form.id} className={cn(field, "mt-1.5")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Oraimo FreePods 4" />
               </label>
 
-              <label className={label}>Selling price
-                <div className="relative mt-1.5">
-                  <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 font-semibold text-ink/45">₦</span>
-                  <input inputMode="numeric" className={cn(field, "pl-8 text-lg font-bold tabular-nums")} value={form.price ? Number(toNumber(form.price)).toLocaleString("en-NG") : ""} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="0" />
-                </div>
-              </label>
+              <MoneyInput label="Selling price" size="lg" value={toNumber(form.price)} onChange={(n) => setForm({ ...form, price: String(n || "") })} />
 
               {form.store_id && (
                 <div>

@@ -11,6 +11,7 @@ import { setCashier, type Me } from "@/pos/session";
 import { searchProducts } from "@/lib/search";
 import { formatPrice } from "@/lib/format";
 import PosReceipt from "./PosReceipt";
+import MoneyInput from "@/components/MoneyInput";
 import { LogoMark } from "@/components/Logo";
 import { Kbd } from "@/components/hq/kit";
 
@@ -239,7 +240,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-white shadow-sm" : "text-ink/50"}`}>{m === "amount" ? "₦" : "%"}</button>
             ))}
           </div>
-          <input aria-label="Discount" inputMode="numeric" placeholder="0" value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} className="min-w-0 flex-1 rounded-lg border border-line px-3 py-1.5 text-right text-sm outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
+          <input aria-label="Discount" inputMode="numeric" placeholder="0" value={discountMode === "amount" && toNumber(discountInput) ? toNumber(discountInput).toLocaleString("en-NG") : discountInput} onChange={(e) => setDiscountInput(e.target.value.replace(/[^\d.]/g, ""))} className="min-w-0 flex-1 rounded-lg border border-line px-3 py-1.5 text-right text-sm font-semibold tabular-nums outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
         </div>
         <div className="rounded-2xl border border-line bg-stone-50 p-4">
           <dl className="space-y-1.5 text-sm">
@@ -334,7 +335,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                       {inCart > 0 && <span className="absolute right-2 top-2 flex h-7 min-w-7 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-white shadow-lg shadow-primary/30">{inCart}</span>}
                       <div className="flex flex-1 flex-col p-3">
                         <p className="line-clamp-2 text-sm font-bold leading-tight">{p.name}</p>
-                        <p className="mt-0.5 text-[11px] text-ink/45">{[p.condition, p.barcode ?? p.id.toUpperCase()].filter(Boolean).join(" · ")}</p>
+                        <p className="mt-0.5 text-[11px] text-ink/45">{[p.condition, p.barcode].filter(Boolean).join(" · ")}</p>
                         <div className="mt-auto flex items-end justify-between pt-2">
                           <span className="text-base font-extrabold tabular-nums">{formatPrice(priceOf(p.id))}</span>
                           {left > 0 && <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${left <= 3 ? "bg-amber-50 text-amber-700" : "bg-stone-100 text-ink/55"}`}>{left} left</span>}
@@ -391,10 +392,8 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             <label className="block text-sm font-semibold">What is it?
               <input autoFocus required value={quick.name} onChange={(e) => setQuick({ ...quick, name: e.target.value })} placeholder="e.g. Phone pouch" className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
             </label>
-            <div className="grid grid-cols-[1fr_90px] gap-2">
-              <label className="block text-sm font-semibold">Price (₦)
-                <input required inputMode="numeric" value={quick.price} onChange={(e) => setQuick({ ...quick, price: e.target.value })} className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 text-right font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
-              </label>
+            <div className="grid grid-cols-[1fr_90px] items-start gap-2">
+              <MoneyInput label="Price" value={toNumber(quick.price)} onChange={(n) => setQuick({ ...quick, price: String(n || "") })} />
               <label className="block text-sm font-semibold">Qty
                 <input inputMode="numeric" value={quick.qty} onChange={(e) => setQuick({ ...quick, qty: e.target.value })} className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 text-right font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
               </label>
@@ -418,9 +417,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           </div>
           {method === "cash" && (
             <div className="space-y-3">
-              <label className="block text-sm font-semibold">Cash received
-                <input autoFocus inputMode="numeric" value={tendered} onChange={(e) => setTendered(e.target.value)} placeholder="0" className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 text-right text-xl font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
-              </label>
+              <MoneyInput label="Cash received" size="lg" autoFocus value={toNumber(tendered)} onChange={(n) => setTendered(String(n || ""))} />
               <div className="flex flex-wrap gap-2">
                 {quickCash.map((v) => <button key={v} onClick={() => setTendered(String(v))} className="rounded-full bg-stone-100 px-3 py-1.5 text-sm font-semibold">{v === total ? "Exact" : formatPrice(v)}</button>)}
               </div>
@@ -442,7 +439,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                   <select value={row.method} onChange={(e) => setSplit(split.map((r, j) => (j === i ? { ...r, method: e.target.value as PaymentMethod } : r)))} className="rounded-xl border border-line px-3 text-sm font-semibold">
                     {METHODS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
                   </select>
-                  <input inputMode="numeric" placeholder="0" value={row.amount} onChange={(e) => setSplit(split.map((r, j) => (j === i ? { ...r, amount: e.target.value } : r)))} className="min-w-0 flex-1 rounded-xl border border-line px-3 py-2.5 text-right font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
+                  <MoneyInput className="min-w-0 flex-1" showWords={false} value={toNumber(row.amount)} onChange={(n) => setSplit(split.map((r, j) => (j === i ? { ...r, amount: String(n || "") } : r)))} />
                 </div>
               ))}
               <button onClick={() => setSplit([...split, { method: "card", amount: "" }])} className="text-sm font-semibold text-primary">+ Add another payment</button>
@@ -593,7 +590,7 @@ const ShiftDialog = ({ open, onOpenChange, shift, cashierId }: { open: boolean; 
             }}
           >
             {shift && expected !== null && <p className="text-sm text-ink/60">Count the notes carefully, then enter the total. We'll compare it with the POS.</p>}
-            <input autoFocus required inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="₦0" className="w-full rounded-xl border border-line px-4 py-3 text-right text-xl font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
+            <MoneyInput size="lg" autoFocus value={toNumber(amount)} onChange={(n) => setAmount(String(n || ""))} />
             <button className="w-full rounded-xl bg-primary py-3.5 font-bold text-white">{shift ? "Close shift" : "Open shift"}</button>
           </form>
         )}
