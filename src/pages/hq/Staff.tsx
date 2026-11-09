@@ -22,6 +22,7 @@ const Staff = () => {
 
   const save = async () => {
     if (!form) return;
+    if (!form.id && /\s/.test(form.username.trim())) return toast.error("Usernames can't have spaces. Remove the space and try again.");
     setBusy(true);
     try {
       if (form.id) {
@@ -80,7 +81,7 @@ const Staff = () => {
           {form && (
             <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); void save(); }}>
               <label className="block text-sm font-semibold">Full name<input autoFocus required className={`${input} mt-1`} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></label>
-              {!form.id && <label className="block text-sm font-semibold">Username<input required className={`${input} mt-1`} autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value.replace(/\s/g, "") })} placeholder="e.g. Tolu" /></label>}
+              {!form.id && <label className="block text-sm font-semibold">Username<input required className={`${input} mt-1`} autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="e.g. Tolu" /></label>}
               {!(form.id === me?.id) && (
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block text-sm font-semibold">Role

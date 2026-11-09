@@ -8,12 +8,13 @@ const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE
   auth: { persistSession: false },
 });
 
-// Usernames have no rules: case, spaces and symbols are ignored ("Tolu Ade" = "toluade").
+// Usernames: no spaces allowed; capitals and symbols are ignored when matching ("Tolu-Ade" = "toluade").
 const keyOf = (name: string) => String(name ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Accepts a username (any text) or an email. Returns the sign-in email and the stored username. */
 const loginFor = (body: { username?: string; email?: string }) => {
   const raw = String(body.email || body.username || "").trim();
+  if (/\s/.test(raw)) return null;
   if (raw.includes("@")) return EMAIL.test(raw) ? { email: raw.toLowerCase(), username: raw.toLowerCase() } : null;
   const key = keyOf(raw);
   return key ? { email: `${key}@staff.toyestech.app`, username: key } : null;
@@ -37,7 +38,7 @@ Deno.serve(async (req) => {
       const { count } = await admin.from("staff").select("id", { count: "exact", head: true }).eq("role", "super_admin");
       if ((count ?? 0) > 0) return fail("The owner account already exists.", 409);
       const login = loginFor(body);
-      if (!login) return fail("Enter a username.");
+      if (!login) return fail("Enter a username with no spaces.");
       if (String(body.password ?? "").length < 8) return fail("Password must be at least 8 characters.");
       const { email, username } = login;
       const { data, error } = await admin.auth.admin.createUser({ email, password: body.password, email_confirm: true });
@@ -62,7 +63,7 @@ Deno.serve(async (req) => {
       const login = loginFor(body);
       const role = body.role as string;
       const storeId = isOwner ? body.store_id : me.store_id;
-      if (!login) return fail("Enter a username.");
+      if (!login) return fail("Enter a username with no spaces.");
       const { email, username } = login;
       if (!["manager", "cashier"].includes(role)) return fail("Choose manager or cashier.");
       if (!isOwner && role !== "cashier") return fail("Managers can only add cashiers.", 403);

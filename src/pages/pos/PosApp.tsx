@@ -32,8 +32,9 @@ const SignIn = () => {
         className="mt-6 space-y-3"
         onSubmit={async (e) => {
           e.preventDefault();
-          setBusy(true);
           setError("");
+          if (/\s/.test(form.username.trim())) return setError("Usernames can't have spaces. Remove the space and try again.");
+          setBusy(true);
           try {
             await signIn(form.username, form.password);
           } catch (err) {
@@ -43,7 +44,7 @@ const SignIn = () => {
           }
         }}
       >
-        <input className={inputCls} placeholder="Username or email" autoComplete="username" autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value.replace(/\s/g, "") })} required />
+        <input className={inputCls} placeholder="Username or email" autoComplete="username" autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
         <input className={inputCls} placeholder="Password" type="password" autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
         {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <button disabled={busy} className="w-full rounded-xl bg-primary py-3.5 font-bold text-white disabled:opacity-60">{busy ? "Signing in…" : "Sign in"}</button>
