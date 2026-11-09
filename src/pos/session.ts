@@ -9,7 +9,7 @@ export type Me = LocalStaff & { store_name?: string | null };
 export const getMe = () => getMeta<Me | null>("me", null);
 
 const friendly = (msg: string) =>
-  /invalid login credentials/i.test(msg) ? "Wrong username or password."
+  /invalid login credentials/i.test(msg) ? "Wrong email or password."
   : /failed to fetch|network/i.test(msg) ? "No internet. The first sign-in on a till needs internet."
   : msg;
 

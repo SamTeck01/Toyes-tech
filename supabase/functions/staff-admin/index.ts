@@ -8,8 +8,17 @@ const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE
   auth: { persistSession: false },
 });
 
-const emailFor = (username: string) => `${username.trim().toLowerCase()}@staff.toyestech.app`;
-const USERNAME = /^[a-z0-9._-]{3,30}$/;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Internal short name kept for records; people sign in with their email. */
+const usernameFrom = async (email: string) => {
+  const base = email.split("@")[0].toLowerCase().replace(/[^a-z0-9._-]/g, "").slice(0, 24) || "staff";
+  for (let i = 0; i < 20; i++) {
+    const candidate = i ? `${base}${i + 1}` : base;
+    const { count } = await admin.from("staff").select("id", { count: "exact", head: true }).eq("username", candidate);
+    if (!count) return candidate;
+  }
+  return `${base}${crypto.randomUUID().slice(0, 6)}`;
+};
 
 const hashPin = async (pin: string, id: string) => {
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${pin}:${id}`));
@@ -28,10 +37,11 @@ Deno.serve(async (req) => {
     if (action === "bootstrap_owner") {
       const { count } = await admin.from("staff").select("id", { count: "exact", head: true }).eq("role", "super_admin");
       if ((count ?? 0) > 0) return fail("The owner account already exists.", 409);
-      const username = String(body.username ?? "").toLowerCase();
-      if (!USERNAME.test(username)) return fail("Username: 3–30 letters, numbers, dots or dashes.");
+      const email = String(body.email ?? "").trim().toLowerCase();
+      if (!EMAIL.test(email)) return fail("Enter a valid email address.");
       if (String(body.password ?? "").length < 8) return fail("Password must be at least 8 characters.");
-      const { data, error } = await admin.auth.admin.createUser({ email: emailFor(username), password: body.password, email_confirm: true });
+      const username = await usernameFrom(email);
+      const { data, error } = await admin.auth.admin.createUser({ email, password: body.password, email_confirm: true });
       if (error) return fail(error.message);
       const { error: e2 } = await admin.from("staff").insert({ id: data.user.id, full_name: body.full_name, username, role: "super_admin" });
       if (e2) {
@@ -50,17 +60,18 @@ Deno.serve(async (req) => {
     const isOwner = me.role === "super_admin";
 
     if (action === "create_staff") {
-      const username = String(body.username ?? "").toLowerCase();
+      const email = String(body.email ?? "").trim().toLowerCase();
       const role = body.role as string;
       const storeId = isOwner ? body.store_id : me.store_id;
-      if (!USERNAME.test(username)) return fail("Username: 3–30 letters, numbers, dots or dashes.");
+      if (!EMAIL.test(email)) return fail("Enter a valid email address.");
       if (!["manager", "cashier"].includes(role)) return fail("Choose manager or cashier.");
       if (!isOwner && role !== "cashier") return fail("Managers can only add cashiers.", 403);
       if (!storeId) return fail("Choose a store.");
       if (String(body.password ?? "").length < 8) return fail("Password must be at least 8 characters.");
       if (body.pin && !/^\d{4,6}$/.test(body.pin)) return fail("PIN must be 4 to 6 digits.");
-      const { data, error } = await admin.auth.admin.createUser({ email: emailFor(username), password: body.password, email_confirm: true });
-      if (error) return fail(/already/i.test(error.message) ? "That username is taken." : error.message);
+      const username = await usernameFrom(email);
+      const { data, error } = await admin.auth.admin.createUser({ email, password: body.password, email_confirm: true });
+      if (error) return fail(/already/i.test(error.message) ? "That email already has an account." : error.message);
       const pin_hash = body.pin ? await hashPin(body.pin, data.user.id) : null;
       const { error: e2 } = await admin.from("staff").insert({ id: data.user.id, full_name: body.full_name, username, role, store_id: storeId, pin_hash });
       if (e2) {

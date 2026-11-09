@@ -43,7 +43,7 @@ const SignIn = () => {
           }
         }}
       >
-        <input className={inputCls} placeholder="Username" autoComplete="username" autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
+        <input className={inputCls} placeholder="Email" type="email" autoComplete="email" autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
         <input className={inputCls} placeholder="Password" type="password" autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
         {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <button disabled={busy} className="w-full rounded-xl bg-primary py-3.5 font-bold text-white disabled:opacity-60">{busy ? "Signing in…" : "Sign in"}</button>

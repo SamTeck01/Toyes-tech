@@ -27,7 +27,7 @@ const Staff = () => {
       if (form.id) {
         await staffAdmin({ action: "update_staff", id: form.id, full_name: form.full_name, role: form.role, store_id: form.store_id, active: form.active, pin: form.pin || undefined, password: form.password || undefined });
       } else {
-        await staffAdmin({ action: "create_staff", ...form });
+        await staffAdmin({ action: "create_staff", ...form, email: form.username });
       }
       toast.success(form.id ? "Staff updated" : `${form.full_name} added. They can now unlock a till with their PIN.`);
       setForm(null);
@@ -56,7 +56,7 @@ const Staff = () => {
               <li key={s.id} className="flex items-center gap-3 px-4 py-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{s.full_name[0]}</span>
                 <div className="min-w-0 flex-1">
-                  <p className={`font-semibold ${s.active ? "" : "text-black/40 line-through"}`}>{s.full_name} <span className="text-xs font-normal text-black/45">@{s.username}</span></p>
+                  <p className={`font-semibold ${s.active ? "" : "text-black/40 line-through"}`}>{s.full_name}</p>
                   <p className="text-xs capitalize text-black/50">{s.role.replace("_", " ")} · {storeName(s.store_id)}{!s.pin_hash && s.role !== "super_admin" ? " · no PIN" : ""}</p>
                 </div>
                 {s.role !== "super_admin" && (isOwner || s.role === "cashier") && (
@@ -75,12 +75,12 @@ const Staff = () => {
         <DialogContent className="max-h-[92dvh] max-w-md overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{form?.id ? `Edit ${form.full_name}` : "Add staff"}</DialogTitle>
-            <DialogDescription>{form?.id ? "Leave PIN and password blank to keep them." : "They'll use the username and password to sign in, and the PIN on the till."}</DialogDescription>
+            <DialogDescription>{form?.id ? "Leave PIN and password blank to keep them." : "They sign in with this email and password, and use the PIN on the till."}</DialogDescription>
           </DialogHeader>
           {form && (
             <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); void save(); }}>
               <label className="block text-sm font-semibold">Full name<input autoFocus required className={`${input} mt-1`} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></label>
-              {!form.id && <label className="block text-sm font-semibold">Username<input required className={`${input} mt-1`} autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, "") })} placeholder="e.g. tolu" /></label>}
+              {!form.id && <label className="block text-sm font-semibold">Email<input required type="email" className={`${input} mt-1`} autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value.trim().toLowerCase() })} placeholder="tolu@gmail.com" /></label>}
               {!(form.id === me?.id) && (
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block text-sm font-semibold">Role

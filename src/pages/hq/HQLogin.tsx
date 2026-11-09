@@ -22,9 +22,9 @@ const HQLogin = () => {
     if (mode === "owner" && f.password !== f.confirm) return setError("Passwords don't match.");
     setBusy(true);
     try {
-      if (mode === "owner") await staffAdmin({ action: "bootstrap_owner", full_name: f.full_name, username: f.username, password: f.password });
+      if (mode === "owner") await staffAdmin({ action: "bootstrap_owner", full_name: f.full_name, email: f.username, password: f.password });
       const { error: err } = await supabase!.auth.signInWithPassword({ email: staffEmail(f.username), password: f.password });
-      if (err) throw new Error(/invalid login/i.test(err.message) ? "Wrong username or password." : errMsg(err));
+      if (err) throw new Error(/invalid login/i.test(err.message) ? "Wrong email or password." : errMsg(err));
       const { data: u } = await supabase!.auth.getUser();
       const { data: staff } = await supabase!.from("staff").select("role,active").eq("id", u.user!.id).maybeSingle();
       if (!staff || !staff.active) {
@@ -55,7 +55,7 @@ const HQLogin = () => {
             <p className="mt-1 text-sm text-black/55">{mode === "signin" ? "For the owner and store managers." : "One time only: this account controls all stores."}</p>
             <form onSubmit={submit} className="mt-6 space-y-3">
               {mode === "owner" && <input className={input} placeholder="Your full name" value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} required />}
-              <input className={input} placeholder="Username" autoComplete="username" autoCapitalize="none" value={f.username} onChange={(e) => setF({ ...f, username: e.target.value })} required />
+              <input className={input} placeholder="Email" type="email" autoComplete="email" autoCapitalize="none" value={f.username} onChange={(e) => setF({ ...f, username: e.target.value })} required />
               <input className={input} placeholder="Password" type="password" autoComplete={mode === "owner" ? "new-password" : "current-password"} minLength={mode === "owner" ? 8 : undefined} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} required />
               {mode === "owner" && <input className={input} placeholder="Confirm password" type="password" autoComplete="new-password" value={f.confirm} onChange={(e) => setF({ ...f, confirm: e.target.value })} required />}
               {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}

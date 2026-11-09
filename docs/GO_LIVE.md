@@ -31,7 +31,7 @@ Redeploy. HQ is at `/admin`, the till at `/pos`.
 
 ## 4. Each store laptop (Windows)
 1. Open **Chrome or Edge** → `https://<site>/pos`.
-2. Sign in with the store manager's username/password (needs internet once).
+2. Sign in with the store manager's email and password (needs internet once).
 3. Choose the store → "Start using this till".
 4. Install it: click the **install icon** in the address bar (or ⋮ → "Install Toyes Tech POS").
    It gets a desktop icon and opens like an app — **including with no internet**.
