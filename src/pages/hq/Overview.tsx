@@ -6,7 +6,7 @@ import { fetchSales, fetchStaffNames, takings, startOfDay, type SaleRow } from "
 import { supabase } from "@/lib/supabase";
 import { formatPrice } from "@/lib/format";
 import { PageHeader, Panel, StatCard, Pill, EmptyState, SkeletonRows, btn } from "@/components/hq/kit";
-import { TrendingUp, CreditCard, ShoppingBag, Package, MapPin } from "@/components/icons";
+import { TrendingUp, CreditCard, ShoppingBag, Package, MapPin, Tag, Users } from "@/components/icons";
 
 /** "Mr Toye" → "Mr Toye", "Tolu Ade" → "Tolu": keep titles with the name they belong to. */
 const TITLES = /^(mr|mrs|ms|miss|dr|chief|engr|alhaji|alhaja|pastor|prof|barr|sir)\.?$/i;
@@ -80,6 +80,21 @@ const Overview = () => {
           <Link to="/admin/stores" className={btn.primary}><MapPin className="h-4 w-4" /> Add your first store</Link>
         </div>
       )}
+
+      {/* The jobs people do every day, one tap away. */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          { to: "/admin/products?new=1", icon: Tag, title: "Add a product", sub: "Photo, price and stock" },
+          { to: "/admin/inventory", icon: Package, title: "Stock arrived", sub: "Add new deliveries" },
+          { to: "/admin/staff?new=1", icon: Users, title: "Add staff", sub: "Cashier or manager" },
+          { to: "/admin/sales", icon: TrendingUp, title: "Today's sales", sub: "Receipts and refunds" },
+        ].map((a) => (
+          <Link key={a.title} to={a.to} className="group flex items-center gap-3 rounded-2xl border border-line bg-white p-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-md">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ink text-white transition group-hover:bg-primary"><a.icon className="h-5 w-5" /></span>
+            <span className="min-w-0"><span className="block text-[15px] font-bold leading-tight">{a.title}</span><span className="block truncate text-xs text-ink/50">{a.sub}</span></span>
+          </Link>
+        ))}
+      </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
         <StatCard label="Revenue today" value={formatPrice(revenue)} sub={`${done.length} sale${done.length === 1 ? "" : "s"}`} icon={TrendingUp} tone="accent" />

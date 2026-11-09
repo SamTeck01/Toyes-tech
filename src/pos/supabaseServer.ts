@@ -32,7 +32,8 @@ export const supabaseServer: PosServer = {
   async pull(storeId) {
     const sb = needClient();
     const [products, inventory, staff] = await Promise.all([
-      sb.from("products").select("id,name,brand,category,subcategory,condition,base_price,image,barcode").eq("active", true),
+      // This store's own products plus shared ones (the owner can see every store's, so filter explicitly).
+      sb.from("products").select("id,name,brand,category,subcategory,condition,base_price,image,barcode").eq("active", true).or(`store_id.is.null,store_id.eq.${storeId}`),
       sb.from("inventory").select("product_id,qty,price,low_stock_at").eq("store_id", storeId),
       sb.from("staff").select("id,full_name,username,role,store_id,pin_hash").eq("active", true).or(`store_id.eq.${storeId},role.eq.super_admin`),
     ]);

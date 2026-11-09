@@ -56,7 +56,7 @@ beforeAll(async () => {
     grant usage on schema public to anon, authenticated;
   `);
   // The schedules migration needs pg_cron/pg_net/vault (real Supabase only); it is tested against local Supabase instead.
-  for (const f of readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql") && !f.includes("schedules") && !f.includes("cron_secret")).sort()) {
+  for (const f of readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql") && !f.includes("schedules") && !f.includes("cron_secret") && !f.includes("storage")).sort()) {
     await db.exec(readFileSync(join(MIGRATIONS, f), "utf8"));
   }
   await db.exec(`insert into auth.users values ('${CEO}'), ('${MGR_A}'), ('${CASH_A}'), ('${CASH_B}');`);
@@ -190,5 +190,37 @@ describe("refunds and permissions", () => {
     expect(Number(shift.expected_cash)).toBe(145000);
     const [{ n }] = await as<{ n: number }>(CEO, "select count(*)::int as n from public.notifications where kind = 'shift_short' and ref_id = $1", [id]);
     expect(n).toBe(1);
+  });
+});
+
+describe("per-store products", () => {
+  const save = (uid: string, p: Record<string, unknown>) =>
+    as<{ id: string; store_id: string | null }>(uid, "select id, store_id from public.save_store_product($1)", [p]);
+
+  it("a manager adds a product to their own store with price and opening stock in one step", async () => {
+    const [prod] = await save(MGR_A, { name: "Oraimo Power Bank 20000", price: 18000, add_qty: 7, store_id: storeA, category: "Gadgets" });
+    expect(prod.store_id).toBe(storeA);
+    const [inv] = await as<{ qty: number; price: string }>(CEO, "select qty, price from public.inventory where store_id = $1 and product_id = $2", [storeA, prod.id]);
+    expect(inv.qty).toBe(7);
+    expect(Number(inv.price)).toBe(18000);
+  });
+
+  it("a manager cannot add to another store, or make a shared product", async () => {
+    await expect(save(MGR_A, { name: "X", price: 1, store_id: storeB })).rejects.toThrow(/your own store/);
+    await expect(save(MGR_A, { name: "X", price: 1 })).rejects.toThrow(/Choose a store/);
+  });
+
+  it("each store only sees its own products plus shared ones", async () => {
+    const [onlyB] = await save(CEO, { name: "City-only Speaker", price: 50000, store_id: storeB });
+    const seenByA = await as<{ id: string }>(CASH_A, "select id from public.products where id = $1", [onlyB.id]);
+    const seenByB = await as<{ id: string }>(CASH_B, "select id from public.products where id = $1", [onlyB.id]);
+    expect(seenByA).toHaveLength(0);
+    expect(seenByB).toHaveLength(1);
+    const shared = await as<{ id: string }>(CASH_A, "select id from public.products where id = 'g3'");
+    expect(shared).toHaveLength(1);
+  });
+
+  it("cashiers cannot add products", async () => {
+    await expect(save(CASH_A, { name: "X", price: 1, store_id: storeA })).rejects.toThrow(/your own store/);
   });
 });

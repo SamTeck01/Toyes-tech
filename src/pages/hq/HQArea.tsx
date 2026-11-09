@@ -37,7 +37,7 @@ const HQArea = () => (
         <Route path="sales" element={<HQSales />} />
         <Route path="inventory" element={<Inventory />} />
         <Route path="staff" element={<Staff />} />
-        <Route path="products" element={<OwnerOnly><Products /></OwnerOnly>} />
+        <Route path="products" element={<Products />} />
         <Route path="stores" element={<OwnerOnly><Stores /></OwnerOnly>} />
         <Route path="alerts" element={<OwnerOnly><Alerts /></OwnerOnly>} />
         <Route path="*" element={<Navigate to="/admin" replace />} />

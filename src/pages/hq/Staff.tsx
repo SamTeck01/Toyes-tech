@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -19,6 +20,17 @@ const Staff = () => {
     setList((data ?? []) as (S & { pin_hash: string | null })[]);
   };
   useEffect(() => void load(), []);
+
+  // Arriving from "Add staff" on the overview opens the form straight away.
+  const [params, setParams] = useSearchParams();
+  useEffect(() => {
+    const mine = isOwner ? stores : stores.filter((st) => st.id === me?.store_id);
+    if (params.get("new") === "1" && mine.length) {
+      setForm({ full_name: "", username: "", password: "", role: "cashier", store_id: mine[0].id, pin: "", active: true });
+      setParams({}, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stores.length]);
 
   const save = async () => {
     if (!form) return;

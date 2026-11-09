@@ -18,7 +18,7 @@ const HQLayout = () => {
         { to: "/admin", label: "Overview", icon: LayoutDashboard, end: true },
         { to: "/admin/sales", label: "Sales", icon: TrendingUp },
         { to: "/admin/inventory", label: "Inventory", icon: Package },
-        ...(isOwner ? [{ to: "/admin/products", label: "Products", icon: Tag }] : []),
+        { to: "/admin/products", label: "Products", icon: Tag },
       ],
     },
     {
