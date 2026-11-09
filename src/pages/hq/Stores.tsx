@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useHQ, rpc, type Store } from "@/hq/HQContext";
 
-const input = "w-full rounded-xl border border-gray-200 px-3.5 py-2.5 outline-none focus:border-primary";
+const input = "w-full rounded-xl border border-line px-3.5 py-2.5 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5";
 
 const Stores = () => {
   const { stores, reloadStores } = useHQ();
@@ -31,21 +31,21 @@ const Stores = () => {
     <div className="space-y-5">
       <Helmet><title>Stores | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="text-3xl font-extrabold">Stores</h1><p className="text-sm text-black/55">Each store has its own stock, staff and tills.</p></div>
-        <button onClick={() => setEditing({ active: true })} className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white">+ Add store</button>
+        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Stores</h1><p className="text-sm text-ink/55">Each store has its own stock, staff and tills.</p></div>
+        <button onClick={() => setEditing({ active: true })} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50">+ Add store</button>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {stores.map((s) => (
-          <div key={s.id} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <div key={s.id} className="rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)] p-5">
             <div className="flex items-start justify-between gap-2">
-              <div><p className="text-lg font-extrabold">{s.name}</p><p className="text-xs text-black/45">Code {s.code}{!s.active && " · closed"}</p></div>
-              <button onClick={() => setEditing(s)} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-gray-100">Edit</button>
+              <div><p className="text-lg font-extrabold">{s.name}</p><p className="text-xs text-ink/45">Code {s.code}{!s.active && " · closed"}</p></div>
+              <button onClick={() => setEditing(s)} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-stone-100">Edit</button>
             </div>
-            {s.address && <p className="mt-2 text-sm text-black/60">{s.address}</p>}
-            {s.phone && <p className="text-sm text-black/60">{s.phone}</p>}
+            {s.address && <p className="mt-2 text-sm text-ink/60">{s.address}</p>}
+            {s.phone && <p className="text-sm text-ink/60">{s.phone}</p>}
           </div>
         ))}
-        {stores.length === 0 && <p className="text-sm text-black/55">No stores yet.</p>}
+        {stores.length === 0 && <p className="text-sm text-ink/55">No stores yet.</p>}
       </div>
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-md">

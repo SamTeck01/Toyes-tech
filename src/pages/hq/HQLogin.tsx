@@ -5,7 +5,7 @@ import { supabase, staffEmail, isCloudConfigured } from "@/lib/supabase";
 import { useHQ, staffAdmin, errMsg } from "@/hq/HQContext";
 import { LogoMark } from "@/components/Logo";
 
-const input = "w-full rounded-xl border border-gray-200 px-4 py-3 text-[15px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/15";
+const input = "w-full rounded-xl border border-line px-4 py-3 text-[15px] outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5";
 
 const HQLogin = () => {
   const { me, loading } = useHQ();
@@ -44,16 +44,16 @@ const HQLogin = () => {
   };
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-[#F4F4F5] p-4">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-stone-100 p-4">
       <Helmet><title>Admin sign in | Toyes Tech</title></Helmet>
       <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5 md:p-8">
-        <div className="mb-6 flex items-center gap-2.5"><LogoMark /><span className="text-xl font-extrabold">Toyes<span className="text-primary">Tech</span> <span className="text-sm font-semibold text-black/45">HQ</span></span></div>
+        <div className="mb-6 flex items-center gap-2.5"><LogoMark /><span className="text-xl font-extrabold">Toyes<span className="text-primary">Tech</span> <span className="text-sm font-semibold text-ink/45">HQ</span></span></div>
         {!isCloudConfigured ? (
-          <p className="text-sm text-black/60">The admin isn't connected to the cloud database yet.</p>
+          <p className="text-sm text-ink/60">The admin isn't connected to the cloud database yet.</p>
         ) : (
           <>
             <h1 className="text-2xl font-extrabold">{mode === "signin" ? "Sign in" : "Create the owner account"}</h1>
-            <p className="mt-1 text-sm text-black/55">{mode === "signin" ? "For the owner and store managers." : "One time only: this account controls all stores."}</p>
+            <p className="mt-1 text-sm text-ink/55">{mode === "signin" ? "For the owner and store managers." : "One time only: this account controls all stores."}</p>
             <form onSubmit={submit} className="mt-6 space-y-3">
               {mode === "owner" && <input className={input} placeholder="Your full name" value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} required />}
               <input className={input} placeholder={mode === "owner" ? "Username (no spaces)" : "Username or email"} autoComplete="username" autoCapitalize="none" value={f.username} onChange={(e) => setF({ ...f, username: e.target.value })} required />
@@ -62,7 +62,7 @@ const HQLogin = () => {
               {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
               <button disabled={busy} className="w-full rounded-xl bg-primary py-3.5 font-bold text-white disabled:opacity-60">{busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create owner account"}</button>
             </form>
-            <button onClick={() => { setMode(mode === "signin" ? "owner" : "signin"); setError(""); }} className="mt-4 w-full text-center text-sm font-semibold text-black/50 hover:text-black">
+            <button onClick={() => { setMode(mode === "signin" ? "owner" : "signin"); setError(""); }} className="mt-4 w-full text-center text-sm font-semibold text-ink/50 hover:text-black">
               {mode === "signin" ? "First time setting up? Create the owner account" : "Back to sign in"}
             </button>
           </>

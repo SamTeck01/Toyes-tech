@@ -19,6 +19,8 @@ export default {
         sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
       },
       colors: {
+        ink: "#111114",
+        line: "#E7E5E4",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

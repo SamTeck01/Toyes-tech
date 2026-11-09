@@ -6,11 +6,12 @@ import { useHQ, rpc } from "@/hq/HQContext";
 import { fetchSales, fetchStaffNames, takings, startOfDay, asReceipt, type SaleRow } from "@/hq/data";
 import { formatPrice } from "@/lib/format";
 import PosReceipt from "@/pages/pos/PosReceipt";
+import { Pill } from "@/components/hq/kit";
 
 const RANGES = { today: ["Today", 0], yesterday: ["Yesterday", 1], week: ["Last 7 days", 6], month: ["Last 30 days", 29] } as const;
 type Range = keyof typeof RANGES;
 const METHOD = { cash: "Cash", transfer: "Transfer", card: "Card" } as const;
-const card = "rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5";
+const card = "rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)] p-5";
 
 const HQSales = () => {
   const { stores, canManage, isOwner } = useHQ();
@@ -73,15 +74,15 @@ const HQSales = () => {
     <div className="space-y-6">
       <Helmet><title>Sales | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-3xl font-extrabold">Sales</h1>
+        <h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Sales</h1>
         <div className="flex gap-2">
-          <button onClick={() => window.print()} className="rounded-full bg-white px-4 py-2.5 text-sm font-bold ring-1 ring-black/10">Print</button>
-          <button onClick={exportCsv} disabled={!sales?.length} className="rounded-full bg-white px-4 py-2.5 text-sm font-bold ring-1 ring-black/10 disabled:opacity-40">Export to Excel (CSV)</button>
+          <button onClick={() => window.print()} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40">Print</button>
+          <button onClick={exportCsv} disabled={!sales?.length} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40 disabled:opacity-40">Export to Excel (CSV)</button>
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
         {(Object.keys(RANGES) as Range[]).map((r) => (
-          <button key={r} onClick={() => setRange(r)} className={`rounded-full px-4 py-2 text-sm font-bold ${range === r ? "bg-black text-white" : "bg-white ring-1 ring-black/10"}`}>{RANGES[r][0]}</button>
+          <button key={r} onClick={() => setRange(r)} className={`rounded-full px-4 py-2 text-sm font-bold ${range === r ? "bg-ink text-white shadow-sm" : "border border-line bg-white"}`}>{RANGES[r][0]}</button>
         ))}
         {isOwner && (
           <select value={storeId} onChange={(e) => setStoreId(e.target.value)} className="rounded-full bg-white px-4 py-2 text-sm font-bold ring-1 ring-black/10">
@@ -94,44 +95,44 @@ const HQSales = () => {
 
       <div className="print-area space-y-6">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <div className={card}><p className="text-sm text-black/55">Revenue</p><p className="mt-1 text-2xl font-extrabold">{formatPrice(revenue)}</p><p className="text-xs text-black/45">{done.length} sales</p></div>
-          <div className={card}><p className="text-sm text-black/55">Cash (net)</p><p className="mt-1 text-xl font-extrabold">{formatPrice(m.cash)}</p></div>
-          <div className={card}><p className="text-sm text-black/55">Transfer</p><p className="mt-1 text-xl font-extrabold">{formatPrice(m.transfer)}</p></div>
-          <div className={card}><p className="text-sm text-black/55">Card</p><p className="mt-1 text-xl font-extrabold">{formatPrice(m.card)}</p></div>
-          <div className={card}><p className="text-sm text-black/55">Refunds</p><p className="mt-1 text-xl font-extrabold">{(sales ?? []).filter((s) => s.status === "refunded").length}</p></div>
+          <div className={card}><p className="text-sm text-ink/55">Revenue</p><p className="mt-1 text-2xl font-extrabold tabular-nums">{formatPrice(revenue)}</p><p className="text-xs text-ink/45">{done.length} sales</p></div>
+          <div className={card}><p className="text-sm text-ink/55">Cash (net)</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.cash)}</p></div>
+          <div className={card}><p className="text-sm text-ink/55">Transfer</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.transfer)}</p></div>
+          <div className={card}><p className="text-sm text-ink/55">Card</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.card)}</p></div>
+          <div className={card}><p className="text-sm text-ink/55">Refunds</p><p className="mt-1 text-xl font-extrabold">{(sales ?? []).filter((s) => s.status === "refunded").length}</p></div>
         </div>
         <div className="grid gap-6 lg:grid-cols-2">
           <section className={card}>
             <h2 className="mb-2 font-bold">By cashier</h2>
-            {byCashier.length === 0 ? <p className="text-sm text-black/50">No sales.</p> : byCashier.map(([id, c]) => (
-              <div key={id} className="flex justify-between border-t border-gray-100 py-2 text-sm"><span>{names.get(id) ?? "Staff"} <span className="text-black/45">({c.n})</span></span><b>{formatPrice(c.total)}</b></div>
+            {byCashier.length === 0 ? <p className="text-sm text-ink/50">No sales.</p> : byCashier.map(([id, c]) => (
+              <div key={id} className="flex justify-between border-t border-line py-2 text-sm"><span>{names.get(id) ?? "Staff"} <span className="text-ink/45">({c.n})</span></span><b>{formatPrice(c.total)}</b></div>
             ))}
           </section>
           <section className={card}>
             <h2 className="mb-2 font-bold">Unlisted items sold (quick sale)</h2>
-            {quickItems.length === 0 ? <p className="text-sm text-black/50">None.</p> : quickItems.slice(0, 12).map((q, i) => (
-              <div key={i} className="flex justify-between gap-2 border-t border-gray-100 py-2 text-sm"><span className="truncate">{q.quantity}× {q.name} <span className="text-black/45">· {storeName(q.store)}</span></span><b>{formatPrice(q.unit_price * q.quantity)}</b></div>
+            {quickItems.length === 0 ? <p className="text-sm text-ink/50">None.</p> : quickItems.slice(0, 12).map((q, i) => (
+              <div key={i} className="flex justify-between gap-2 border-t border-line py-2 text-sm"><span className="truncate">{q.quantity}× {q.name} <span className="text-ink/45">· {storeName(q.store)}</span></span><b>{formatPrice(q.unit_price * q.quantity)}</b></div>
             ))}
           </section>
         </div>
       </div>
 
-      <section className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
-        {sales === null ? <p className="p-6 text-sm text-black/50">Loading…</p> : sales.length === 0 ? <p className="p-10 text-center text-sm text-black/50">No sales in this period.</p> : (
+      <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+        {sales === null ? <p className="p-6 text-sm text-ink/50">Loading…</p> : sales.length === 0 ? <p className="p-10 text-center text-sm text-ink/50">No sales in this period.</p> : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-xs text-black/55"><tr><th className="px-4 py-3">Receipt</th><th className="px-4 py-3">Time</th><th className="px-4 py-3">Store · Cashier</th><th className="px-4 py-3">Items</th><th className="px-4 py-3">Paid by</th><th className="px-4 py-3 text-right">Total</th><th className="px-4 py-3" /></tr></thead>
-              <tbody className="divide-y divide-gray-100">
+              <thead className="bg-stone-50 text-xs font-semibold text-ink/50"><tr><th className="px-4 py-3">Receipt</th><th className="px-4 py-3">Time</th><th className="px-4 py-3">Cashier</th><th className="px-4 py-3">Items</th><th className="px-4 py-3">Paid by</th><th className="px-4 py-3 text-right">Total</th><th className="px-4 py-3" /></tr></thead>
+              <tbody className="divide-y divide-line">
                 {sales.map((s) => (
-                  <tr key={s.id} className={s.status === "refunded" ? "text-black/40" : ""}>
-                    <td className="whitespace-nowrap px-4 py-3 font-bold">{s.receipt_no}{s.status === "refunded" && <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-[11px] text-red-600">Refunded</span>}{s.offline && <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-[11px]">Offline</span>}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{new Date(s.created_at).toLocaleString("en-NG", { dateStyle: "short", timeStyle: "short" })}</td>
-                    <td className="px-4 py-3">{storeName(s.store_id)}<span className="block text-xs text-black/45">{names.get(s.cashier_id)}</span></td>
-                    <td className="max-w-[260px] truncate px-4 py-3">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</td>
+                  <tr key={s.id} className={s.status === "refunded" ? "text-ink/40" : ""}>
+                    <td className="whitespace-nowrap px-4 py-3 font-bold">{s.receipt_no}<span className="ml-2 inline-flex gap-1 align-middle">{s.status === "refunded" && <Pill tone="bad">Refunded</Pill>}{s.offline && <Pill>Offline</Pill>}</span></td>
+                    <td className="whitespace-nowrap px-4 py-3">{new Date(s.created_at).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{names.get(s.cashier_id)}<span className="block text-xs text-ink/45">{storeName(s.store_id)}</span></td>
+                    <td className="max-w-[220px] truncate px-4 py-3">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</td>
                     <td className="whitespace-nowrap px-4 py-3">{s.payments.map((p) => METHOD[p.method]).join(" + ")}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-right font-extrabold">{formatPrice(s.total)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right font-extrabold tabular-nums">{formatPrice(s.total)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-right">
-                      <button onClick={() => setViewing(s)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-gray-100">Receipt</button>
+                      <button onClick={() => setViewing(s)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-stone-100">Receipt</button>
                       {canManage && s.status === "completed" && <button onClick={() => { setRefunding(s); setReason(""); }} className="rounded-lg px-2.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Refund</button>}
                     </td>
                   </tr>
@@ -145,7 +146,7 @@ const HQSales = () => {
       <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
         <DialogContent className="max-h-[92dvh] max-w-sm overflow-y-auto">
           <DialogHeader><DialogTitle>Receipt {viewing?.receipt_no}</DialogTitle><DialogDescription>Reprint for the customer.</DialogDescription></DialogHeader>
-          {viewing && <div className="print-area rounded-xl border border-gray-200"><PosReceipt sale={asReceipt(viewing, storeName(viewing.store_id), names.get(viewing.cashier_id) ?? "")} /></div>}
+          {viewing && <div className="print-area rounded-xl border border-line"><PosReceipt sale={asReceipt(viewing, storeName(viewing.store_id), names.get(viewing.cashier_id) ?? "")} /></div>}
           <button onClick={() => window.print()} className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-white">Print receipt</button>
         </DialogContent>
       </Dialog>
@@ -156,9 +157,9 @@ const HQSales = () => {
             <DialogTitle>Refund {refunding?.receipt_no}?</DialogTitle>
             <DialogDescription>Give back {refunding && formatPrice(refunding.total)}. Listed items go back into stock. The owner gets a WhatsApp alert. This can't be undone.</DialogDescription>
           </DialogHeader>
-          <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (e.g. faulty, changed mind)" className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary" />
+          <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (e.g. faulty, changed mind)" className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => setRefunding(null)} className="rounded-xl border border-gray-200 py-3 text-sm font-bold">Cancel</button>
+            <button onClick={() => setRefunding(null)} className="rounded-xl border border-line py-3 text-sm font-bold">Cancel</button>
             <button
               disabled={!reason.trim()}
               onClick={async () => {

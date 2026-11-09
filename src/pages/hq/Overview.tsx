@@ -5,6 +5,8 @@ import { useHQ } from "@/hq/HQContext";
 import { fetchSales, fetchStaffNames, takings, startOfDay, type SaleRow } from "@/hq/data";
 import { supabase } from "@/lib/supabase";
 import { formatPrice } from "@/lib/format";
+import { PageHeader, Panel, StatCard, Pill, EmptyState, SkeletonRows, btn } from "@/components/hq/kit";
+import { TrendingUp, CreditCard, ShoppingBag, Package, MapPin } from "@/components/icons";
 
 /** "Mr Toye" → "Mr Toye", "Tolu Ade" → "Tolu": keep titles with the name they belong to. */
 const TITLES = /^(mr|mrs|ms|miss|dr|chief|engr|alhaji|alhaja|pastor|prof|barr|sir)\.?$/i;
@@ -12,8 +14,6 @@ const greetName = (full: string) => {
   const parts = full.trim().split(/\s+/);
   return TITLES.test(parts[0] ?? "") ? parts.slice(0, 2).join(" ") : parts[0] ?? "";
 };
-
-const card = "rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5";
 
 /** Live view across all stores the signed-in person can see. Refreshes every 15 seconds. */
 const Overview = () => {
@@ -57,80 +57,95 @@ const Overview = () => {
   const storeName = (id: string) => stores.find((s) => s.id === id)?.name ?? "Store";
   const quickCount = done.filter((s) => s.sale_lines.some((l) => !l.product_id)).length;
 
+  const hour = new Date().getHours();
+  const best = [...stores].map((st) => ({ st, total: done.filter((s) => s.store_id === st.id).reduce((t, s) => t + s.total, 0) })).sort((a, b) => b.total - a.total);
+  const top = best[0]?.total || 1;
+
   return (
     <div className="space-y-6">
       <Helmet><title>Overview | Toyes Tech HQ</title></Helmet>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-extrabold">Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, {greetName(me?.full_name ?? "")}</h1>
-          <p className="text-sm text-black/55">Today across {isOwner ? "all stores" : "your store"}{updated ? ` · updated ${updated.toLocaleTimeString("en-NG", { timeStyle: "short" })}` : ""}</p>
-        </div>
-        <Link to="/pos" className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white">Open POS</Link>
-      </div>
-      {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      <PageHeader
+        title={`Good ${hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening"}, ${greetName(me?.full_name ?? "")}`}
+        subtitle={<span className="inline-flex items-center gap-2"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>Live today across {isOwner ? "all stores" : "your store"}{updated ? ` · updated ${updated.toLocaleTimeString("en-NG", { timeStyle: "short" })}` : ""}</span>}
+        actions={<Link to="/pos" className={btn.primary}><CreditCard className="h-4 w-4" /> Open the till</Link>}
+      />
+      {error && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+
       {isOwner && stores.length === 0 && (
-        <div className="rounded-2xl bg-amber-50 p-5 text-amber-900">
-          <p className="font-bold">Let's set up your stores</p>
-          <p className="mt-1 text-sm">1. Add your stores · 2. Add products and stock · 3. Add staff with PINs · 4. Sign in on each store's laptop at /pos.</p>
-          <Link to="/admin/stores" className="mt-3 inline-block rounded-full bg-black px-5 py-2 text-sm font-bold text-white">Add stores</Link>
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-ink p-6 text-white">
+          <div>
+            <p className="font-display text-xl font-extrabold">Let's set up your stores</p>
+            <p className="mt-1 text-sm text-white/60">Add stores → add stock → add staff with PINs → sign in on each store's laptop at /pos.</p>
+          </div>
+          <Link to="/admin/stores" className={btn.primary}><MapPin className="h-4 w-4" /> Add your first store</Link>
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className={card}><p className="text-sm text-black/55">Revenue today</p><p className="mt-1 text-2xl font-extrabold">{formatPrice(revenue)}</p><p className="text-xs text-black/45">{done.length} sales</p></div>
-        <div className={card}><p className="text-sm text-black/55">Cash (net)</p><p className="mt-1 text-2xl font-extrabold">{formatPrice(m.cash)}</p></div>
-        <div className={card}><p className="text-sm text-black/55">Transfer</p><p className="mt-1 text-2xl font-extrabold">{formatPrice(m.transfer)}</p></div>
-        <div className={card}><p className="text-sm text-black/55">Card</p><p className="mt-1 text-2xl font-extrabold">{formatPrice(m.card)}</p></div>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+        <StatCard label="Revenue today" value={formatPrice(revenue)} sub={`${done.length} sale${done.length === 1 ? "" : "s"}`} icon={TrendingUp} tone="accent" />
+        <StatCard label="Cash in drawers" value={formatPrice(m.cash)} sub="After change given" icon={CreditCard} tone="good" />
+        <StatCard label="Transfers" value={formatPrice(m.transfer)} icon={ShoppingBag} />
+        <StatCard label="Card (POS)" value={formatPrice(m.card)} icon={CreditCard} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <section className={`${card} lg:col-span-1`}>
-          <h2 className="mb-3 font-bold">By store</h2>
-          {stores.map((st) => {
-            const mine = done.filter((s) => s.store_id === st.id);
-            return (
-              <div key={st.id} className="flex items-center justify-between border-t border-gray-100 py-2.5 text-sm">
-                <span>{st.name} <span className="text-black/45">({mine.length})</span></span>
-                <span className="font-bold">{formatPrice(mine.reduce((t, s) => t + s.total, 0))}</span>
-              </div>
-            );
-          })}
-          {quickCount > 0 && <p className="mt-3 rounded-lg bg-amber-50 p-2.5 text-xs text-amber-900">{quickCount} sale(s) today included unlisted (quick sale) items.</p>}
-        </section>
-
-        <section className={`${card} lg:col-span-2`}>
-          <div className="mb-3 flex items-center justify-between"><h2 className="font-bold">Live sales</h2><Link to="/admin/sales" className="text-sm font-semibold text-primary">All sales</Link></div>
-          {sales === null ? <p className="text-sm text-black/50">Loading…</p> : sales.length === 0 ? <p className="py-6 text-center text-sm text-black/50">No sales yet today.</p> : (
-            <ul className="divide-y divide-gray-100">
-              {sales.slice(0, 12).map((s) => (
-                <li key={s.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</p>
-                    <p className="text-xs text-black/50">
-                      {new Date(s.created_at).toLocaleTimeString("en-NG", { timeStyle: "short" })} · {storeName(s.store_id)} · {names.get(s.cashier_id) ?? "Staff"}
-                      {s.offline && " · made offline"}{s.status === "refunded" && " · refunded"}
-                    </p>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Panel title="By store">
+          {stores.length === 0 ? <p className="text-sm text-ink/50">No stores yet.</p> : (
+            <ul className="space-y-4">
+              {best.map(({ st, total }) => (
+                <li key={st.id}>
+                  <div className="flex items-baseline justify-between gap-2 text-sm">
+                    <span className="font-semibold">{st.name}</span>
+                    <span className="font-bold tabular-nums">{formatPrice(total)}</span>
                   </div>
-                  <span className={`shrink-0 font-extrabold ${s.status === "refunded" ? "text-black/35 line-through" : ""}`}>{formatPrice(s.total)}</span>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-100">
+                    <div className="h-full rounded-full bg-ink transition-all" style={{ width: `${Math.max(2, (total / top) * 100)}%` }} />
+                  </div>
                 </li>
               ))}
             </ul>
           )}
-        </section>
+          {quickCount > 0 && <p className="mt-5 rounded-xl bg-amber-50 px-3 py-2.5 text-xs text-amber-800">{quickCount} sale{quickCount === 1 ? "" : "s"} today included unlisted (quick sale) items.</p>}
+        </Panel>
+
+        <Panel title="Live sales" action={<Link to="/admin/sales" className="text-[13px] font-semibold text-primary hover:underline">View all</Link>} className="lg:col-span-2" padded={false}>
+          {sales === null ? <SkeletonRows rows={4} /> : sales.length === 0 ? (
+            <EmptyState icon={ShoppingBag} title="No sales yet today">Sales appear here the moment a till rings them up.</EmptyState>
+          ) : (
+            <ul className="divide-y divide-line">
+              {sales.slice(0, 10).map((s) => (
+                <li key={s.id} className="flex items-center gap-4 px-5 py-3.5">
+                  <span className="hidden w-14 shrink-0 text-xs font-semibold tabular-nums text-ink/45 sm:block">{new Date(s.created_at).toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit" })}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</p>
+                    <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-ink/50">
+                      {storeName(s.store_id)} · {names.get(s.cashier_id) ?? "Staff"}
+                      {s.offline && <Pill tone="neutral">Made offline</Pill>}
+                      {s.status === "refunded" && <Pill tone="bad">Refunded</Pill>}
+                    </p>
+                  </div>
+                  <span className={`shrink-0 text-sm font-bold tabular-nums ${s.status === "refunded" ? "text-ink/35 line-through" : ""}`}>{formatPrice(s.total)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
       </div>
 
-      <section className={card}>
-        <div className="mb-3 flex items-center justify-between"><h2 className="font-bold">Low stock</h2><Link to="/admin/inventory" className="text-sm font-semibold text-primary">Inventory</Link></div>
-        {lowStock.length === 0 ? <p className="text-sm text-black/50">Nothing running low.</p> : (
+      <Panel title="Stock to watch" action={<Link to="/admin/inventory" className="text-[13px] font-semibold text-primary hover:underline">Inventory</Link>}>
+        {lowStock.length === 0 ? (
+          <p className="flex items-center gap-2 text-sm text-ink/55"><Package className="h-4 w-4" /> Nothing running low.</p>
+        ) : (
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {lowStock.slice(0, 12).map((i, k) => (
-              <div key={k} className={`rounded-xl px-3 py-2 text-sm ${i.qty < 0 ? "bg-red-50 text-red-800" : "bg-amber-50 text-amber-900"}`}>
-                <b>{i.products?.name}</b> · {storeName(i.store_id)} · {i.qty < 0 ? `${i.qty} (check stock)` : `${i.qty} left`}
+              <div key={k} className="flex items-center justify-between gap-3 rounded-xl border border-line px-3.5 py-2.5 text-sm">
+                <span className="min-w-0"><span className="block truncate font-semibold">{i.products?.name}</span><span className="text-xs text-ink/50">{storeName(i.store_id)}</span></span>
+                <Pill tone={i.qty < 0 ? "bad" : i.qty === 0 ? "warn" : "neutral"}>{i.qty < 0 ? `${i.qty} · check` : `${i.qty} left`}</Pill>
               </div>
             ))}
           </div>
         )}
-      </section>
+      </Panel>
     </div>
   );
 };

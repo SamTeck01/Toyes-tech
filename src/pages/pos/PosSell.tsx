@@ -10,6 +10,18 @@ import { setCashier, type Me } from "@/pos/session";
 import { searchProducts } from "@/lib/search";
 import { formatPrice } from "@/lib/format";
 import PosReceipt from "./PosReceipt";
+import { LogoMark } from "@/components/Logo";
+import { Kbd } from "@/components/hq/kit";
+
+/** Small live clock for the till header. */
+const Clock24 = () => {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(t);
+  }, []);
+  return <>{now.toLocaleString("en-NG", { weekday: "short", hour: "2-digit", minute: "2-digit" })}</>;
+};
 import type { Product } from "@/data/products";
 
 const DEPTS = ["All", "Gadgets", "Phones", "Laptops"];
@@ -29,7 +41,7 @@ const StatusPill = () => {
   }, []);
   if (!s) return null;
   const offline = s.problem === "offline" || !s.online;
-  const tone = s.failed ? "bg-red-100 text-red-800" : s.problem === "auth" ? "bg-amber-100 text-amber-900" : offline ? "bg-gray-200 text-black" : s.pending ? "bg-amber-100 text-amber-900" : "bg-green-100 text-green-800";
+  const tone = s.failed ? "bg-red-500/15 text-red-200 ring-red-400/30" : s.problem === "auth" || s.pending ? "bg-amber-400/15 text-amber-200 ring-amber-300/30" : offline ? "bg-white/10 text-white/80 ring-white/15" : "bg-emerald-400/15 text-emerald-200 ring-emerald-300/30";
   const label = s.failed
     ? `${s.failed} sale(s) need attention`
     : s.problem === "auth"
@@ -40,8 +52,8 @@ const StatusPill = () => {
           ? s.syncing ? `Syncing ${s.pending}…` : `${s.pending} waiting to sync`
           : "Online · all synced";
   return (
-    <button onClick={() => (s.failed ? retryFailed() : syncNow())} title={s.message} className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${tone}`}>
-      <span className={`h-2 w-2 rounded-full ${s.failed ? "bg-red-600" : offline ? "bg-gray-500" : s.pending || s.problem === "auth" ? "bg-amber-500" : "bg-green-600"}`} />
+    <button onClick={() => (s.failed ? retryFailed() : syncNow())} title={s.message} className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition hover:brightness-125 ${tone}`}>
+      <span className={`h-2 w-2 rounded-full ${s.failed ? "bg-red-400" : offline ? "bg-white/50" : s.pending || s.problem === "auth" ? "bg-amber-300" : "bg-emerald-400"} ${s.syncing ? "animate-pulse" : ""}`} />
       <span className="max-w-[220px] truncate">{label}</span>
     </button>
   );
@@ -179,78 +191,83 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
 
   const cart = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-        <p className="font-bold">Current sale <span className="text-black/45">({itemCount})</span></p>
+      <div className="flex items-center justify-between border-b border-line px-4 py-3">
+        <p className="font-bold">Current sale <span className="text-ink/45">({itemCount})</span></p>
         <div className="flex gap-2">
-          <button onClick={() => setHeldOpen(true)} className="flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-bold"><Clock className="h-3.5 w-3.5" /> Held ({held.length})</button>
+          <button onClick={() => setHeldOpen(true)} className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-bold"><Clock className="h-3.5 w-3.5" /> Held ({held.length})</button>
           {lines.length > 0 && <button onClick={reset} className="rounded-full px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Clear</button>}
         </div>
       </div>
       <div className="flex-1 overflow-y-auto px-4">
         {lines.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 py-12 text-center text-black/45">
+          <div className="flex h-full flex-col items-center justify-center gap-2 py-12 text-center text-ink/45">
             <ShoppingCart className="h-10 w-10" />
             <p className="text-sm">Tap a product, scan a barcode, or use Quick sale for anything not listed.</p>
           </div>
         ) : (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-line">
             {lines.map((l, i) => (
               <li key={`${l.product_id ?? "q"}-${i}`} className="py-3">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-bold leading-tight">{l.name}{!l.product_id && <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">QUICK</span>}</p>
-                  <button aria-label={`Remove ${l.name}`} onClick={() => setQty(i, 0)} className="text-black/35 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                  <button aria-label={`Remove ${l.name}`} onClick={() => setQty(i, 0)} className="text-ink/35 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-2">
-                  <div className="flex items-center rounded-full border border-gray-200">
+                  <div className="flex items-center rounded-full border border-line">
                     <button aria-label="Decrease" onClick={() => setQty(i, l.quantity - 1)} className="p-2"><Minus className="h-3.5 w-3.5" /></button>
                     <span className="w-7 text-center text-sm font-bold">{l.quantity}</span>
                     <button aria-label="Increase" onClick={() => setQty(i, l.quantity + 1)} className="p-2"><Plus className="h-3.5 w-3.5" /></button>
                   </div>
-                  <input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => setPrice(i, toNumber(e.target.value))} className="w-24 rounded-lg bg-gray-50 px-2 py-1 text-right text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary" />
-                  <span className="w-24 text-right text-sm font-extrabold">{formatPrice(l.unit_price * l.quantity)}</span>
+                  <input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => setPrice(i, toNumber(e.target.value))} className="w-24 rounded-lg bg-stone-50 px-2 py-1 text-right text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary" />
+                  <span className="w-24 text-right text-sm font-extrabold tabular-nums">{formatPrice(l.unit_price * l.quantity)}</span>
                 </div>
               </li>
             ))}
           </ul>
         )}
       </div>
-      <div className="space-y-3 border-t border-gray-100 p-4">
+      <div className="space-y-3 border-t border-line p-4">
         <div className="grid grid-cols-2 gap-2">
-          <input placeholder="Customer name" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} className="rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-primary" />
-          <input placeholder="Phone" inputMode="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} className="rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-primary" />
+          <input placeholder="Customer name" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
+          <input placeholder="Phone" inputMode="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-black/60">Discount</span>
-          <div className="flex rounded-lg bg-gray-100 p-0.5 text-xs font-bold">
+          <span className="text-sm text-ink/60">Discount</span>
+          <div className="flex rounded-lg bg-stone-100 p-0.5 text-xs font-bold">
             {(["amount", "percent"] as const).map((m) => (
-              <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-white shadow-sm" : "text-black/50"}`}>{m === "amount" ? "₦" : "%"}</button>
+              <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-white shadow-sm" : "text-ink/50"}`}>{m === "amount" ? "₦" : "%"}</button>
             ))}
           </div>
-          <input aria-label="Discount" inputMode="numeric" placeholder="0" value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-right text-sm outline-none focus:border-primary" />
+          <input aria-label="Discount" inputMode="numeric" placeholder="0" value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} className="min-w-0 flex-1 rounded-lg border border-line px-3 py-1.5 text-right text-sm outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
         </div>
-        <dl className="space-y-1 text-sm">
-          <div className="flex justify-between"><dt className="text-black/60">Subtotal</dt><dd>{formatPrice(subtotal)}</dd></div>
-          {discount > 0 && <div className="flex justify-between text-green-700"><dt>Discount</dt><dd>-{formatPrice(discount)}</dd></div>}
-          <div className="flex justify-between text-xl font-extrabold"><dt>Total</dt><dd>{formatPrice(total)}</dd></div>
-        </dl>
-        <div className="grid grid-cols-[auto_1fr] gap-2">
-          <button onClick={holdSale} disabled={!lines.length} className="rounded-xl border border-gray-200 px-4 py-4 text-sm font-bold disabled:opacity-40">Hold</button>
-          <button onClick={() => setPayOpen(true)} disabled={!lines.length} className="rounded-xl bg-primary py-4 text-base font-extrabold text-white disabled:opacity-40">
-            Charge {formatPrice(total)} <span className="ml-1 hidden text-xs opacity-70 lg:inline">F9</span>
-          </button>
+        <div className="rounded-2xl bg-ink p-4 text-white">
+          <dl className="space-y-1.5 text-sm">
+            <div className="flex justify-between text-white/60"><dt>Subtotal · {itemCount} item{itemCount === 1 ? "" : "s"}</dt><dd className="tabular-nums">{formatPrice(subtotal)}</dd></div>
+            {discount > 0 && <div className="flex justify-between text-emerald-300"><dt>Discount</dt><dd className="tabular-nums">−{formatPrice(discount)}</dd></div>}
+            <div className="flex items-baseline justify-between pt-1"><dt className="text-sm font-semibold text-white/80">Total</dt><dd className="font-display text-[28px] font-extrabold leading-none tracking-tight tabular-nums">{formatPrice(total)}</dd></div>
+          </dl>
+          <div className="mt-4 grid grid-cols-[auto_1fr] gap-2">
+            <button onClick={holdSale} disabled={!lines.length} className="rounded-xl bg-white/10 px-4 py-3.5 text-sm font-semibold transition hover:bg-white/15 disabled:opacity-40">Hold</button>
+            <button onClick={() => setPayOpen(true)} disabled={!lines.length} className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-base font-bold text-white shadow-lg shadow-primary/25 transition hover:brightness-110 disabled:opacity-40 disabled:shadow-none">
+              Charge <span className="hidden lg:inline"><Kbd dark>F9</Kbd></span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-[#F4F4F5]">
-      <header className="flex items-center gap-2 border-b border-gray-200 bg-white px-3 py-2.5 md:px-5">
-        <p className="font-display text-lg font-extrabold">Toyes<span className="text-primary">Tech</span></p>
-        <span className="hidden text-sm text-black/50 sm:inline">{device.store_name} · Till {device.device_code}</span>
+    <div className="flex h-[100dvh] flex-col bg-stone-100">
+      <header className="flex items-center gap-3 bg-ink px-3 py-2.5 text-white md:px-5">
+        <LogoMark className="h-8 w-8" />
+        <div className="hidden leading-tight sm:block">
+          <p className="text-[15px] font-bold">{device.store_name}</p>
+          <p className="text-[11px] text-white/45">Till {device.device_code} · <Clock24 /></p>
+        </div>
         <div className="ml-auto flex items-center gap-2">
           <StatusPill />
-          <button onClick={() => setMenuOpen(true)} className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1.5 text-sm font-bold">
+          <button onClick={() => setMenuOpen(true)} className="flex items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-3 text-sm font-semibold transition hover:bg-white/15">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-white">{cashier.full_name[0]}</span>
             <span className="hidden sm:inline">{cashier.full_name.split(" ")[0]}</span>
             <Menu className="h-4 w-4" />
@@ -259,7 +276,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       </header>
 
       {!shift && (
-        <button onClick={() => setShiftOpen(true)} className="bg-amber-50 px-4 py-2 text-left text-sm text-amber-900">
+        <button onClick={() => setShiftOpen(true)} className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-left text-sm text-amber-900 hover:bg-amber-100">
           <b>Open your shift:</b> count the cash in the drawer so the day's takings add up. Tap here.
         </button>
       )}
@@ -269,7 +286,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           <div className="space-y-3 bg-white px-3 py-3 md:px-5">
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-black/40" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink/40" />
                 <input
                   ref={searchRef}
                   autoFocus
@@ -277,23 +294,23 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") onSearchEnter(); if (e.key === "Escape") setQuery(""); }}
                   placeholder="Search or scan barcode (F2)"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-12 pr-10 text-[15px] outline-none focus:border-primary focus:bg-white"
+                  className="w-full rounded-xl border border-line bg-stone-50 py-3 pl-12 pr-10 text-[15px] outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5 focus:bg-white"
                 />
                 {query && <button aria-label="Clear search" onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 p-1"><X className="h-4 w-4" /></button>}
               </div>
-              <button onClick={() => { setQuick({ name: "", price: "", qty: "1" }); setQuickOpen(true); }} className="shrink-0 rounded-xl bg-black px-4 text-sm font-bold text-white">
-                + Quick sale <span className="hidden text-xs opacity-60 lg:inline">F4</span>
+              <button onClick={() => { setQuick({ name: "", price: "", qty: "1" }); setQuickOpen(true); }} className="flex shrink-0 items-center gap-2 rounded-xl bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/90">
+                <Plus className="h-4 w-4" /> Quick sale <span className="hidden lg:inline"><Kbd dark>F4</Kbd></span>
               </button>
             </div>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {DEPTS.map((d) => (
-                <button key={d} onClick={() => setDept(d)} className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${dept === d ? "bg-black text-white" : "bg-gray-100 text-black/65"}`}>{d}</button>
+                <button key={d} onClick={() => setDept(d)} className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${dept === d ? "bg-ink text-white shadow-sm" : "bg-stone-100 text-ink/65"}`}>{d}</button>
               ))}
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-3 pb-24 md:p-5 lg:pb-5">
             {products.length === 0 ? (
-              <div className="py-16 text-center text-black/55">
+              <div className="py-16 text-center text-ink/55">
                 <p className="font-bold">No products on this till yet</p>
                 <p className="mt-1 text-sm">They download automatically when the till is online. You can still sell with Quick sale.</p>
               </div>
@@ -303,15 +320,18 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                   const left = qtyLeft(p.id);
                   const inCart = lines.filter((l) => l.product_id === p.id).reduce((s, l) => s + l.quantity, 0);
                   return (
-                    <button key={p.id} onClick={() => add(p.id)} className={`relative flex flex-col overflow-hidden rounded-2xl bg-white text-left shadow-sm ring-1 transition hover:ring-primary ${left <= 0 ? "opacity-60 ring-black/5" : "ring-black/5"}`}>
-                      <div className="aspect-[4/3] overflow-hidden bg-gray-100">{p.image && <img src={p.image} alt="" loading="lazy" className="h-full w-full object-cover" />}</div>
-                      {inCart > 0 && <span className="absolute right-2 top-2 flex h-7 min-w-7 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-white">{inCart}</span>}
+                    <button key={p.id} onClick={() => add(p.id)} className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-white text-left shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 ${inCart > 0 ? "border-primary ring-2 ring-primary/15" : "border-line hover:border-ink/20"}`}>
+                      <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
+                        {p.image && <img src={p.image} alt="" loading="lazy" className={`h-full w-full object-cover transition duration-300 group-hover:scale-[1.03] ${left <= 0 ? "opacity-50 grayscale" : ""}`} />}
+                        {left <= 0 && <span className="absolute left-2 top-2 rounded-md bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold text-ink/60 backdrop-blur">Not in stock here</span>}
+                      </div>
+                      {inCart > 0 && <span className="absolute right-2 top-2 flex h-7 min-w-7 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-white shadow-lg shadow-primary/30">{inCart}</span>}
                       <div className="flex flex-1 flex-col p-3">
                         <p className="line-clamp-2 text-sm font-bold leading-tight">{p.name}</p>
-                        <p className="mt-0.5 text-[11px] text-black/45">{[p.condition, p.barcode ?? p.id.toUpperCase()].filter(Boolean).join(" · ")}</p>
+                        <p className="mt-0.5 text-[11px] text-ink/45">{[p.condition, p.barcode ?? p.id.toUpperCase()].filter(Boolean).join(" · ")}</p>
                         <div className="mt-auto flex items-end justify-between pt-2">
-                          <span className="text-base font-extrabold">{formatPrice(priceOf(p.id))}</span>
-                          <span className={`text-[11px] font-semibold ${left <= 0 ? "text-red-600" : left <= 3 ? "text-amber-600" : "text-black/45"}`}>{left <= 0 ? "None left" : `${left} left`}</span>
+                          <span className="text-base font-extrabold tabular-nums">{formatPrice(priceOf(p.id))}</span>
+                          {left > 0 && <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${left <= 3 ? "bg-amber-50 text-amber-700" : "bg-stone-100 text-ink/55"}`}>{left} left</span>}
                         </div>
                       </div>
                     </button>
@@ -321,19 +341,19 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             )}
             {products.length > 0 && visible.length === 0 && (
               <div className="py-16 text-center">
-                <p className="text-black/55">No products match “{query}”.</p>
+                <p className="text-ink/55">No products match “{query}”.</p>
                 <button onClick={() => { setQuick({ name: query, price: "", qty: "1" }); setQuickOpen(true); }} className="mt-3 rounded-full bg-black px-5 py-2.5 text-sm font-bold text-white">Sell “{query}” as a quick sale</button>
               </div>
             )}
           </div>
         </section>
-        <aside className="hidden w-[400px] shrink-0 border-l border-gray-200 bg-white lg:block">{cart}</aside>
+        <aside className="hidden w-[400px] shrink-0 border-l border-line bg-white lg:block">{cart}</aside>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white p-3 lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white p-3 lg:hidden">
         <button onClick={() => setCartSheet(true)} className="flex w-full items-center justify-between rounded-xl bg-primary px-5 py-4 text-white">
           <span className="font-bold">View sale ({itemCount})</span>
-          <span className="text-lg font-extrabold">{formatPrice(total)}</span>
+          <span className="text-lg font-extrabold tabular-nums">{formatPrice(total)}</span>
         </button>
       </div>
       <Sheet open={cartSheet} onOpenChange={setCartSheet}>
@@ -363,14 +383,14 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             }}
           >
             <label className="block text-sm font-semibold">What is it?
-              <input autoFocus required value={quick.name} onChange={(e) => setQuick({ ...quick, name: e.target.value })} placeholder="e.g. Phone pouch" className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary" />
+              <input autoFocus required value={quick.name} onChange={(e) => setQuick({ ...quick, name: e.target.value })} placeholder="e.g. Phone pouch" className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
             </label>
             <div className="grid grid-cols-[1fr_90px] gap-2">
               <label className="block text-sm font-semibold">Price (₦)
-                <input required inputMode="numeric" value={quick.price} onChange={(e) => setQuick({ ...quick, price: e.target.value })} className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-right font-bold outline-none focus:border-primary" />
+                <input required inputMode="numeric" value={quick.price} onChange={(e) => setQuick({ ...quick, price: e.target.value })} className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 text-right font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
               </label>
               <label className="block text-sm font-semibold">Qty
-                <input inputMode="numeric" value={quick.qty} onChange={(e) => setQuick({ ...quick, qty: e.target.value })} className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-right font-bold outline-none focus:border-primary" />
+                <input inputMode="numeric" value={quick.qty} onChange={(e) => setQuick({ ...quick, qty: e.target.value })} className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 text-right font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
               </label>
             </div>
             <button className="w-full rounded-xl bg-primary py-3.5 font-bold text-white">Add to sale</button>
@@ -387,25 +407,25 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           </DialogHeader>
           <div className="grid grid-cols-4 gap-2">
             {[...METHODS, { id: "split" as const, label: "Split" }].map((m) => (
-              <button key={m.id} onClick={() => setMethod(m.id)} className={`rounded-xl border px-2 py-3 text-sm font-bold ${method === m.id ? "border-primary bg-primary/5 text-primary ring-1 ring-primary" : "border-gray-200"}`}>{m.label}</button>
+              <button key={m.id} onClick={() => setMethod(m.id)} className={`rounded-xl border px-2 py-3 text-sm font-bold ${method === m.id ? "border-primary bg-primary/5 text-primary ring-1 ring-primary" : "border-line"}`}>{m.label}</button>
             ))}
           </div>
           {method === "cash" && (
             <div className="space-y-3">
               <label className="block text-sm font-semibold">Cash received
-                <input autoFocus inputMode="numeric" value={tendered} onChange={(e) => setTendered(e.target.value)} placeholder="0" className="mt-1.5 w-full rounded-xl border border-gray-200 px-4 py-3 text-right text-xl font-bold outline-none focus:border-primary" />
+                <input autoFocus inputMode="numeric" value={tendered} onChange={(e) => setTendered(e.target.value)} placeholder="0" className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 text-right text-xl font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
               </label>
               <div className="flex flex-wrap gap-2">
-                {quickCash.map((v) => <button key={v} onClick={() => setTendered(String(v))} className="rounded-full bg-gray-100 px-3 py-1.5 text-sm font-semibold">{v === total ? "Exact" : formatPrice(v)}</button>)}
+                {quickCash.map((v) => <button key={v} onClick={() => setTendered(String(v))} className="rounded-full bg-stone-100 px-3 py-1.5 text-sm font-semibold">{v === total ? "Exact" : formatPrice(v)}</button>)}
               </div>
-              <div className={`flex justify-between rounded-xl px-4 py-3 text-lg font-extrabold ${t.paid >= total ? "bg-green-50 text-green-700" : "bg-gray-50 text-black/50"}`}>
+              <div className={`flex justify-between rounded-xl px-4 py-3 text-lg font-extrabold ${t.paid >= total ? "bg-green-50 text-green-700" : "bg-stone-50 text-ink/50"}`}>
                 <span>{t.paid >= total ? "Change" : "Still to pay"}</span>
                 <span>{formatPrice(Math.abs(t.paid - total))}</span>
               </div>
             </div>
           )}
           {(method === "transfer" || method === "card") && (
-            <p className="rounded-xl bg-gray-50 p-4 text-sm text-black/65">
+            <p className="rounded-xl bg-stone-50 p-4 text-sm text-ink/65">
               {method === "transfer" ? `Confirm ${formatPrice(total)} has arrived in the store account before completing.` : `Charge ${formatPrice(total)} on the card terminal, then complete once it's approved.`}
             </p>
           )}
@@ -413,14 +433,14 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             <div className="space-y-2">
               {split.map((row, i) => (
                 <div key={i} className="flex gap-2">
-                  <select value={row.method} onChange={(e) => setSplit(split.map((r, j) => (j === i ? { ...r, method: e.target.value as PaymentMethod } : r)))} className="rounded-xl border border-gray-200 px-3 text-sm font-semibold">
+                  <select value={row.method} onChange={(e) => setSplit(split.map((r, j) => (j === i ? { ...r, method: e.target.value as PaymentMethod } : r)))} className="rounded-xl border border-line px-3 text-sm font-semibold">
                     {METHODS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
                   </select>
-                  <input inputMode="numeric" placeholder="0" value={row.amount} onChange={(e) => setSplit(split.map((r, j) => (j === i ? { ...r, amount: e.target.value } : r)))} className="min-w-0 flex-1 rounded-xl border border-gray-200 px-3 py-2.5 text-right font-bold outline-none focus:border-primary" />
+                  <input inputMode="numeric" placeholder="0" value={row.amount} onChange={(e) => setSplit(split.map((r, j) => (j === i ? { ...r, amount: e.target.value } : r)))} className="min-w-0 flex-1 rounded-xl border border-line px-3 py-2.5 text-right font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
                 </div>
               ))}
               <button onClick={() => setSplit([...split, { method: "card", amount: "" }])} className="text-sm font-semibold text-primary">+ Add another payment</button>
-              <p className={`text-sm font-bold ${t.paid >= total ? "text-green-700" : "text-black/55"}`}>Paid {formatPrice(t.paid)} of {formatPrice(total)}{t.paid < total ? ` · ${formatPrice(total - t.paid)} left` : ""}</p>
+              <p className={`text-sm font-bold ${t.paid >= total ? "text-green-700" : "text-ink/55"}`}>Paid {formatPrice(t.paid)} of {formatPrice(total)}{t.paid < total ? ` · ${formatPrice(total - t.paid)} left` : ""}</p>
             </div>
           )}
           <button onClick={complete} disabled={!canComplete} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-extrabold text-white disabled:opacity-40">
@@ -436,9 +456,9 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             <DialogTitle className="text-xl font-extrabold">{completed ? "Sale complete" : `Receipt ${reprint?.receipt_no}`}</DialogTitle>
             <DialogDescription>{completed ? (completed.change_given > 0 ? `Give change: ${formatPrice(completed.change_given)}` : "Payment received.") : "Reprint for the customer."}</DialogDescription>
           </DialogHeader>
-          {(completed || reprint) && <div className="print-area rounded-xl border border-gray-200"><PosReceipt sale={(completed || reprint)!} /></div>}
+          {(completed || reprint) && <div className="print-area rounded-xl border border-line"><PosReceipt sale={(completed || reprint)!} /></div>}
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => window.print()} className="rounded-xl border border-gray-200 py-3 text-sm font-bold">Print receipt</button>
+            <button onClick={() => window.print()} className="rounded-xl border border-line py-3 text-sm font-bold">Print receipt</button>
             <button onClick={() => { setCompleted(null); setReprint(null); searchRef.current?.focus(); }} className="rounded-xl bg-primary py-3 text-sm font-bold text-white">{completed ? "New sale" : "Close"}</button>
           </div>
         </DialogContent>
@@ -448,13 +468,13 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       <Dialog open={heldOpen} onOpenChange={setHeldOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Held sales</DialogTitle><DialogDescription>Park a sale while a customer decides, then pick it back up.</DialogDescription></DialogHeader>
-          {held.length === 0 ? <p className="py-6 text-center text-sm text-black/50">No sales on hold.</p> : (
-            <ul className="divide-y divide-gray-100">
+          {held.length === 0 ? <p className="py-6 text-center text-sm text-ink/50">No sales on hold.</p> : (
+            <ul className="divide-y divide-line">
               {held.map((h) => (
                 <li key={h.id} className="flex items-center justify-between gap-3 py-3">
                   <div>
                     <p className="text-sm font-bold">{h.label}</p>
-                    <p className="text-xs text-black/50">{h.lines.reduce((s, l) => s + l.quantity, 0)} items · {formatPrice(h.lines.reduce((s, l) => s + l.unit_price * l.quantity, 0))}</p>
+                    <p className="text-xs text-ink/50">{h.lines.reduce((s, l) => s + l.quantity, 0)} items · {formatPrice(h.lines.reduce((s, l) => s + l.unit_price * l.quantity, 0))}</p>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => setMeta("held", held.filter((x) => x.id !== h.id))} className="rounded-lg px-3 py-1.5 text-xs font-bold text-red-600">Delete</button>
@@ -488,10 +508,10 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               { label: "Sync now", on: () => void syncNow() },
               { label: "Switch cashier (lock)", on: () => void setCashier(null) },
             ].map((x) => (
-              <button key={x.label} onClick={() => { setMenuOpen(false); x.on(); }} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-left font-semibold hover:border-black/40">{x.label}</button>
+              <button key={x.label} onClick={() => { setMenuOpen(false); x.on(); }} className="w-full rounded-xl border border-line px-4 py-3 text-left font-semibold hover:border-black/40">{x.label}</button>
             ))}
           </div>
-          <p className="mt-6 text-xs text-black/45">Shortcuts: F2 search · F4 quick sale · F9 charge</p>
+          <p className="mt-6 text-xs text-ink/45">Shortcuts: F2 search · F4 quick sale · F9 charge</p>
         </SheetContent>
       </Sheet>
 
@@ -502,23 +522,23 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             <SheetTitle>Today on this till</SheetTitle>
             <SheetDescription>{todaysSales.filter((s) => s.status === "completed").length} sales · {formatPrice(todaysSales.filter((s) => s.status === "completed").reduce((t, s) => t + s.total, 0))}</SheetDescription>
           </SheetHeader>
-          <ul className="mt-4 divide-y divide-gray-100">
+          <ul className="mt-4 divide-y divide-line">
             {todaysSales.map((s) => (
               <li key={s.id} className="flex items-center justify-between gap-2 py-3">
                 <div className="min-w-0">
                   <p className="text-sm font-bold">{s.receipt_no} · {formatPrice(s.total)}</p>
-                  <p className="truncate text-xs text-black/50">{new Date(s.created_at).toLocaleTimeString("en-NG", { timeStyle: "short" })} · {s.cashier_name} · {s.lines.map((l) => l.name).join(", ")}</p>
+                  <p className="truncate text-xs text-ink/50">{new Date(s.created_at).toLocaleTimeString("en-NG", { timeStyle: "short" })} · {s.cashier_name} · {s.lines.map((l) => l.name).join(", ")}</p>
                   {s.sync_error && <p className="text-xs text-red-600">{s.sync_error}</p>}
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${s.sync === "synced" ? "bg-green-100 text-green-800" : s.sync === "failed" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-900"}`}>{s.sync === "synced" ? "Synced" : s.sync === "failed" ? "Problem" : "Waiting"}</span>
-                  <button onClick={() => { setHistoryOpen(false); setReprint(s); }} className="rounded-lg px-2 py-1 text-xs font-bold hover:bg-gray-100">Receipt</button>
+                  <button onClick={() => { setHistoryOpen(false); setReprint(s); }} className="rounded-lg px-2 py-1 text-xs font-bold hover:bg-stone-100">Receipt</button>
                 </div>
               </li>
             ))}
           </ul>
-          {todaysSales.length === 0 && <p className="py-10 text-center text-sm text-black/50">No sales yet today.</p>}
-          <p className="mt-4 text-xs text-black/45">Refunds are done by a manager in the admin.</p>
+          {todaysSales.length === 0 && <p className="py-10 text-center text-sm text-ink/50">No sales yet today.</p>}
+          <p className="mt-4 text-xs text-ink/45">Refunds are done by a manager in the admin.</p>
         </SheetContent>
       </Sheet>
 
@@ -565,8 +585,8 @@ const ShiftDialog = ({ open, onOpenChange, shift, cashierId }: { open: boolean; 
               }
             }}
           >
-            {shift && expected !== null && <p className="text-sm text-black/60">Count the notes carefully, then enter the total. We'll compare it with the till.</p>}
-            <input autoFocus required inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="₦0" className="w-full rounded-xl border border-gray-200 px-4 py-3 text-right text-xl font-bold outline-none focus:border-primary" />
+            {shift && expected !== null && <p className="text-sm text-ink/60">Count the notes carefully, then enter the total. We'll compare it with the till.</p>}
+            <input autoFocus required inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="₦0" className="w-full rounded-xl border border-line px-4 py-3 text-right text-xl font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
             <button className="w-full rounded-xl bg-primary py-3.5 font-bold text-white">{shift ? "Close shift" : "Open shift"}</button>
           </form>
         )}

@@ -9,7 +9,7 @@ import { products as websiteCatalogue } from "@/data/products";
 
 interface P { id: string; name: string; brand: string | null; category: string; subcategory: string | null; condition: string | null; base_price: number; image: string | null; barcode: string | null; active: boolean }
 const blank: P = { id: "", name: "", brand: "", category: "Gadgets", subcategory: "", condition: "New", base_price: 0, image: "", barcode: "", active: true };
-const input = "w-full rounded-xl border border-gray-200 px-3.5 py-2.5 outline-none focus:border-primary";
+const input = "w-full rounded-xl border border-line px-3.5 py-2.5 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5";
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
 
 const Products = () => {
@@ -62,27 +62,27 @@ const Products = () => {
     <div className="space-y-5">
       <Helmet><title>Products | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="text-3xl font-extrabold">Products</h1><p className="text-sm text-black/55">One catalogue for all stores. Stock and store prices are set under Inventory.</p></div>
+        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Products</h1><p className="text-sm text-ink/55">One catalogue for all stores. Stock and store prices are set under Inventory.</p></div>
         <div className="flex gap-2">
-          <button disabled={busy} onClick={importWebsite} className="rounded-full bg-white px-4 py-2.5 text-sm font-bold ring-1 ring-black/10 disabled:opacity-50">Import website products</button>
-          <button onClick={() => setEditing({ ...blank })} className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white">+ Add product</button>
+          <button disabled={busy} onClick={importWebsite} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40 disabled:opacity-50">Import website products</button>
+          <button onClick={() => setEditing({ ...blank })} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50">+ Add product</button>
         </div>
       </div>
       <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" className="w-full rounded-full bg-white px-4 py-2.5 text-sm outline-none ring-1 ring-black/10 focus:ring-primary" />
-      <section className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
-        {list === null ? <p className="p-6 text-sm text-black/50">Loading…</p> : shown.length === 0 ? (
-          <div className="p-10 text-center"><p className="font-bold">No products yet</p><p className="mt-1 text-sm text-black/55">Import the website's products or add your own.</p></div>
+      <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+        {list === null ? <p className="p-6 text-sm text-ink/50">Loading…</p> : shown.length === 0 ? (
+          <div className="p-10 text-center"><p className="font-bold">No products yet</p><p className="mt-1 text-sm text-ink/55">Import the website's products or add your own.</p></div>
         ) : (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-line">
             {shown.map((p) => (
               <li key={p.id} className="flex items-center gap-3 px-4 py-3">
-                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100">{p.image && <img src={p.image} alt="" className="h-full w-full object-cover" />}</div>
+                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-stone-100">{p.image && <img src={p.image} alt="" className="h-full w-full object-cover" />}</div>
                 <div className="min-w-0 flex-1">
-                  <p className={`truncate font-semibold ${p.active ? "" : "text-black/40 line-through"}`}>{p.name}</p>
-                  <p className="text-xs text-black/45">{[p.brand, p.category, p.subcategory, p.condition, p.barcode && `Barcode ${p.barcode}`].filter(Boolean).join(" · ")}</p>
+                  <p className={`truncate font-semibold ${p.active ? "" : "text-ink/40 line-through"}`}>{p.name}</p>
+                  <p className="text-xs text-ink/45">{[p.brand, p.category, p.subcategory, p.condition, p.barcode && `Barcode ${p.barcode}`].filter(Boolean).join(" · ")}</p>
                 </div>
-                <span className="font-bold">{formatPrice(p.base_price)}</span>
-                <button onClick={() => setEditing(p)} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-gray-100">Edit</button>
+                <span className="font-bold tabular-nums">{formatPrice(p.base_price)}</span>
+                <button onClick={() => setEditing(p)} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-stone-100">Edit</button>
               </li>
             ))}
           </ul>

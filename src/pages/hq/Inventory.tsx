@@ -9,7 +9,7 @@ import { formatPrice } from "@/lib/format";
 interface Row { id: string; name: string; category: string; base_price: number; barcode: string | null; qty: number; price: number | null; low: number }
 type Action = { kind: "receive" | "count" | "price" | "transfer"; row: Row };
 const toNumber = (v: string) => Number(v.replace(/[^\d.-]/g, "")) || 0;
-const input = "w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary";
+const input = "w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5";
 
 const Inventory = () => {
   const { me, stores, isOwner } = useHQ();
@@ -92,42 +92,42 @@ const Inventory = () => {
       <Helmet><title>Inventory | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-extrabold">Inventory</h1>
-          <p className="text-sm text-black/55">Each store has its own stock. Stock value: {formatPrice(value)}</p>
+          <h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Inventory</h1>
+          <p className="text-sm text-ink/55">Each store has its own stock. Stock value: {formatPrice(value)}</p>
         </div>
-        <select value={storeId} onChange={(e) => setStoreId(e.target.value)} className="rounded-full bg-white px-4 py-2.5 text-sm font-bold ring-1 ring-black/10">
+        <select value={storeId} onChange={(e) => setStoreId(e.target.value)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40">
           {myStores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
       </div>
       <div className="flex flex-wrap gap-2">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or barcode" className="min-w-[220px] flex-1 rounded-full bg-white px-4 py-2.5 text-sm outline-none ring-1 ring-black/10 focus:ring-primary" />
         {(["all", "low", "out"] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)} className={`rounded-full px-4 py-2 text-sm font-bold ${filter === f ? "bg-black text-white" : "bg-white ring-1 ring-black/10"}`}>{f === "all" ? "All" : f === "low" ? "Running low" : "Out / negative"}</button>
+          <button key={f} onClick={() => setFilter(f)} className={`rounded-full px-4 py-2 text-sm font-bold ${filter === f ? "bg-ink text-white shadow-sm" : "border border-line bg-white"}`}>{f === "all" ? "All" : f === "low" ? "Running low" : "Out / negative"}</button>
         ))}
       </div>
 
-      <section className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
-        {rows === null ? <p className="p-6 text-sm text-black/50">{myStores.length ? "Loading…" : "Add a store first."}</p> : (
+      <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
+        {rows === null ? <p className="p-6 text-sm text-ink/50">{myStores.length ? "Loading…" : "Add a store first."}</p> : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-xs text-black/55"><tr><th className="px-4 py-3">Product</th><th className="px-4 py-3 text-right">In stock</th><th className="px-4 py-3 text-right">Price here</th><th className="px-4 py-3" /></tr></thead>
-              <tbody className="divide-y divide-gray-100">
+              <thead className="bg-stone-50 text-xs font-semibold text-ink/50"><tr><th className="px-4 py-3">Product</th><th className="px-4 py-3 text-right">In stock</th><th className="px-4 py-3 text-right">Price here</th><th className="px-4 py-3" /></tr></thead>
+              <tbody className="divide-y divide-line">
                 {shown.map((r) => (
                   <tr key={r.id}>
-                    <td className="px-4 py-3"><p className="font-semibold">{r.name}</p><p className="text-xs text-black/45">{r.category} · {r.barcode ?? r.id}</p></td>
+                    <td className="px-4 py-3"><p className="font-semibold">{r.name}</p><p className="text-xs text-ink/45">{r.category} · {r.barcode ?? r.id}</p></td>
                     <td className={`px-4 py-3 text-right font-extrabold ${r.qty < 0 ? "text-red-600" : r.qty <= r.low ? "text-amber-600" : ""}`}>{r.qty}</td>
-                    <td className="px-4 py-3 text-right">{formatPrice(r.price ?? r.base_price)}{r.price != null && r.price !== r.base_price && <span className="block text-[11px] text-black/45">store price</span>}</td>
+                    <td className="px-4 py-3 text-right">{formatPrice(r.price ?? r.base_price)}{r.price != null && r.price !== r.base_price && <span className="block text-[11px] text-ink/45">store price</span>}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-right">
                       <button onClick={() => open("receive", r)} className="rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary">+ Stock in</button>
-                      <button onClick={() => open("count", r)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-gray-100">Count</button>
-                      <button onClick={() => open("price", r)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-gray-100">Price</button>
-                      {isOwner && stores.length > 1 && <button onClick={() => open("transfer", r)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-gray-100">Move</button>}
+                      <button onClick={() => open("count", r)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-stone-100">Count</button>
+                      <button onClick={() => open("price", r)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-stone-100">Price</button>
+                      {isOwner && stores.length > 1 && <button onClick={() => open("transfer", r)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-stone-100">Move</button>}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {shown.length === 0 && <p className="p-8 text-center text-sm text-black/50">{rows.length ? "Nothing matches." : "No products yet. The owner adds them under Products."}</p>}
+            {shown.length === 0 && <p className="p-8 text-center text-sm text-ink/50">{rows.length ? "Nothing matches." : "No products yet. The owner adds them under Products."}</p>}
           </div>
         )}
       </section>
