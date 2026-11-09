@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import { toast } from "sonner";
-import { Search, Plus, Minus, Trash2, X, ShoppingCart, Clock, Check, Menu } from "@/components/icons";
+import { ArrowLeft, Search, Plus, Minus, Trash2, X, ShoppingCart, Clock, Check, Menu } from "@/components/icons";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { localDb, getMeta, setMeta, type LocalSale, type LocalStaff, type SaleLine, type PaymentMethod, type LocalShift } from "@/pos/localdb";
@@ -41,7 +42,7 @@ const StatusPill = () => {
   }, []);
   if (!s) return null;
   const offline = s.problem === "offline" || !s.online;
-  const tone = s.failed ? "bg-red-500/15 text-red-200 ring-red-400/30" : s.problem === "auth" || s.pending ? "bg-amber-400/15 text-amber-200 ring-amber-300/30" : offline ? "bg-white/10 text-white/80 ring-white/15" : "bg-emerald-400/15 text-emerald-200 ring-emerald-300/30";
+  const tone = s.failed ? "bg-red-50 text-red-700 ring-red-200" : s.problem === "auth" || s.pending ? "bg-amber-50 text-amber-800 ring-amber-200" : offline ? "bg-stone-100 text-ink/70 ring-stone-200" : "bg-emerald-50 text-emerald-700 ring-emerald-200";
   const label = s.failed
     ? `${s.failed} sale(s) need attention`
     : s.problem === "auth"
@@ -53,7 +54,7 @@ const StatusPill = () => {
           : "Online · all synced";
   return (
     <button onClick={() => (s.failed ? retryFailed() : syncNow())} title={s.message} className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition hover:brightness-125 ${tone}`}>
-      <span className={`h-2 w-2 rounded-full ${s.failed ? "bg-red-400" : offline ? "bg-white/50" : s.pending || s.problem === "auth" ? "bg-amber-300" : "bg-emerald-400"} ${s.syncing ? "animate-pulse" : ""}`} />
+      <span className={`h-2 w-2 rounded-full ${s.failed ? "bg-red-500" : offline ? "bg-stone-400" : s.pending || s.problem === "auth" ? "bg-amber-500" : "bg-emerald-500"} ${s.syncing ? "animate-pulse" : ""}`} />
       <span className="max-w-[220px] truncate">{label}</span>
     </button>
   );
@@ -240,14 +241,14 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           </div>
           <input aria-label="Discount" inputMode="numeric" placeholder="0" value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} className="min-w-0 flex-1 rounded-lg border border-line px-3 py-1.5 text-right text-sm outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
         </div>
-        <div className="rounded-2xl bg-ink p-4 text-white">
+        <div className="rounded-2xl border border-line bg-stone-50 p-4">
           <dl className="space-y-1.5 text-sm">
-            <div className="flex justify-between text-white/60"><dt>Subtotal · {itemCount} item{itemCount === 1 ? "" : "s"}</dt><dd className="tabular-nums">{formatPrice(subtotal)}</dd></div>
-            {discount > 0 && <div className="flex justify-between text-emerald-300"><dt>Discount</dt><dd className="tabular-nums">−{formatPrice(discount)}</dd></div>}
-            <div className="flex items-baseline justify-between pt-1"><dt className="text-sm font-semibold text-white/80">Total</dt><dd className="font-display text-[28px] font-extrabold leading-none tracking-tight tabular-nums">{formatPrice(total)}</dd></div>
+            <div className="flex justify-between text-ink/55"><dt>Subtotal · {itemCount} item{itemCount === 1 ? "" : "s"}</dt><dd className="tabular-nums">{formatPrice(subtotal)}</dd></div>
+            {discount > 0 && <div className="flex justify-between text-emerald-700"><dt>Discount</dt><dd className="tabular-nums">−{formatPrice(discount)}</dd></div>}
+            <div className="flex items-baseline justify-between pt-1"><dt className="text-sm font-semibold text-ink/70">Total</dt><dd className="font-display text-[28px] font-extrabold leading-none tracking-tight tabular-nums">{formatPrice(total)}</dd></div>
           </dl>
           <div className="mt-4 grid grid-cols-[auto_1fr] gap-2">
-            <button onClick={holdSale} disabled={!lines.length} className="rounded-xl bg-white/10 px-4 py-3.5 text-sm font-semibold transition hover:bg-white/15 disabled:opacity-40">Hold</button>
+            <button onClick={holdSale} disabled={!lines.length} className="rounded-xl border border-line bg-white px-4 py-3.5 text-sm font-semibold transition hover:bg-stone-50 disabled:opacity-40">Hold</button>
             <button onClick={() => setPayOpen(true)} disabled={!lines.length} className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-base font-bold text-white shadow-lg shadow-primary/25 transition hover:brightness-110 disabled:opacity-40 disabled:shadow-none">
               Charge <span className="hidden lg:inline"><Kbd dark>F9</Kbd></span>
             </button>
@@ -259,17 +260,22 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
 
   return (
     <div className="flex h-[100dvh] flex-col bg-stone-100">
-      <header className="flex items-center gap-3 bg-ink px-3 py-2.5 text-white md:px-5">
+      <header className="flex items-center gap-3 border-b border-line bg-white px-3 py-2.5 md:px-5">
         <LogoMark className="h-8 w-8" />
         <div className="hidden leading-tight sm:block">
           <p className="text-[15px] font-bold">{device.store_name}</p>
-          <p className="text-[11px] text-white/45">Till {device.device_code} · <Clock24 /></p>
+          <p className="text-[11px] text-ink/50">POS {device.device_code} · <Clock24 /></p>
         </div>
         <div className="ml-auto flex items-center gap-2">
+          {cashier.role !== "cashier" && (
+            <Link to="/admin" className="hidden items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-sm font-semibold text-ink transition hover:bg-stone-50 sm:inline-flex">
+              <ArrowLeft className="h-4 w-4" /> Back to HQ
+            </Link>
+          )}
           <StatusPill />
-          <button onClick={() => setMenuOpen(true)} className="flex items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-3 text-sm font-semibold transition hover:bg-white/15">
+          <button onClick={() => setMenuOpen(true)} className="flex items-center gap-2 rounded-full border border-line bg-white py-1 pl-1 pr-3 text-sm font-semibold transition hover:bg-stone-50">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-white">{cashier.full_name[0]}</span>
-            <span className="hidden sm:inline">{cashier.full_name.split(" ")[0]}</span>
+            <span className="hidden max-w-[140px] truncate sm:inline">{cashier.full_name}</span>
             <Menu className="h-4 w-4" />
           </button>
         </div>
@@ -311,8 +317,8 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           <div className="flex-1 overflow-y-auto p-3 pb-24 md:p-5 lg:pb-5">
             {products.length === 0 ? (
               <div className="py-16 text-center text-ink/55">
-                <p className="font-bold">No products on this till yet</p>
-                <p className="mt-1 text-sm">They download automatically when the till is online. You can still sell with Quick sale.</p>
+                <p className="font-bold">No products on this POS yet</p>
+                <p className="mt-1 text-sm">They download automatically when the POS is online. You can still sell with Quick sale.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -500,13 +506,14 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       {/* Menu */}
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent side="right" className="w-full max-w-xs">
-          <SheetHeader><SheetTitle>{cashier.full_name}</SheetTitle><SheetDescription>{device.store_name} · Till {device.device_code} · signed in as {me.username}</SheetDescription></SheetHeader>
+          <SheetHeader><SheetTitle>{cashier.full_name}</SheetTitle><SheetDescription>{device.store_name} · POS {device.device_code} · signed in as {me.username}</SheetDescription></SheetHeader>
           <div className="mt-6 space-y-2">
             {[
               { label: "Today's sales", on: () => setHistoryOpen(true) },
               { label: shift ? "Close shift / count cash" : "Open shift", on: () => setShiftOpen(true) },
               { label: "Sync now", on: () => void syncNow() },
               { label: "Switch cashier (lock)", on: () => void setCashier(null) },
+              ...(cashier.role !== "cashier" ? [{ label: "Back to HQ", on: () => { window.location.href = "/admin"; } }] : []),
             ].map((x) => (
               <button key={x.label} onClick={() => { setMenuOpen(false); x.on(); }} className="w-full rounded-xl border border-line px-4 py-3 text-left font-semibold hover:border-black/40">{x.label}</button>
             ))}
@@ -519,7 +526,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
           <SheetHeader>
-            <SheetTitle>Today on this till</SheetTitle>
+            <SheetTitle>Today on this POS</SheetTitle>
             <SheetDescription>{todaysSales.filter((s) => s.status === "completed").length} sales · {formatPrice(todaysSales.filter((s) => s.status === "completed").reduce((t, s) => t + s.total, 0))}</SheetDescription>
           </SheetHeader>
           <ul className="mt-4 divide-y divide-line">
@@ -585,7 +592,7 @@ const ShiftDialog = ({ open, onOpenChange, shift, cashierId }: { open: boolean; 
               }
             }}
           >
-            {shift && expected !== null && <p className="text-sm text-ink/60">Count the notes carefully, then enter the total. We'll compare it with the till.</p>}
+            {shift && expected !== null && <p className="text-sm text-ink/60">Count the notes carefully, then enter the total. We'll compare it with the POS.</p>}
             <input autoFocus required inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="₦0" className="w-full rounded-xl border border-line px-4 py-3 text-right text-xl font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
             <button className="w-full rounded-xl bg-primary py-3.5 font-bold text-white">{shift ? "Close shift" : "Open shift"}</button>
           </form>

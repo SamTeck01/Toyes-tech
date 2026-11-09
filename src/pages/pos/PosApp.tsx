@@ -18,7 +18,7 @@ const LiveClock = () => {
   return (
     <div>
       <p className="font-display text-6xl font-extrabold tracking-tight tabular-nums">{now.toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit" })}</p>
-      <p className="mt-1 text-sm text-white/55">{now.toLocaleDateString("en-NG", { weekday: "long", day: "numeric", month: "long" })}</p>
+      <p className="mt-1 text-sm text-ink/55">{now.toLocaleDateString("en-NG", { weekday: "long", day: "numeric", month: "long" })}</p>
     </div>
   );
 };
@@ -27,20 +27,20 @@ const LiveClock = () => {
 const Shell = ({ children, store }: { children: React.ReactNode; store?: string }) => (
   <div className="grid min-h-[100dvh] bg-stone-100 lg:grid-cols-[minmax(380px,0.9fr)_1.1fr]">
     <Helmet><title>Toyes Tech POS</title></Helmet>
-    <aside className="relative hidden flex-col justify-between overflow-hidden bg-ink p-10 text-white lg:flex">
-      <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
+    <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-line bg-white p-10 text-ink lg:flex">
+      <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="relative flex items-center gap-3">
         <LogoMark className="h-10 w-10" />
         <div className="leading-tight">
           <p className="text-lg font-extrabold">Toyes<span className="text-primary">Tech</span></p>
-          <p className="text-xs text-white/50">Point of sale{store ? ` · ${store}` : ""}</p>
+          <p className="text-xs text-ink/50">Point of sale{store ? ` · ${store}` : ""}</p>
         </div>
       </div>
       <div className="relative"><LiveClock /></div>
-      <ul className="relative space-y-2.5 text-sm text-white/65">
-        <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Keeps selling with no internet</li>
-        <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Every sale syncs automatically, once</li>
-        <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> The owner is alerted on WhatsApp</li>
+      <ul className="relative space-y-2.5 text-sm text-ink/65">
+        <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Keeps selling with no internet</li>
+        <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Every sale syncs automatically, once</li>
+        <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> The owner is alerted on WhatsApp</li>
       </ul>
     </aside>
     <main className="flex items-center justify-center p-4 sm:p-8">
@@ -60,7 +60,7 @@ const SignIn = () => {
   const [busy, setBusy] = useState(false);
   return (
     <Shell>
-      <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Sign in to this till</h1>
+      <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Sign in to the POS</h1>
       <p className="mt-1 text-sm text-ink/55">Use the store manager or owner account. You only need to do this once per laptop.</p>
       <form
         className="mt-6 space-y-3"
@@ -104,8 +104,8 @@ const ChooseStore = ({ role, storeId }: { role: string; storeId: string | null }
   }, [role, storeId]);
   return (
     <Shell>
-      <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Set up this till</h1>
-      <p className="mt-1 text-sm text-ink/55">Choose which store this laptop sells for. Needs internet this one time.</p>
+      <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Set up this POS</h1>
+      <p className="mt-1 text-sm text-ink/55">Choose which store this computer sells for. Needs internet this one time.</p>
       {stores === null && !error && <p className="mt-6 text-sm text-ink/55">Loading stores…</p>}
       {stores?.length === 0 && <p className="mt-6 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">No stores yet. The owner needs to add stores in the admin first.</p>}
       {stores && stores.length > 0 && (
@@ -117,7 +117,7 @@ const ChooseStore = ({ role, storeId }: { role: string; storeId: string | null }
               <span className="ml-auto text-xs text-ink/45">{s.code}</span>
             </label>
           ))}
-          <label className="block text-sm font-semibold">Till name
+          <label className="block text-sm font-semibold">POS name
             <input className={`${inputCls} mt-1.5`} value={tillName} onChange={(e) => setTillName(e.target.value)} />
           </label>
           <button
@@ -135,7 +135,7 @@ const ChooseStore = ({ role, storeId }: { role: string; storeId: string | null }
             }}
             className="w-full rounded-xl bg-primary py-3.5 font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50"
           >
-            {busy ? "Setting up…" : "Start using this till"}
+            {busy ? "Setting up…" : "Start using this POS"}
           </button>
         </div>
       )}
@@ -172,7 +172,7 @@ const Lock = ({ storeId, storeName }: { storeId: string; storeName: string }) =>
           <div className="mt-6 grid grid-cols-2 gap-3">
             {people.map((s) => (
               <button key={s.id} onClick={() => { setWho(s); setPin(""); setError(""); }} className="group rounded-2xl border border-line bg-white p-4 text-left shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-md">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-ink to-ink/80 text-base font-bold text-white transition group-hover:from-primary group-hover:to-red-700">{s.full_name[0]}</span>
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 text-base font-bold text-primary transition group-hover:from-primary group-hover:to-red-700 group-hover:text-white">{s.full_name[0]}</span>
                 <span className="mt-2 block font-bold leading-tight">{s.full_name}</span>
                 <span className="text-xs capitalize text-ink/45">{s.role.replace("_", " ")}{!s.pin_hash ? " · no PIN set" : ""}</span>
               </button>
@@ -183,7 +183,7 @@ const Lock = ({ storeId, storeName }: { storeId: string; storeName: string }) =>
             onClick={async () => { try { await signOutTill(); } catch (e) { setSigningOut((e as Error).message); } }}
             className="mt-6 w-full text-sm font-semibold text-ink/50 hover:text-black"
           >
-            Sign this till out
+            Sign this POS out
           </button>
           {signingOut && <p className="mt-2 text-center text-sm text-red-700">{signingOut}</p>}
         </>
@@ -243,7 +243,7 @@ const PosApp = () => {
     return (
       <Shell>
         <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Almost ready</h1>
-        <p className="mt-2 text-sm text-ink/60">The POS isn't connected to the Toyes Tech cloud database yet. Once it's connected, sign in here to set up this till.</p>
+        <p className="mt-2 text-sm text-ink/60">The POS isn't connected to the Toyes Tech cloud database yet. Once it's connected, sign in here to set up this POS.</p>
       </Shell>
     );
   }

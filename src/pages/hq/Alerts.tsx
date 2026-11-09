@@ -68,7 +68,7 @@ const Alerts = () => {
   return (
     <div className="max-w-3xl space-y-6">
       <Helmet><title>WhatsApp alerts | Toyes Tech HQ</title></Helmet>
-      <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">WhatsApp alerts</h1><p className="text-sm text-ink/55">Get a WhatsApp message when something happens in any store. Sales made offline are sent as soon as the till reconnects.</p></div>
+      <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">WhatsApp alerts</h1><p className="text-sm text-ink/55">Get a WhatsApp message when something happens in any store. Sales made offline are sent as soon as the POS reconnects.</p></div>
 
       <section className="space-y-4 rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)] p-5">
         <label className="flex items-center gap-2 font-bold"><input type="checkbox" className="h-4 w-4" checked={s.enabled} onChange={(e) => setS({ ...s, enabled: e.target.checked })} /> Send WhatsApp alerts</label>

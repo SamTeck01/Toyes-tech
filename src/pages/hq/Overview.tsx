@@ -67,15 +67,15 @@ const Overview = () => {
       <PageHeader
         title={`Good ${hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening"}, ${greetName(me?.full_name ?? "")}`}
         subtitle={<span className="inline-flex items-center gap-2"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>Live today across {isOwner ? "all stores" : "your store"}{updated ? ` · updated ${updated.toLocaleTimeString("en-NG", { timeStyle: "short" })}` : ""}</span>}
-        actions={<Link to="/pos" className={btn.primary}><CreditCard className="h-4 w-4" /> Open the till</Link>}
+        actions={<Link to="/pos" className={btn.primary}><CreditCard className="h-4 w-4" /> Open POS</Link>}
       />
       {error && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 
       {isOwner && stores.length === 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-ink p-6 text-white">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-white p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
           <div>
             <p className="font-display text-xl font-extrabold">Let's set up your stores</p>
-            <p className="mt-1 text-sm text-white/60">Add stores → add stock → add staff with PINs → sign in on each store's laptop at /pos.</p>
+            <p className="mt-1 text-sm text-ink/55">Add stores → add stock → add staff with PINs → sign in on each store's laptop at /pos.</p>
           </div>
           <Link to="/admin/stores" className={btn.primary}><MapPin className="h-4 w-4" /> Add your first store</Link>
         </div>
@@ -90,7 +90,7 @@ const Overview = () => {
           { to: "/admin/sales", icon: TrendingUp, title: "Today's sales", sub: "Receipts and refunds" },
         ].map((a) => (
           <Link key={a.title} to={a.to} className="group flex items-center gap-3 rounded-2xl border border-line bg-white p-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-md">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ink text-white transition group-hover:bg-primary"><a.icon className="h-5 w-5" /></span>
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white"><a.icon className="h-5 w-5" /></span>
             <span className="min-w-0"><span className="block text-[15px] font-bold leading-tight">{a.title}</span><span className="block truncate text-xs text-ink/50">{a.sub}</span></span>
           </Link>
         ))}
@@ -114,7 +114,7 @@ const Overview = () => {
                     <span className="font-bold tabular-nums">{formatPrice(total)}</span>
                   </div>
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-100">
-                    <div className="h-full rounded-full bg-ink transition-all" style={{ width: `${Math.max(2, (total / top) * 100)}%` }} />
+                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.max(2, (total / top) * 100)}%` }} />
                   </div>
                 </li>
               ))}
@@ -125,7 +125,7 @@ const Overview = () => {
 
         <Panel title="Live sales" action={<Link to="/admin/sales" className="text-[13px] font-semibold text-primary hover:underline">View all</Link>} className="lg:col-span-2" padded={false}>
           {sales === null ? <SkeletonRows rows={4} /> : sales.length === 0 ? (
-            <EmptyState icon={ShoppingBag} title="No sales yet today">Sales appear here the moment a till rings them up.</EmptyState>
+            <EmptyState icon={ShoppingBag} title="No sales yet today">Sales appear here the moment a POS rings them up.</EmptyState>
           ) : (
             <ul className="divide-y divide-line">
               {sales.slice(0, 10).map((s) => (

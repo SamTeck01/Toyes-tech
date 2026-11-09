@@ -42,7 +42,7 @@ const Staff = () => {
       } else {
         await staffAdmin({ action: "create_staff", ...form });
       }
-      toast.success(form.id ? "Staff updated" : `${form.full_name} added. They can now unlock a till with their PIN.`);
+      toast.success(form.id ? "Staff updated" : `${form.full_name} added. They can now unlock the POS with their PIN.`);
       setForm(null);
       void load();
     } catch (e) {
@@ -59,7 +59,7 @@ const Staff = () => {
     <div className="space-y-5">
       <Helmet><title>Staff | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Staff</h1><p className="text-sm text-ink/55">Cashiers unlock a till with their PIN. Managers can also sign in here.</p></div>
+        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Staff</h1><p className="text-sm text-ink/55">Cashiers unlock the POS with their PIN. Managers can also sign in here.</p></div>
         <button onClick={() => setForm({ full_name: "", username: "", password: "", role: "cashier", store_id: visibleStores[0]?.id ?? "", pin: "", active: true })} disabled={!visibleStores.length} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50 disabled:opacity-40">+ Add staff</button>
       </div>
       <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
@@ -88,7 +88,7 @@ const Staff = () => {
         <DialogContent className="max-h-[92dvh] max-w-md overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{form?.id ? `Edit ${form.full_name}` : "Add staff"}</DialogTitle>
-            <DialogDescription>{form?.id ? "Leave PIN and password blank to keep them." : "They sign in with this username and password, and use the PIN on the till."}</DialogDescription>
+            <DialogDescription>{form?.id ? "Leave PIN and password blank to keep them." : "They sign in with this username and password, and use the PIN on the POS."}</DialogDescription>
           </DialogHeader>
           {form && (
             <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); void save(); }}>
@@ -109,11 +109,11 @@ const Staff = () => {
                 </div>
               )}
               <div className="grid grid-cols-2 gap-2">
-                <label className="block text-sm font-semibold">Till PIN (4–6 digits)<input inputMode="numeric" maxLength={6} className={`${input} mt-1 tracking-widest`} value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })} required={!form.id} /></label>
+                <label className="block text-sm font-semibold">POS PIN (4–6 digits)<input inputMode="numeric" maxLength={6} className={`${input} mt-1 tracking-widest`} value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })} required={!form.id} /></label>
                 <label className="block text-sm font-semibold">{form.id ? "New password" : "Password"}<input type="password" minLength={8} autoComplete="new-password" className={`${input} mt-1`} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required={!form.id} placeholder="8+ characters" /></label>
               </div>
               {form.id && form.id !== me?.id && <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="h-4 w-4" /> Active (untick when someone leaves)</label>}
-              <p className="text-xs text-ink/50">Tills pick up new staff and PIN changes next time they're online.</p>
+              <p className="text-xs text-ink/50">POS computers pick up new staff and PIN changes next time they're online.</p>
               <button disabled={busy} className="w-full rounded-xl bg-primary py-3 font-bold text-white disabled:opacity-60">{busy ? "Saving…" : "Save"}</button>
             </form>
           )}

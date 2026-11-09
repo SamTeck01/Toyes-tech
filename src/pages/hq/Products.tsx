@@ -198,7 +198,7 @@ const Products = () => {
       ) : shown.length === 0 ? (
         <div className="rounded-2xl border border-line bg-white">
           <EmptyState icon={Tag} title={q ? "Nothing matches your search" : "No products here yet"} action={!q && <button onClick={openAdd} className={btn.primary}><Plus className="h-4 w-4" /> Add your first product</button>}>
-            {!q && "Add a product with a photo, price and how many you have. It shows on this store's till straight away."}
+            {!q && "Add a product with a photo, price and how many you have. It shows on this store's POS straight away."}
           </EmptyState>
         </div>
       ) : (
@@ -314,7 +314,7 @@ const Products = () => {
                     {form.id && (
                       <label className="flex items-center gap-2.5 text-sm font-medium">
                         <input type="checkbox" className="h-4 w-4 accent-[hsl(var(--primary))]" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
-                        Show on the till (untick to hide it)
+                        Show on the POS (untick to hide it)
                       </label>
                     )}
                   </div>

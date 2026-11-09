@@ -31,7 +31,7 @@ const Stores = () => {
     <div className="space-y-5">
       <Helmet><title>Stores | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Stores</h1><p className="text-sm text-ink/55">Each store has its own stock, staff and tills.</p></div>
+        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Stores</h1><p className="text-sm text-ink/55">Each store has its own stock, staff and POS computers.</p></div>
         <button onClick={() => setEditing({ active: true })} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50">+ Add store</button>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
