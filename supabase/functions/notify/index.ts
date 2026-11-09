@@ -60,6 +60,13 @@ const dailySummary = async () => {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
+    // Allowed callers: the database scheduler (shared secret from Vault) or a signed-in staff member.
+    const cronSecret = req.headers.get("x-cron-secret");
+    const jwt = req.headers.get("Authorization")?.replace("Bearer ", "");
+    const fromCron = cronSecret ? (await db.rpc("check_cron_secret", { p: cronSecret })).data === true : false;
+    const fromStaff = !fromCron && jwt ? Boolean((await db.auth.getUser(jwt)).data.user) : false;
+    if (!fromCron && !fromStaff) return json({ error: "Not allowed" }, 401);
+
     const body = await req.json().catch(() => ({}));
     if (body.summary) await dailySummary();
 

@@ -419,5 +419,6 @@ enabled = true
 [functions.staff-admin]
 verify_jwt = false
 
+# notify checks its own callers: the scheduler secret or a signed-in user.
 [functions.notify]
-verify_jwt = true
+verify_jwt = false
