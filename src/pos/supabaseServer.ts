@@ -37,6 +37,11 @@ export const supabaseServer: PosServer = {
       sb.from("inventory").select("product_id,qty,price,low_stock_at").eq("store_id", storeId),
       sb.from("staff").select("id,full_name,username,role,store_id,pin_hash").eq("active", true).or(`store_id.eq.${storeId},role.eq.super_admin`),
     ]);
+    // If the per-store products update isn't on the server yet, fall back to loading products without the store filter.
+    if (products.error && /store_id/i.test(products.error.message)) {
+      const legacy = await sb.from("products").select("id,name,brand,category,subcategory,condition,base_price,image,barcode").eq("active", true);
+      Object.assign(products, legacy);
+    }
     for (const r of [products, inventory, staff]) if (r.error) throw classify({ ...r.error, status: r.status });
     return {
       products: (products.data ?? []).map((p) => ({ ...p, base_price: Number(p.base_price) })) as LocalProduct[],
