@@ -27,7 +27,7 @@ const Staff = () => {
       if (form.id) {
         await staffAdmin({ action: "update_staff", id: form.id, full_name: form.full_name, role: form.role, store_id: form.store_id, active: form.active, pin: form.pin || undefined, password: form.password || undefined });
       } else {
-        await staffAdmin({ action: "create_staff", ...form, email: form.username });
+        await staffAdmin({ action: "create_staff", ...form });
       }
       toast.success(form.id ? "Staff updated" : `${form.full_name} added. They can now unlock a till with their PIN.`);
       setForm(null);
@@ -75,12 +75,12 @@ const Staff = () => {
         <DialogContent className="max-h-[92dvh] max-w-md overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{form?.id ? `Edit ${form.full_name}` : "Add staff"}</DialogTitle>
-            <DialogDescription>{form?.id ? "Leave PIN and password blank to keep them." : "They sign in with this email and password, and use the PIN on the till."}</DialogDescription>
+            <DialogDescription>{form?.id ? "Leave PIN and password blank to keep them." : "They sign in with this username and password, and use the PIN on the till."}</DialogDescription>
           </DialogHeader>
           {form && (
             <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); void save(); }}>
               <label className="block text-sm font-semibold">Full name<input autoFocus required className={`${input} mt-1`} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></label>
-              {!form.id && <label className="block text-sm font-semibold">Email<input required type="email" className={`${input} mt-1`} autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value.trim().toLowerCase() })} placeholder="tolu@gmail.com" /></label>}
+              {!form.id && <label className="block text-sm font-semibold">Username<input required className={`${input} mt-1`} autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="e.g. Tolu" /></label>}
               {!(form.id === me?.id) && (
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block text-sm font-semibold">Role

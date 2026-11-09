@@ -12,8 +12,11 @@ export const supabase: SupabaseClient | null = isCloudConfigured
     })
   : null;
 
-/** Staff sign in with their email. (Older accounts created with a username still work.) */
+/** Usernames have no rules: case, spaces and symbols are ignored when matching ("Tolu Ade" = "toluade"). */
+export const usernameKey = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/** Sign in with a username or an email. Supabase Auth needs an email, so usernames map to an internal one. */
 export const staffEmail = (login: string) => {
   const v = login.trim().toLowerCase();
-  return v.includes("@") ? v : `${v}@staff.toyestech.app`;
+  return v.includes("@") ? v : `${usernameKey(v)}@staff.toyestech.app`;
 };

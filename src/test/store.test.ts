@@ -39,3 +39,15 @@ describe("deliveryQuote", () => {
     expect(deliveryQuote("Kano", FREE_DELIVERY_THRESHOLD).fee).toBe(0);
   });
 });
+
+import { staffEmail } from "@/lib/supabase";
+
+describe("sign-in names", () => {
+  it("ignores case, spaces and symbols in usernames", () => {
+    expect(staffEmail("Tolu Ade")).toBe(staffEmail("toluade"));
+    expect(staffEmail("  MR. Toye-1 ")).toBe("mrtoye1@staff.toyestech.app");
+  });
+  it("uses an email as-is", () => {
+    expect(staffEmail("Tolu@Gmail.com")).toBe("tolu@gmail.com");
+  });
+});
