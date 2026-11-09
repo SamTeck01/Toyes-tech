@@ -76,8 +76,8 @@ const HQSales = () => {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Sales</h1>
         <div className="flex gap-2">
-          <button onClick={() => window.print()} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40">Print</button>
-          <button onClick={exportCsv} disabled={!sales?.length} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40 disabled:opacity-40">Export to Excel (CSV)</button>
+          <button onClick={() => window.print()} className="hidden md:inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40">Print</button>
+          <button onClick={exportCsv} disabled={!sales?.length} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40 disabled:opacity-40"><span className="md:hidden">Export</span><span className="hidden md:inline">Export to Excel (CSV)</span></button>
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -119,13 +119,35 @@ const HQSales = () => {
 
       <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
         {sales === null ? <p className="p-6 text-sm text-ink/50">Loading…</p> : sales.length === 0 ? <p className="p-10 text-center text-sm text-ink/50">No sales in this period.</p> : (
-          <div className="overflow-x-auto">
+          <>
+          <ul className="divide-y divide-line md:hidden">
+            {sales.map((s) => (
+              <li key={s.id} className={`p-4 ${s.status === "refunded" ? "text-ink/40" : ""}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-bold">{s.receipt_no}</p>
+                    <p className="text-xs text-ink/50">{new Date(s.created_at).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · {names.get(s.cashier_id)} · {storeName(s.store_id)}</p>
+                  </div>
+                  <p className="shrink-0 text-base font-extrabold tabular-nums">{formatPrice(s.total)}</p>
+                </div>
+                <p className="mt-1 truncate text-sm text-ink/70">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <Pill>{s.payments.map((p) => METHOD[p.method]).join(" + ")}</Pill>
+                  {s.status === "refunded" && <Pill tone="bad">Refunded</Pill>}
+                  <span className="ml-auto" />
+                  <button onClick={() => setViewing(s)} className="rounded-lg border border-line px-3 py-1.5 text-xs font-bold">Receipt</button>
+                  {canManage && s.status === "completed" && <button onClick={() => { setRefunding(s); setReason(""); }} className="rounded-lg px-3 py-1.5 text-xs font-bold text-red-600 ring-1 ring-red-200">Refund</button>}
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-left text-sm">
               <thead className="bg-stone-50 text-xs font-semibold text-ink/50"><tr><th className="px-4 py-3">Receipt</th><th className="px-4 py-3">Time</th><th className="px-4 py-3">Cashier</th><th className="px-4 py-3">Items</th><th className="px-4 py-3">Paid by</th><th className="px-4 py-3 text-right">Total</th><th className="px-4 py-3" /></tr></thead>
               <tbody className="divide-y divide-line">
                 {sales.map((s) => (
                   <tr key={s.id} className={s.status === "refunded" ? "text-ink/40" : ""}>
-                    <td className="whitespace-nowrap px-4 py-3 font-bold">{s.receipt_no}<span className="ml-2 inline-flex gap-1 align-middle">{s.status === "refunded" && <Pill tone="bad">Refunded</Pill>}{s.offline && <Pill>Offline</Pill>}</span></td>
+                    <td className="whitespace-nowrap px-4 py-3 font-bold">{s.receipt_no}<span className="ml-2 inline-flex gap-1 align-middle">{s.status === "refunded" && <Pill tone="bad">Refunded</Pill>}</span></td>
                     <td className="whitespace-nowrap px-4 py-3">{new Date(s.created_at).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
                     <td className="whitespace-nowrap px-4 py-3">{names.get(s.cashier_id)}<span className="block text-xs text-ink/45">{storeName(s.store_id)}</span></td>
                     <td className="max-w-[220px] truncate px-4 py-3">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</td>
@@ -140,6 +162,7 @@ const HQSales = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </section>
 

@@ -2,7 +2,7 @@ import type { LocalSale } from "@/pos/localdb";
 import { STORE } from "@/config/store";
 import { formatPrice } from "@/lib/format";
 
-const METHOD = { cash: "Cash", transfer: "Bank transfer", card: "Card (POS)" } as const;
+const METHOD = { cash: "Cash", transfer: "Bank transfer", card: "Card" } as const;
 
 /** 80mm thermal receipt; printed on its own via the .print-area rules in index.css. */
 const PosReceipt = ({ sale }: { sale: LocalSale }) => (

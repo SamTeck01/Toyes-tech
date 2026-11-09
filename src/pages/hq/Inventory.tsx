@@ -48,6 +48,7 @@ const Inventory = () => {
   const shown = useMemo(() => (rows ?? []).filter((r) =>
     (!q || `${r.name} ${r.barcode ?? ""} ${r.id}`.toLowerCase().includes(q.toLowerCase())) &&
     (filter === "all" || (filter === "low" ? r.qty <= r.low && r.qty > 0 : r.qty <= 0))), [rows, q, filter]);
+  const counts = useMemo(() => ({ low: (rows ?? []).filter((r) => r.qty <= r.low && r.qty > 0).length, out: (rows ?? []).filter((r) => r.qty <= 0).length }), [rows]);
   const value = (rows ?? []).reduce((t, r) => t + Math.max(0, r.qty) * (r.price ?? r.base_price), 0);
 
   const open = (kind: Action["kind"], row: Row) => {
@@ -100,16 +101,35 @@ const Inventory = () => {
           {myStores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or barcode" className="min-w-[220px] flex-1 rounded-full bg-white px-4 py-2.5 text-sm outline-none ring-1 ring-black/10 focus:ring-primary" />
+      <div className="space-y-2 md:flex md:gap-2 md:space-y-0">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or barcode" className="w-full md:min-w-[220px] md:flex-1 rounded-full bg-white px-4 py-2.5 text-sm outline-none ring-1 ring-black/10 focus:ring-primary" />
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 scrollbar-hide">
         {(["all", "low", "out"] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)} className={`rounded-full px-4 py-2 text-sm font-bold ${filter === f ? "bg-ink text-white shadow-sm" : "border border-line bg-white"}`}>{f === "all" ? "All" : f === "low" ? "Running low" : "Out / negative"}</button>
+          <button key={f} onClick={() => setFilter(f)} className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold ${filter === f ? "bg-ink text-white shadow-sm" : "border border-line bg-white"}`}>{f === "all" ? "All" : f === "low" ? `Running low (${counts.low})` : `Out of stock (${counts.out})`}</button>
         ))}
+        </div>
       </div>
 
       <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
         {rows === null ? <p className="p-6 text-sm text-ink/50">{myStores.length ? "Loading…" : "Add a store first."}</p> : (
-          <div className="overflow-x-auto">
+          <>
+          <ul className="divide-y divide-line md:hidden">
+            {shown.map((r) => (
+              <li key={r.id} className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0"><p className="font-semibold">{r.name}</p><p className="text-xs text-ink/45">{r.category} · {formatPrice(r.price ?? r.base_price)}</p></div>
+                  <div className="text-right"><p className={`text-xl font-extrabold tabular-nums ${r.qty < 0 ? "text-red-600" : r.qty <= r.low ? "text-amber-600" : ""}`}>{r.qty}</p><p className="text-[11px] text-ink/45">in stock</p></div>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <button onClick={() => open("receive", r)} className="rounded-lg bg-primary/10 py-2 text-xs font-bold text-primary">+ Stock in</button>
+                  <button onClick={() => open("count", r)} className="rounded-lg border border-line py-2 text-xs font-bold">Count</button>
+                  <button onClick={() => open("price", r)} className="rounded-lg border border-line py-2 text-xs font-bold">Price</button>
+                  {isOwner && stores.length > 1 && <button onClick={() => open("transfer", r)} className="col-span-3 rounded-lg border border-line py-2 text-xs font-bold">Move to another store</button>}
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-left text-sm">
               <thead className="bg-stone-50 text-xs font-semibold text-ink/50"><tr><th className="px-4 py-3">Product</th><th className="px-4 py-3 text-right">In stock</th><th className="px-4 py-3 text-right">Price here</th><th className="px-4 py-3" /></tr></thead>
               <tbody className="divide-y divide-line">
@@ -128,8 +148,9 @@ const Inventory = () => {
                 ))}
               </tbody>
             </table>
-            {shown.length === 0 && <p className="p-8 text-center text-sm text-ink/50">{rows.length ? "Nothing matches." : "No products yet. The owner adds them under Products."}</p>}
           </div>
+          {shown.length === 0 && <p className="p-8 text-center text-sm text-ink/50">{rows.length ? "Nothing matches." : "No products yet. Add them under Products."}</p>}
+          </>
         )}
       </section>
 

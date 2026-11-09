@@ -100,7 +100,7 @@ const Overview = () => {
         <StatCard label="Revenue today" value={formatPrice(revenue)} sub={`${done.length} sale${done.length === 1 ? "" : "s"}`} icon={TrendingUp} tone="accent" />
         <StatCard label="Cash in drawers" value={formatPrice(m.cash)} sub="After change given" icon={CreditCard} tone="good" />
         <StatCard label="Transfers" value={formatPrice(m.transfer)} icon={ShoppingBag} />
-        <StatCard label="Card (POS)" value={formatPrice(m.card)} icon={CreditCard} />
+        <StatCard label="Card" value={formatPrice(m.card)} icon={CreditCard} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -135,7 +135,7 @@ const Overview = () => {
                     <p className="truncate text-sm font-semibold">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</p>
                     <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-ink/50">
                       {storeName(s.store_id)} · {names.get(s.cashier_id) ?? "Staff"}
-                      {s.offline && <Pill tone="neutral">Made offline</Pill>}
+                      
                       {s.status === "refunded" && <Pill tone="bad">Refunded</Pill>}
                     </p>
                   </div>
