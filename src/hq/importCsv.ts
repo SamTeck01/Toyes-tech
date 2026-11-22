@@ -79,8 +79,8 @@ export const mapOldPosExport = (text: string): { rows: ImportRow[]; skipped: { n
     const fullName = variation && !/^regular$/i.test(variation) ? `${name} (${variation})` : name;
     // Fixed price if there is one, otherwise the lowest allowed price (cashiers can still change it at the till).
     const candidates = [num(r[iStorePrice]), num(r[iDefault]), num(r[iStoreMin]), num(r[iMin]), num(r[iStoreMax]), num(r[iMax])];
-    const price = candidates.find((p): p is number => p !== null && p >= 50) ?? null;
-    if (price === null) { skipped.push({ name: fullName, why: "no selling price" }); continue; }
+    // No price yet: imported at 0 and the cashier types the price when selling.
+    const price = candidates.find((p): p is number => p !== null && p >= 50) ?? 0;
     const max = num(r[iStoreMax]) ?? num(r[iMax]);
     const rawCat = iCat >= 0 ? (r[iCat] ?? "").trim() : "";
     const lc = rawCat.toLowerCase();

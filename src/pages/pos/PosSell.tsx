@@ -84,6 +84,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
   const [split, setSplit] = useState<{ method: PaymentMethod; amount: string }[]>([{ method: "cash", amount: "" }, { method: "transfer", amount: "" }]);
   const [paying, setPaying] = useState(false);
   const [extrasOpen, setExtrasOpen] = useState(false);
+  const [askPrice, setAskPrice] = useState<{ id: string; name: string; price: string } | null>(null);
   const [completed, setCompleted] = useState<LocalSale | null>(null);
   const [quickOpen, setQuickOpen] = useState(false);
   const [quick, setQuick] = useState({ name: "", price: "", qty: "1" });
@@ -124,6 +125,8 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     if (!p) return;
     // Stock counts can be off (e.g. a delivery not yet entered). Warn, but let the sale happen.
     if (qtyLeft(id) <= 0 && !window.confirm(`The system shows no ${p.name} left in stock. Sell it anyway?`)) return;
+    const inSale = lines.find((l) => l.product_id === id);
+    if (!inSale && priceOf(id) <= 0) { setAskPrice({ id, name: p.name, price: "" }); return; }
     setLines((prev) => {
       const ex = prev.find((l) => l.product_id === id);
       if (ex) return prev.map((l) => (l === ex ? { ...l, quantity: l.quantity + 1 } : l));
@@ -157,7 +160,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     ? split.map((x) => ({ method: x.method, amount: toNumber(x.amount) })).filter((x) => x.amount > 0)
     : [{ method, amount: total }];
   const t = computeTotals(lines, discount, payments);
-  const canComplete = lines.length > 0 && t.paid >= t.total && !paying;
+  const canComplete = lines.length > 0 && lines.every((l) => l.unit_price > 0) && t.paid >= t.total && !paying;
 
   const reset = () => {
     setLines([]);
@@ -340,7 +343,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                         <p className="line-clamp-2 text-sm font-bold leading-tight">{p.name}</p>
                         <p className="mt-0.5 text-[11px] text-ink/45">{[p.condition, p.barcode && !/^PRD-/i.test(p.barcode) ? p.barcode : null].filter(Boolean).join(" · ")}</p>
                         <div className="mt-auto flex items-end justify-between pt-2">
-                          <span className="text-base font-extrabold tabular-nums">{formatPrice(priceOf(p.id))}</span>
+                          {priceOf(p.id) > 0 ? <span className="text-base font-extrabold tabular-nums">{formatPrice(priceOf(p.id))}</span> : <span className="text-sm font-bold text-amber-700">Enter price</span>}
                           {left > 0 && <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${left <= 3 ? "bg-amber-50 text-amber-700" : "bg-stone-100 text-ink/55"}`}>{left} left</span>}
                         </div>
                       </div>
@@ -391,6 +394,29 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           {cart}
         </SheetContent>
       </Sheet>
+
+      {/* Product with no price yet: the cashier types it */}
+      <Dialog open={!!askPrice} onOpenChange={(o) => !o && setAskPrice(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Price for {askPrice?.name}</DialogTitle>
+            <DialogDescription>This product has no price yet. Type what the customer is paying for one.</DialogDescription>
+          </DialogHeader>
+          <form
+            className="space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const price = toNumber(askPrice?.price ?? "");
+              if (!askPrice || price <= 0) return;
+              setLines((prev) => [...prev, { product_id: askPrice.id, name: askPrice.name, unit_price: price, quantity: 1 }]);
+              setAskPrice(null);
+            }}
+          >
+            <MoneyInput label="Price" size="lg" autoFocus value={toNumber(askPrice?.price ?? "")} onChange={(n) => askPrice && setAskPrice({ ...askPrice, price: String(n || "") })} />
+            <button className="w-full rounded-xl bg-primary py-3.5 font-bold text-white">Add to sale</button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Quick sale */}
       <Dialog open={quickOpen} onOpenChange={setQuickOpen}>

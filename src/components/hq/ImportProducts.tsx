@@ -78,12 +78,13 @@ const ImportProducts = ({ storeId, storeName, onDone }: { storeId: string; store
                 <div className="rounded-xl bg-stone-50 p-3"><p className="text-2xl font-extrabold">{data.rows.length}</p><p className="text-xs text-ink/55">products</p></div>
                 <div className="rounded-xl bg-stone-50 p-3"><p className="text-2xl font-extrabold">{totalQty.toLocaleString("en-NG")}</p><p className="text-xs text-ink/55">items in stock</p></div>
               </div>
+              {data.rows.some((r) => !r.price) && <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-800">{data.rows.filter((r) => !r.price).length} product(s) have no price. Cashiers will type the price when selling; add it later under Products.</p>}
               {data.storeColumn && <p className="text-xs text-ink/55">Stock and prices taken from “{data.storeColumn}” in the file.</p>}
               <div className="max-h-48 overflow-y-auto rounded-xl border border-line text-sm">
                 {data.rows.slice(0, 50).map((r) => (
                   <div key={r.id} className="flex justify-between gap-2 border-b border-line px-3 py-1.5 last:border-0">
                     <span className="truncate">{r.name} <span className="text-ink/45">· {r.type || r.category}</span></span>
-                    <span className="shrink-0 tabular-nums">{formatPrice(r.price)} · {r.qty}</span>
+                    <span className="shrink-0 tabular-nums">{r.price ? formatPrice(r.price) : "no price"} · {r.qty}</span>
                   </div>
                 ))}
                 {data.rows.length > 50 && <p className="px-3 py-1.5 text-xs text-ink/50">…and {data.rows.length - 50} more</p>}
