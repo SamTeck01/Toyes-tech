@@ -12,6 +12,7 @@ import { products as websiteCatalogue, gadgetTypes } from "@/data/products";
 import { PageHeader, Pill, EmptyState, btn, field, label } from "@/components/hq/kit";
 import { Plus, Minus, Search, Image as ImageIcon, Tag, X, ChevronDown } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import ImportProducts from "@/components/hq/ImportProducts";
 
 interface P {
   id: string;
@@ -172,6 +173,7 @@ const Products = () => {
         actions={
           <>
             {isOwner && view === SHARED && <button disabled={importing} onClick={importWebsite} className={btn.secondary}>{importing ? "Adding…" : "Add website products"}</button>}
+            {view && view !== SHARED && <ImportProducts storeId={view} storeName={storeName(view)} onDone={() => void load()} />}
             <button onClick={openAdd} disabled={!view} className={btn.primary}><Plus className="h-4 w-4" /> Add product</button>
           </>
         }
