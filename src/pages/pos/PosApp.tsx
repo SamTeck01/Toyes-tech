@@ -5,7 +5,7 @@ import { isCloudConfigured } from "@/lib/supabase";
 import { localDb, type LocalStaff } from "@/pos/localdb";
 import { configureServer, getDevice, startSync, checkPin } from "@/pos/engine";
 import { supabaseServer } from "@/pos/supabaseServer";
-import { getMe, signIn, listStores, setupTill, setCashier, getCashier, signOutTill } from "@/pos/session";
+import { getMe, signIn, listStores, setupTill, setCashier, getCashier, signOutTill, resumeFromSession } from "@/pos/session";
 import PosSell from "./PosSell";
 import { LogoMark } from "@/components/Logo";
 
@@ -61,7 +61,7 @@ const SignIn = () => {
   return (
     <Shell>
       <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Sign in to the POS</h1>
-      <p className="mt-1 text-sm text-ink/55">Use the store manager or owner account. You only need to do this once per laptop.</p>
+      <p className="mt-1 text-sm text-ink/55">Same username and password as HQ. You stay signed in on this computer.</p>
       <form
         className="mt-6 space-y-3"
         onSubmit={async (e) => {
@@ -90,53 +90,43 @@ const SignIn = () => {
 const ChooseStore = ({ role, storeId }: { role: string; storeId: string | null }) => {
   const [stores, setStores] = useState<{ id: string; code: string; name: string }[] | null>(null);
   const [chosen, setChosen] = useState("");
-  const [tillName, setTillName] = useState("Front counter");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const start = async (store: { id: string; code: string; name: string }) => {
+    setChosen(store.id);
+    setBusy(true);
+    setError("");
+    try {
+      await setupTill(store, "Front counter");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
   useEffect(() => {
     listStores()
       .then((s) => {
         const visible = role === "super_admin" ? s : s.filter((x) => x.id === storeId);
         setStores(visible);
-        if (visible.length === 1) setChosen(visible[0].id);
+        if (visible.length === 1) void start(visible[0]);
       })
       .catch((e) => setError((e as Error).message));
   }, [role, storeId]);
   return (
     <Shell>
       <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Set up this POS</h1>
-      <p className="mt-1 text-sm text-ink/55">Choose which store this computer sells for. Needs internet this one time.</p>
+      <p className="mt-1 text-sm text-ink/55">Tap the store this computer sells for. You only do this once.</p>
       {stores === null && !error && <p className="mt-6 text-sm text-ink/55">Loading stores…</p>}
       {stores?.length === 0 && <p className="mt-6 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">No stores yet. The owner needs to add stores in the admin first.</p>}
       {stores && stores.length > 0 && (
         <div className="mt-6 space-y-3">
           {stores.map((s) => (
-            <label key={s.id} className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 ${chosen === s.id ? "border-primary bg-primary/5" : "border-line"}`}>
-              <input type="radio" checked={chosen === s.id} onChange={() => setChosen(s.id)} className="h-4 w-4 accent-[hsl(var(--primary))]" />
+            <button key={s.id} disabled={busy} onClick={() => start(s)} className={`flex w-full items-center gap-3 rounded-xl border bg-white p-4 text-left transition hover:border-ink/30 disabled:opacity-60 ${chosen === s.id ? "border-primary bg-primary/5" : "border-line"}`}>
               <span className="font-bold">{s.name}</span>
-              <span className="ml-auto text-xs text-ink/45">{s.code}</span>
-            </label>
+              <span className="ml-auto text-sm font-semibold text-primary">{busy && chosen === s.id ? "Setting up…" : "Sell here →"}</span>
+            </button>
           ))}
-          <label className="block text-sm font-semibold">POS name
-            <input className={`${inputCls} mt-1.5`} value={tillName} onChange={(e) => setTillName(e.target.value)} />
-          </label>
-          <button
-            disabled={!chosen || busy}
-            onClick={async () => {
-              setBusy(true);
-              setError("");
-              try {
-                await setupTill(stores.find((s) => s.id === chosen)!, tillName);
-              } catch (e) {
-                setError((e as Error).message);
-              } finally {
-                setBusy(false);
-              }
-            }}
-            className="w-full rounded-xl bg-primary py-3.5 font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50"
-          >
-            {busy ? "Setting up…" : "Start using this POS"}
-          </button>
         </div>
       )}
       {error && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
@@ -152,6 +142,10 @@ const Lock = ({ storeId, storeName }: { storeId: string; storeName: string }) =>
   const [error, setError] = useState("");
   const [signingOut, setSigningOut] = useState("");
   const people = (staff ?? []).filter((s) => s.store_id === storeId || s.role === "super_admin");
+  useEffect(() => {
+    if (!who && people.length === 1) setWho(people[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [people.length]);
 
   const tryPin = async (value: string) => {
     if (!who) return;
@@ -238,6 +232,11 @@ const PosApp = () => {
     configureServer(supabaseServer);
     startSync();
   }, []);
+  const [resuming, setResuming] = useState(true);
+  useEffect(() => {
+    if (me === null) resumeFromSession().finally(() => setResuming(false));
+    else if (me) setResuming(false);
+  }, [me]);
 
   if (!isCloudConfigured) {
     return (
@@ -248,7 +247,7 @@ const PosApp = () => {
     );
   }
   if (me === undefined || device === undefined || cashier === undefined) return <div className="min-h-[100dvh] bg-stone-100" />;
-  if (!me) return <SignIn />;
+  if (!me) return resuming ? <div className="min-h-[100dvh] bg-stone-100" /> : <SignIn />;
   if (!device) return <ChooseStore role={me.role} storeId={me.store_id} />;
   if (!cashier) return <Lock storeId={device.store_id} storeName={device.store_name} />;
   return <PosSell device={device} cashier={cashier} me={me} />;

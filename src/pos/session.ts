@@ -17,7 +17,13 @@ export const signIn = async (username: string, password: string): Promise<Me> =>
   if (!supabase) throw new Error("The POS isn't connected to the cloud yet.");
   const { data, error } = await supabase.auth.signInWithPassword({ email: staffEmail(username), password });
   if (error) throw new Error(friendly(error.message));
-  const { data: staff, error: e2 } = await supabase.from("staff").select("id,full_name,username,role,store_id,pin_hash,active").eq("id", data.user.id).single();
+  return loadMe(data.user.id);
+};
+
+/** Turn a signed-in account into the POS user. The person who signs in is also the first cashier: no PIN needed. */
+const loadMe = async (userId: string): Promise<Me> => {
+  if (!supabase) throw new Error("Not connected.");
+  const { data: staff, error: e2 } = await supabase.from("staff").select("id,full_name,username,role,store_id,pin_hash,active").eq("id", userId).single();
   if (e2 || !staff) {
     await supabase.auth.signOut();
     throw new Error("This account isn't set up as staff yet.");
@@ -28,8 +34,21 @@ export const signIn = async (username: string, password: string): Promise<Me> =>
   }
   const me: Me = staff;
   await setMeta("me", me);
+  await setMeta("cashier", me);
   configureServer(supabaseServer);
   return me;
+};
+
+/** Already signed in to HQ in this browser? Use that session instead of asking again. */
+export const resumeFromSession = async (): Promise<Me | null> => {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) return null;
+  try {
+    return await loadMe(data.session.user.id);
+  } catch {
+    return null;
+  }
 };
 
 export const listStores = async () => {

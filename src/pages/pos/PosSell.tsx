@@ -83,6 +83,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
   const [tendered, setTendered] = useState("");
   const [split, setSplit] = useState<{ method: PaymentMethod; amount: string }[]>([{ method: "cash", amount: "" }, { method: "transfer", amount: "" }]);
   const [paying, setPaying] = useState(false);
+  const [extrasOpen, setExtrasOpen] = useState(false);
   const [completed, setCompleted] = useState<LocalSale | null>(null);
   const [quickOpen, setQuickOpen] = useState(false);
   const [quick, setQuick] = useState({ name: "", price: "", qty: "1" });
@@ -131,6 +132,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     });
   };
 
+  const removeOne = (id: string) => setLines((prev) => prev.flatMap((l) => (l.product_id !== id ? [l] : l.quantity > 1 ? [{ ...l, quantity: l.quantity - 1 }] : [])));
   const setQty = (i: number, q: number) => setLines((prev) => (q <= 0 ? prev.filter((_, j) => j !== i) : prev.map((l, j) => (j === i ? { ...l, quantity: q } : l))));
   const setPrice = (i: number, price: number) => setLines((prev) => prev.map((l, j) => (j === i ? { ...l, unit_price: price } : l)));
 
@@ -154,7 +156,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
   const itemCount = lines.reduce((s, l) => s + l.quantity, 0);
   const payments = method === "split"
     ? split.map((x) => ({ method: x.method, amount: toNumber(x.amount) })).filter((x) => x.amount > 0)
-    : [{ method, amount: method === "cash" ? toNumber(tendered) : total }];
+    : [{ method, amount: total }];
   const t = computeTotals(lines, discount, payments);
   const canComplete = lines.length > 0 && t.paid >= t.total && !paying;
 
@@ -167,7 +169,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     setMethod("cash");
   };
 
-  const complete = async () => {
+  const complete = async (print = true) => {
     if (!canComplete) return;
     setPaying(true);
     try {
@@ -176,6 +178,8 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       setCartSheet(false);
       setCompleted(sale);
       reset();
+      setExtrasOpen(false);
+      if (print) setTimeout(() => window.print(), 350);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -190,7 +194,6 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     toast.success("Sale put on hold");
   };
 
-  const quickCash = [total, Math.ceil(total / 1000) * 1000, Math.ceil(total / 5000) * 5000, Math.ceil(total / 10000) * 10000].filter((v, i, a) => v > 0 && a.indexOf(v) === i);
 
   const cart = (
     <div className="flex h-full flex-col">
@@ -230,31 +233,40 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
         )}
       </div>
       <div className="space-y-3 border-t border-line p-4">
-        <div className="grid grid-cols-2 gap-2">
-          <input placeholder="Customer name" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
-          <input placeholder="Phone" inputMode="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-ink/60">Discount</span>
-          <div className="flex rounded-lg bg-stone-100 p-0.5 text-xs font-bold">
-            {(["amount", "percent"] as const).map((m) => (
-              <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-white shadow-sm" : "text-ink/50"}`}>{m === "amount" ? "₦" : "%"}</button>
-            ))}
+        {extrasOpen ? (
+          <div className="space-y-2 rounded-xl bg-stone-50 p-3">
+            <div className="grid grid-cols-2 gap-2">
+              <input placeholder="Customer name" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} className="rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none focus:border-ink/40" />
+              <input placeholder="Phone" inputMode="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} className="rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none focus:border-ink/40" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-ink/60">Discount</span>
+              <div className="flex rounded-lg bg-white p-0.5 text-xs font-bold ring-1 ring-line">
+                {(["amount", "percent"] as const).map((m) => (
+                  <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-ink text-white" : "text-ink/50"}`}>{m === "amount" ? "₦" : "%"}</button>
+                ))}
+              </div>
+              <input aria-label="Discount" inputMode="numeric" placeholder="0" value={discountMode === "amount" && toNumber(discountInput) ? toNumber(discountInput).toLocaleString("en-NG") : discountInput} onChange={(e) => setDiscountInput(e.target.value.replace(/[^\d.]/g, ""))} className="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-right text-sm font-semibold tabular-nums outline-none focus:border-ink/40" />
+            </div>
           </div>
-          <input aria-label="Discount" inputMode="numeric" placeholder="0" value={discountMode === "amount" && toNumber(discountInput) ? toNumber(discountInput).toLocaleString("en-NG") : discountInput} onChange={(e) => setDiscountInput(e.target.value.replace(/[^\d.]/g, ""))} className="min-w-0 flex-1 rounded-lg border border-line px-3 py-1.5 text-right text-sm font-semibold tabular-nums outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
+        ) : (
+          <button onClick={() => setExtrasOpen(true)} className="text-sm font-semibold text-ink/55 hover:text-ink">+ Customer name or discount</button>
+        )}
+        <div className="flex items-baseline justify-between">
+          <span className="text-sm font-semibold text-ink/60">Total{discount > 0 ? ` (−${formatPrice(discount)})` : ""}</span>
+          <span className="font-display text-[32px] font-extrabold leading-none tracking-tight tabular-nums">{formatPrice(total)}</span>
         </div>
-        <div className="rounded-2xl border border-line bg-stone-50 p-4">
-          <dl className="space-y-1.5 text-sm">
-            <div className="flex justify-between text-ink/55"><dt>Subtotal · {itemCount} item{itemCount === 1 ? "" : "s"}</dt><dd className="tabular-nums">{formatPrice(subtotal)}</dd></div>
-            {discount > 0 && <div className="flex justify-between text-emerald-700"><dt>Discount</dt><dd className="tabular-nums">−{formatPrice(discount)}</dd></div>}
-            <div className="flex items-baseline justify-between pt-1"><dt className="text-sm font-semibold text-ink/70">Total</dt><dd className="font-display text-[28px] font-extrabold leading-none tracking-tight tabular-nums">{formatPrice(total)}</dd></div>
-          </dl>
-          <div className="mt-4 grid grid-cols-[auto_1fr] gap-2">
-            <button onClick={holdSale} disabled={!lines.length} className="rounded-xl border border-line bg-white px-4 py-3.5 text-sm font-semibold transition hover:bg-stone-50 disabled:opacity-40">Hold</button>
-            <button onClick={() => setPayOpen(true)} disabled={!lines.length} className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-base font-bold text-white shadow-lg shadow-primary/25 transition hover:brightness-110 disabled:opacity-40 disabled:shadow-none">
-              Charge <span className="hidden lg:inline"><Kbd dark>F9</Kbd></span>
-            </button>
-          </div>
+        <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Paid by">
+          {METHODS.map((m) => (
+            <button key={m.id} role="radio" aria-checked={method === m.id} onClick={() => setMethod(m.id)} className={`rounded-xl border py-3 text-sm font-bold transition ${method === m.id ? "border-ink bg-ink text-white" : "border-line bg-white hover:border-ink/30"}`}>{m.label}</button>
+          ))}
+        </div>
+        <button onClick={() => { if (method === "split") setMethod("cash"); setPayOpen(true); }} disabled={!lines.length} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-lg font-extrabold text-white shadow-lg shadow-primary/25 transition hover:brightness-110 disabled:opacity-40 disabled:shadow-none">
+          Charge {lines.length ? formatPrice(total) : ""} <span className="hidden lg:inline"><Kbd dark>F9</Kbd></span>
+        </button>
+        <div className="flex justify-between text-sm font-semibold text-ink/55">
+          <button onClick={holdSale} disabled={!lines.length} className="hover:text-ink disabled:opacity-40">Put on hold</button>
+          <button onClick={() => { setMethod("split"); setPayOpen(true); }} disabled={!lines.length} className="hover:text-ink disabled:opacity-40">Split payment</button>
         </div>
       </div>
     </div>
@@ -330,7 +342,8 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                   const left = qtyLeft(p.id);
                   const inCart = lines.filter((l) => l.product_id === p.id).reduce((s, l) => s + l.quantity, 0);
                   return (
-                    <button key={p.id} onClick={() => add(p.id)} className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-white text-left shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 ${inCart > 0 ? "border-primary ring-2 ring-primary/15" : "border-line hover:border-ink/20"}`}>
+                    <div key={p.id} className="relative">
+                    <button onClick={() => add(p.id)} aria-label={`Add ${p.name}`} className={`group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-white text-left shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 ${inCart > 0 ? "border-primary ring-2 ring-primary/15" : "border-line hover:border-ink/20"}`}>
                       <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
                         {p.image && <img src={p.image} alt="" loading="lazy" className={`h-full w-full object-cover transition duration-300 group-hover:scale-[1.03] ${left <= 0 ? "opacity-50 grayscale" : ""}`} />}
                         {left <= 0 && <span className="absolute left-2 top-2 rounded-md bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold text-ink/60 backdrop-blur">Not in stock here</span>}
@@ -345,6 +358,8 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                         </div>
                       </div>
                     </button>
+                    {inCart > 0 && <button aria-label={`Remove one ${p.name}`} onClick={() => removeOne(p.id)} className="absolute left-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-ink shadow-md ring-1 ring-line active:scale-95"><Minus className="h-4 w-4" /></button>}
+                    </div>
                   );
                 })}
               </div>
@@ -423,36 +438,25 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
         </DialogContent>
       </Dialog>
 
-      {/* Payment */}
+      {/* Payment: confirm only. Split payments still let you type amounts. */}
       <Dialog open={payOpen} onOpenChange={setPayOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-extrabold">Charge {formatPrice(total)}</DialogTitle>
+            <DialogTitle className="text-2xl font-extrabold">{method === "split" ? `Split ${formatPrice(total)}` : `Confirm ${formatPrice(total)}`}</DialogTitle>
             <DialogDescription>{itemCount} item(s){discount > 0 ? ` · ${formatPrice(discount)} discount` : ""}</DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-4 gap-2">
-            {[...METHODS, { id: "split" as const, label: "Split" }].map((m) => (
-              <button key={m.id} onClick={() => setMethod(m.id)} className={`rounded-xl border px-2 py-3 text-sm font-bold ${method === m.id ? "border-primary bg-primary/5 text-primary ring-1 ring-primary" : "border-line"}`}>{m.label}</button>
-            ))}
-          </div>
-          {method === "cash" && (
-            <div className="space-y-3">
-              <MoneyInput label="Cash received" size="lg" autoFocus value={toNumber(tendered)} onChange={(n) => setTendered(String(n || ""))} />
-              <div className="flex flex-wrap gap-2">
-                {quickCash.map((v) => <button key={v} onClick={() => setTendered(String(v))} className="rounded-full bg-stone-100 px-3 py-1.5 text-sm font-semibold">{v === total ? "Exact" : formatPrice(v)}</button>)}
+          {method !== "split" ? (
+            <>
+              <div className="grid grid-cols-3 gap-2">
+                {METHODS.map((m) => (
+                  <button key={m.id} onClick={() => setMethod(m.id)} className={`rounded-xl border py-3 text-sm font-bold ${method === m.id ? "border-ink bg-ink text-white" : "border-line"}`}>{m.label}</button>
+                ))}
               </div>
-              <div className={`flex justify-between rounded-xl px-4 py-3 text-lg font-extrabold ${t.paid >= total ? "bg-green-50 text-green-700" : "bg-stone-50 text-ink/50"}`}>
-                <span>{t.paid >= total ? "Change" : "Still to pay"}</span>
-                <span>{formatPrice(Math.abs(t.paid - total))}</span>
-              </div>
-            </div>
-          )}
-          {(method === "transfer" || method === "card") && (
-            <p className="rounded-xl bg-stone-50 p-4 text-sm text-ink/65">
-              {method === "transfer" ? `Confirm ${formatPrice(total)} has arrived in the store account before completing.` : `Charge ${formatPrice(total)} on the card terminal, then complete once it's approved.`}
-            </p>
-          )}
-          {method === "split" && (
+              <p className="rounded-xl bg-stone-50 p-4 text-sm text-ink/70">
+                {method === "cash" ? `Collect ${formatPrice(total)} cash.` : method === "transfer" ? `Check that ${formatPrice(total)} has arrived in the store account.` : `Charge ${formatPrice(total)} on the card machine and wait for "approved".`}
+              </p>
+            </>
+          ) : (
             <div className="space-y-2">
               {split.map((row, i) => (
                 <div key={i} className="flex gap-2">
@@ -466,9 +470,10 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               <p className={`text-sm font-bold ${t.paid >= total ? "text-green-700" : "text-ink/55"}`}>Paid {formatPrice(t.paid)} of {formatPrice(total)}{t.paid < total ? ` · ${formatPrice(total - t.paid)} left` : ""}</p>
             </div>
           )}
-          <button onClick={complete} disabled={!canComplete} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-extrabold text-white disabled:opacity-40">
-            <Check className="h-5 w-5" /> {paying ? "Saving…" : "Complete sale"}
+          <button autoFocus onClick={() => complete(true)} disabled={!canComplete} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-extrabold text-white disabled:opacity-40">
+            <Check className="h-5 w-5" /> {paying ? "Saving…" : "Paid · print receipt"}
           </button>
+          <button onClick={() => complete(false)} disabled={!canComplete} className="w-full text-sm font-semibold text-ink/55 hover:text-ink disabled:opacity-40">Paid · no receipt</button>
         </DialogContent>
       </Dialog>
 
@@ -481,7 +486,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           </DialogHeader>
           {(completed || reprint) && <div className="print-area rounded-xl border border-line"><PosReceipt sale={(completed || reprint)!} /></div>}
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => window.print()} className="rounded-xl border border-line py-3 text-sm font-bold">Print receipt</button>
+            <button onClick={() => window.print()} className="rounded-xl border border-line py-3 text-sm font-bold">{completed ? "Print again" : "Print receipt"}</button>
             <button onClick={() => { setCompleted(null); setReprint(null); searchRef.current?.focus(); }} className="rounded-xl bg-primary py-3 text-sm font-bold text-white">{completed ? "New sale" : "Close"}</button>
           </div>
         </DialogContent>
