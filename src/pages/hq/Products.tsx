@@ -78,7 +78,7 @@ const Products = () => {
 
   const load = async () => {
     if (!view) return;
-    const base = supabase!.from("products").select("*").order("name");
+    const base = supabase!.from("products").select("*").eq("active", true).order("name");
     const { data } = view === SHARED ? await base.is("store_id", null) : await base.or(`store_id.is.null,store_id.eq.${view}`);
     setList(((data ?? []) as P[]).map((p) => ({ ...p, base_price: Number(p.base_price) })));
     if (view !== SHARED) {
