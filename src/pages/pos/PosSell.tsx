@@ -122,7 +122,6 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
   const add = (id: string) => {
     const p = products.find((x) => x.id === id);
     if (!p) return;
-    if (shift === null && cashier.role === "cashier") { setShiftOpen(true); return; }
     // Stock counts can be off (e.g. a delivery not yet entered). Warn, but let the sale happen.
     if (qtyLeft(id) <= 0 && !window.confirm(`The system shows no ${p.name} left in stock. Sell it anyway?`)) return;
     setLines((prev) => {
@@ -256,17 +255,11 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           <span className="text-sm font-semibold text-ink/60">Total{discount > 0 ? ` (−${formatPrice(discount)})` : ""}</span>
           <span className="font-display text-[32px] font-extrabold leading-none tracking-tight tabular-nums">{formatPrice(total)}</span>
         </div>
-        <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Paid by">
-          {METHODS.map((m) => (
-            <button key={m.id} role="radio" aria-checked={method === m.id} onClick={() => setMethod(m.id)} className={`rounded-xl border py-3 text-sm font-bold transition ${method === m.id ? "border-ink bg-ink text-white" : "border-line bg-white hover:border-ink/30"}`}>{m.label}</button>
-          ))}
-        </div>
         <button onClick={() => { if (method === "split") setMethod("cash"); setPayOpen(true); }} disabled={!lines.length} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-lg font-extrabold text-white shadow-lg shadow-primary/25 transition hover:brightness-110 disabled:opacity-40 disabled:shadow-none">
           Charge {lines.length ? formatPrice(total) : ""} <span className="hidden lg:inline"><Kbd dark>F9</Kbd></span>
         </button>
         <div className="flex justify-between text-sm font-semibold text-ink/55">
           <button onClick={holdSale} disabled={!lines.length} className="hover:text-ink disabled:opacity-40">Put on hold</button>
-          <button onClick={() => { setMethod("split"); setPayOpen(true); }} disabled={!lines.length} className="hover:text-ink disabled:opacity-40">Split payment</button>
         </div>
       </div>
     </div>
@@ -295,12 +288,6 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
         </div>
       </header>
 
-      {shift === null && (
-        <button onClick={() => setShiftOpen(true)} className="flex items-center justify-between gap-3 border-b border-amber-200 bg-amber-50 px-4 py-2 text-left text-sm text-amber-900 hover:bg-amber-100">
-          <span className="truncate"><b>Shift not open.</b><span className="hidden sm:inline"> Count the cash in the drawer before selling.</span></span>
-          <span className="shrink-0 rounded-lg bg-amber-900 px-3 py-1 text-xs font-bold text-white">Open shift</span>
-        </button>
-      )}
 
       <div className="flex min-h-0 flex-1">
         <section className="flex min-w-0 flex-1 flex-col">
@@ -446,16 +433,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             <DialogDescription>{itemCount} item(s){discount > 0 ? ` · ${formatPrice(discount)} discount` : ""}</DialogDescription>
           </DialogHeader>
           {method !== "split" ? (
-            <>
-              <div className="grid grid-cols-3 gap-2">
-                {METHODS.map((m) => (
-                  <button key={m.id} onClick={() => setMethod(m.id)} className={`rounded-xl border py-3 text-sm font-bold ${method === m.id ? "border-ink bg-ink text-white" : "border-line"}`}>{m.label}</button>
-                ))}
-              </div>
-              <p className="rounded-xl bg-stone-50 p-4 text-sm text-ink/70">
-                {method === "cash" ? `Collect ${formatPrice(total)} cash.` : method === "transfer" ? `Check that ${formatPrice(total)} has arrived in the store account.` : `Charge ${formatPrice(total)} on the card machine and wait for "approved".`}
-              </p>
-            </>
+            <p className="rounded-xl bg-stone-50 p-4 text-sm text-ink/70">Make sure you've received {formatPrice(total)}, then confirm.</p>
           ) : (
             <div className="space-y-2">
               {split.map((row, i) => (
