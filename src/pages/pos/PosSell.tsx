@@ -431,17 +431,17 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               e.preventDefault();
               const price = toNumber(quick.price);
               const qty = Math.max(1, Math.floor(toNumber(quick.qty)));
-              if (!quick.name.trim() || !price) return;
-              setLines((prev) => [...prev, { product_id: null, name: quick.name.trim(), unit_price: price, quantity: qty }]);
+              if (!price) return;
+              setLines((prev) => [...prev, { product_id: null, name: quick.name.trim() || "Quick sale item", unit_price: price, quantity: qty }]);
               setQuickOpen(false);
               setQuery("");
             }}
           >
-            <label className="block text-sm font-semibold">What is it?
-              <input autoFocus required value={quick.name} onChange={(e) => setQuick({ ...quick, name: e.target.value })} placeholder="e.g. Phone pouch" className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
+            <label className="block text-sm font-semibold">What is it? <span className="font-normal text-ink/45">(optional)</span>
+              <input value={quick.name} onChange={(e) => setQuick({ ...quick, name: e.target.value })} placeholder="e.g. Phone pouch" className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
             </label>
             <div className="grid grid-cols-[1fr_90px] items-start gap-2">
-              <MoneyInput label="Price" value={toNumber(quick.price)} onChange={(n) => setQuick({ ...quick, price: String(n || "") })} />
+              <MoneyInput label="Price" autoFocus value={toNumber(quick.price)} onChange={(n) => setQuick({ ...quick, price: String(n || "") })} />
               <label className="block text-sm font-semibold">Qty
                 <input inputMode="numeric" value={quick.qty} onChange={(e) => setQuick({ ...quick, qty: e.target.value })} className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 text-right font-bold outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
               </label>
