@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
     if (!fromCron && !fromStaff) return json({ error: "Not allowed" }, 401);
 
     const body = await req.json().catch(() => ({}));
-    if (body.summary) await dailySummary();
+    if (body.summary && fromCron) await dailySummary(); // only the scheduler makes the daily summary
 
     const { data: row } = await db.from("app_settings").select("value").eq("key", "email").maybeSingle();
     const settings: Settings = { enabled: false, recipients: [], kinds: DEFAULT_KINDS, ...(row?.value ?? {}) };

@@ -16,7 +16,12 @@ const Staff = () => {
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
-    const { data } = await supabase!.from("staff").select("id,full_name,username,email,role,store_id,active,pin_hash").order("full_name");
+    const [{ data: rows }, { data: emails }] = await Promise.all([
+      supabase!.from("staff").select("id,full_name,username,role,store_id,active,pin_hash").order("full_name"),
+      supabase!.rpc("staff_emails"),
+    ]);
+    const emailOf = new Map(((emails ?? []) as { id: string; email: string | null }[]).map((e) => [e.id, e.email] as const));
+    const data = (rows ?? []).map((r) => ({ ...r, email: emailOf.get(r.id) ?? null }));
     setList((data ?? []) as (S & { pin_hash: string | null })[]);
   };
   useEffect(() => void load(), []);

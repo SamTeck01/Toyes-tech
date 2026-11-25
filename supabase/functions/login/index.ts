@@ -22,9 +22,11 @@ Deno.serve(async (req) => {
     // Find the account: by email if it looks like one, otherwise by username.
     const isEmail = raw.includes("@");
     const { data: staff } = isEmail
-      ? await admin.from("staff").select("id,username,active").ilike("email", raw).maybeSingle()
+      ? await admin.from("staff").select("id,username,active").eq("email", raw).maybeSingle()
       : await admin.from("staff").select("id,username,active").eq("username", keyOf(raw)).maybeSingle();
-    const lockKey = staff?.id ?? (isEmail ? raw : keyOf(raw));
+    // Lock per account AND network, so someone elsewhere can't lock a staff member out of the shop.
+    const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
+    const lockKey = `${staff?.id ?? (isEmail ? raw : keyOf(raw))}|${ip}`;
 
     const { data: attempt } = await admin.from("login_attempts").select("*").eq("login", lockKey).maybeSingle();
     if (attempt?.locked_until && new Date(attempt.locked_until) > new Date()) {
@@ -41,6 +43,10 @@ Deno.serve(async (req) => {
         const { data } = await anon.auth.signInWithPassword({ email, password });
         session = data.session;
       }
+    } else if (!staff && !isEmail) {
+      // Unknown username: do the same work as a real sign-in so timing doesn't reveal which usernames exist.
+      const anon = createClient(URL, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false } });
+      await anon.auth.signInWithPassword({ email: `${keyOf(raw) || "x"}@staff.toyestech.app`, password });
     } else if (!staff && isEmail) {
       // The owner account created before staff emails existed signs in with its own auth email.
       const anon = createClient(URL, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false } });
@@ -55,7 +61,6 @@ Deno.serve(async (req) => {
         login: lockKey, fails: locked ? 0 : fails, updated_at: new Date().toISOString(),
         locked_until: locked ? new Date(Date.now() + LOCK_MINUTES * 60000).toISOString() : null,
       });
-      if (staff && staff.active === false) return json({ error: "This account has been switched off. Ask the owner." }, 403);
       return json({ error: locked ? `Too many wrong tries. Try again in ${LOCK_MINUTES} minutes.` : WRONG }, 401);
     }
     if (attempt) await admin.from("login_attempts").delete().eq("login", lockKey);

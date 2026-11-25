@@ -199,7 +199,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       setCartSheet(false);
       reset();
       setExtrasOpen(false);
-      toast.success(`Sale saved · ${sale.receipt_no}`);
+      toast.success(navigator.onLine ? `Sale saved · ${sale.receipt_no}` : `Sale saved offline · ${sale.receipt_no} · will sync when back online`);
       if (print) {
         setCompleted(sale);
         setTimeout(() => { window.print(); setCompleted(null); searchRef.current?.focus(); }, 300);
@@ -221,11 +221,11 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
 
   const cart = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-line px-4 py-3">
+      <div className="flex items-center justify-between border-b border-line py-3 pl-4 pr-14 lg:pr-4">
         <p className="font-bold">Current sale <span className="text-ink/45">({itemCount})</span></p>
         <div className="flex gap-2">
           <button onClick={() => setHeldOpen(true)} className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-bold"><Clock className="h-3.5 w-3.5" /> Held ({held.length})</button>
-          {lines.length > 0 && <button onClick={reset} className="rounded-full px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Clear</button>}
+          {lines.length > 0 && <button onClick={() => window.confirm("Clear this sale?") && reset()} className="rounded-full px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Clear</button>}
         </div>
       </div>
       <div className="flex-1 overflow-y-auto px-4">
