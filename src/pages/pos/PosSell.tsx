@@ -171,6 +171,11 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     setMethod("cash");
   };
 
+  const preview = {
+    id: "preview", receipt_no: "(on payment)", created_at: new Date().toISOString(), store_name: device.store_name, cashier_name: cashier.full_name,
+    customer_name: customer.name || null, customer_phone: customer.phone || null, lines, subtotal, discount, total, payments, change_given: 0, status: "completed",
+  } as unknown as LocalSale;
+
   const complete = async (print = true) => {
     if (!canComplete) return;
     setPaying(true);
@@ -178,10 +183,13 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       const sale = await recordSale({ cashier, lines, discount, payments, customer_name: customer.name, customer_phone: customer.phone });
       setPayOpen(false);
       setCartSheet(false);
-      setCompleted(sale);
       reset();
       setExtrasOpen(false);
-      if (print) setTimeout(() => window.print(), 350);
+      toast.success(`Sale saved · ${sale.receipt_no}`);
+      if (print) {
+        setCompleted(sale);
+        setTimeout(() => { window.print(); setCompleted(null); searchRef.current?.focus(); }, 300);
+      } else searchRef.current?.focus();
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -451,50 +459,41 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
         </DialogContent>
       </Dialog>
 
-      {/* Payment: confirm only. Split payments still let you type amounts. */}
-      <Dialog open={payOpen} onOpenChange={setPayOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-extrabold">{method === "split" ? `Split ${formatPrice(total)}` : `Confirm ${formatPrice(total)}`}</DialogTitle>
-            <DialogDescription>{itemCount} item(s){discount > 0 ? ` · ${formatPrice(discount)} discount` : ""}</DialogDescription>
+      {/* Checkout: the receipt itself, with Paid (print / don't print) or Cancel. */}
+      <Dialog open={payOpen} onOpenChange={(o) => !paying && setPayOpen(o)}>
+        <DialogContent className="max-h-[94dvh] max-w-sm overflow-y-auto">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Receipt</DialogTitle>
+            <DialogDescription>Check the receipt, then confirm payment.</DialogDescription>
           </DialogHeader>
-          {method !== "split" ? (
-            <p className="rounded-xl bg-stone-50 p-4 text-sm text-ink/70">Make sure you've received {formatPrice(total)}, then confirm.</p>
-          ) : (
-            <div className="space-y-2">
-              {split.map((row, i) => (
-                <div key={i} className="flex gap-2">
-                  <select value={row.method} onChange={(e) => setSplit(split.map((r, j) => (j === i ? { ...r, method: e.target.value as PaymentMethod } : r)))} className="rounded-xl border border-line px-3 text-sm font-semibold">
-                    {METHODS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
-                  </select>
-                  <MoneyInput className="min-w-0 flex-1" showWords={false} value={toNumber(row.amount)} onChange={(n) => setSplit(split.map((r, j) => (j === i ? { ...r, amount: String(n || "") } : r)))} />
-                </div>
-              ))}
-              <button onClick={() => setSplit([...split, { method: "card", amount: "" }])} className="text-sm font-semibold text-primary">+ Add another payment</button>
-              <p className={`text-sm font-bold ${t.paid >= total ? "text-green-700" : "text-ink/55"}`}>Paid {formatPrice(t.paid)} of {formatPrice(total)}{t.paid < total ? ` · ${formatPrice(total - t.paid)} left` : ""}</p>
-            </div>
-          )}
+          <div className="rounded-xl border border-line"><PosReceipt sale={preview} /></div>
           <button autoFocus onClick={() => complete(true)} disabled={!canComplete} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-extrabold text-white disabled:opacity-40">
             <Check className="h-5 w-5" /> {paying ? "Saving…" : "Paid · print receipt"}
           </button>
-          <button onClick={() => complete(false)} disabled={!canComplete} className="w-full text-sm font-semibold text-ink/55 hover:text-ink disabled:opacity-40">Paid · no receipt</button>
-        </DialogContent>
-      </Dialog>
-
-      {/* Receipt */}
-      <Dialog open={!!(completed || reprint)} onOpenChange={(o) => { if (!o) { setCompleted(null); setReprint(null); searchRef.current?.focus(); } }}>
-        <DialogContent className="max-h-[92dvh] max-w-sm overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-extrabold">{completed ? "Sale complete" : `Receipt ${reprint?.receipt_no}`}</DialogTitle>
-            <DialogDescription>{completed ? (completed.change_given > 0 ? `Give change: ${formatPrice(completed.change_given)}` : "Payment received.") : "Reprint for the customer."}</DialogDescription>
-          </DialogHeader>
-          {(completed || reprint) && <div className="print-area rounded-xl border border-line"><PosReceipt sale={(completed || reprint)!} /></div>}
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => window.print()} className="rounded-xl border border-line py-3 text-sm font-bold">{completed ? "Print again" : "Print receipt"}</button>
-            <button onClick={() => { setCompleted(null); setReprint(null); searchRef.current?.focus(); }} className="rounded-xl bg-primary py-3 text-sm font-bold text-white">{completed ? "New sale" : "Close"}</button>
+            <button onClick={() => complete(false)} disabled={!canComplete} className="rounded-xl border border-line py-3 text-sm font-bold disabled:opacity-40">Paid · don't print</button>
+            <button onClick={() => setPayOpen(false)} disabled={paying} className="rounded-xl border border-line py-3 text-sm font-bold text-ink/60">Cancel</button>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Reprint from today's sales */}
+      <Dialog open={!!reprint} onOpenChange={(o) => { if (!o) { setReprint(null); searchRef.current?.focus(); } }}>
+        <DialogContent className="max-h-[92dvh] max-w-sm overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-extrabold">Receipt {reprint?.receipt_no}</DialogTitle>
+            <DialogDescription>Reprint for the customer.</DialogDescription>
+          </DialogHeader>
+          {reprint && <div className="print-area rounded-xl border border-line"><PosReceipt sale={reprint} /></div>}
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => window.print()} className="rounded-xl bg-primary py-3 text-sm font-bold text-white">Print receipt</button>
+            <button onClick={() => setReprint(null)} className="rounded-xl border border-line py-3 text-sm font-bold">Close</button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* The finished sale's receipt, only visible to the printer */}
+      {completed && <div className="print-area pointer-events-none fixed -left-[9999px] top-0" aria-hidden><PosReceipt sale={completed} /></div>}
 
       {/* Held sales */}
       <Dialog open={heldOpen} onOpenChange={setHeldOpen}>

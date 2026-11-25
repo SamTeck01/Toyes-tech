@@ -2,7 +2,6 @@ import type { LocalSale } from "@/pos/localdb";
 import { STORE } from "@/config/store";
 import { formatPrice } from "@/lib/format";
 
-const METHOD = { cash: "Cash", transfer: "Bank transfer", card: "Card" } as const;
 
 /** 80mm thermal receipt; printed on its own via the .print-area rules in index.css. */
 const PosReceipt = ({ sale }: { sale: LocalSale }) => (
@@ -28,7 +27,7 @@ const PosReceipt = ({ sale }: { sale: LocalSale }) => (
     <div className="flex justify-between"><span>Subtotal</span><span>{formatPrice(sale.subtotal)}</span></div>
     {sale.discount > 0 && <div className="flex justify-between"><span>Discount</span><span>-{formatPrice(sale.discount)}</span></div>}
     <div className="flex justify-between text-sm font-bold"><span>TOTAL</span><span>{formatPrice(sale.total)}</span></div>
-    {sale.payments.map((p, i) => <div key={i} className="flex justify-between"><span>{METHOD[p.method]}</span><span>{formatPrice(p.amount)}</span></div>)}
+    <div className="flex justify-between"><span>Paid</span><span>{formatPrice(sale.payments.reduce((t, p) => t + p.amount, 0))}</span></div>
     {sale.change_given > 0 && <div className="flex justify-between"><span>Change</span><span>{formatPrice(sale.change_given)}</span></div>}
     {sale.status === "refunded" && <p className="mt-2 text-center font-bold">*** REFUNDED ***</p>}
     <div className="my-2 border-t border-dashed border-black" />
