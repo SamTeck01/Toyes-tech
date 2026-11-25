@@ -25,7 +25,7 @@ const HQLayout = () => {
       label: "Team & setup",
       items: [
         { to: "/admin/staff", label: "Staff", icon: Users },
-        ...(isOwner ? [{ to: "/admin/stores", label: "Stores", icon: MapPin }, { to: "/admin/alerts", label: "WhatsApp alerts", icon: Mail }] : []),
+        ...(isOwner ? [{ to: "/admin/stores", label: "Stores", icon: MapPin }, { to: "/admin/alerts", label: "Email alerts", icon: Mail }] : []),
       ],
     },
   ];

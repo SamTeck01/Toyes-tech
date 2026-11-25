@@ -26,7 +26,9 @@ const Clock24 = () => {
 };
 import type { Product } from "@/data/products";
 
-const DEPTS = ["All", "Gadgets", "Phones", "Laptops"];
+/** Friendlier names for the old POS's product types. */
+const TYPE_NAMES: Record<string, string> = { Airpord: "Earbuds", Padwired: "Gamepads & mice", "Game Pad": "Gamepads & mice", Mouse: "Gamepads & mice", Keybord: "Keyboards", "System Charger": "Laptop chargers & accessories", "Laptop Accessory": "Laptop chargers & accessories", "Laptop Stand": "Laptop chargers & accessories", Glass: "Screen guards", "Screen Guard": "Screen guards", "Memory Card": "Flash & memory cards", Flash: "Flash & memory cards", Phone: "Phones", Laptops: "Laptops", Touch: "Torches", Guard: "Surge guards", Hanger: "Phone holders & stands", "Phone Stand": "Phone holders & stands", Earphone: "Earphones", Headset: "Headsets", Charger: "Chargers", "Car Charger": "Car chargers", Battery: "Batteries", Extension: "Extensions", "Power Bank": "Power banks", Bulb: "Bulbs", Fan: "Fans", Solar: "Solar", Watch: "Watches", Dongle: "Dongles", Mifi: "Mifi", Clipper: "Clippers", Speaker: "Speakers", Pouch: "Pouches", "Screen Lcd": "Screens", "Down Pane": "Other" };
+const typeOf = (p: { subcategory: string | null; category: string }) => (p.subcategory ? TYPE_NAMES[p.subcategory] ?? p.subcategory : p.category);
 const METHODS: { id: PaymentMethod; label: string }[] = [
   { id: "cash", label: "Cash" },
   { id: "transfer", label: "Transfer" },
@@ -104,11 +106,17 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     const asProducts = products.map((p) => ({ ...p, price: p.base_price, inStock: true, stock: 0 }) as unknown as Product);
     const base = query.trim() ? searchProducts(asProducts, query).map((p) => products.find((x) => x.id === p.id)!) : products;
     const barcodeHit = products.filter((p) => p.barcode && p.barcode === query.trim());
-    const list = [...barcodeHit, ...base.filter((p) => !barcodeHit.includes(p))].filter((p) => dept === "All" || p.category === dept);
+    const list = [...barcodeHit, ...base.filter((p) => !barcodeHit.includes(p))].filter((p) => dept === "All" || typeOf(p) === dept);
     // Items this store actually has come first; when not searching, keep them in name order.
     const inStock = (id: string) => ((stock.get(id)?.qty ?? 0) > 0 ? 0 : 1);
     return query.trim() ? list : [...list].sort((a, b) => inStock(a.id) - inStock(b.id) || a.name.localeCompare(b.name));
   }, [products, query, dept, stock]);
+  // Category chips come from the products themselves, biggest first.
+  const depts = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const p of products) n.set(typeOf(p), (n.get(typeOf(p)) ?? 0) + 1);
+    return ["All", ...[...n.entries()].sort((a, b) => b[1] - a[1]).map(([k]) => k)];
+  }, [products]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -151,15 +159,21 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     }
   };
 
-  const subtotal = lines.reduce((s, l) => s + l.unit_price * l.quantity, 0);
+  // A price lowered at the POS is recorded as a discount: the receipt and HQ show the normal price and the money given off.
+  const listOf = (l: SaleLine) => (l.product_id && priceOf(l.product_id) > l.unit_price ? priceOf(l.product_id) : l.unit_price);
+  const recordLines = lines.map((l) => ({ ...l, unit_price: listOf(l) }));
+  const subtotal = recordLines.reduce((s, l) => s + l.unit_price * l.quantity, 0);
+  const priceCut = lines.reduce((s, l) => s + (listOf(l) - l.unit_price) * l.quantity, 0);
   const raw = toNumber(discountInput);
-  const discount = Math.min(subtotal, discountMode === "percent" ? Math.round((subtotal * Math.min(raw, 100)) / 100) : raw);
+  const afterCut = subtotal - priceCut;
+  const manualDiscount = Math.min(afterCut, discountMode === "percent" ? Math.round((afterCut * Math.min(raw, 100)) / 100) : raw);
+  const discount = priceCut + manualDiscount;
   const total = subtotal - discount;
   const itemCount = lines.reduce((s, l) => s + l.quantity, 0);
   const payments = method === "split"
     ? split.map((x) => ({ method: x.method, amount: toNumber(x.amount) })).filter((x) => x.amount > 0)
     : [{ method, amount: total }];
-  const t = computeTotals(lines, discount, payments);
+  const t = computeTotals(recordLines, discount, payments);
   const canComplete = lines.length > 0 && lines.every((l) => l.unit_price > 0) && t.paid >= t.total && !paying;
 
   const reset = () => {
@@ -173,14 +187,14 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
 
   const preview = {
     id: "preview", receipt_no: "(on payment)", created_at: new Date().toISOString(), store_name: device.store_name, cashier_name: cashier.full_name,
-    customer_name: customer.name || null, customer_phone: customer.phone || null, lines, subtotal, discount, total, payments, change_given: 0, status: "completed",
+    customer_name: customer.name || null, customer_phone: customer.phone || null, lines: recordLines, subtotal, discount, total, payments, change_given: 0, status: "completed",
   } as unknown as LocalSale;
 
   const complete = async (print = true) => {
     if (!canComplete) return;
     setPaying(true);
     try {
-      const sale = await recordSale({ cashier, lines, discount, payments, customer_name: customer.name, customer_phone: customer.phone });
+      const sale = await recordSale({ cashier, lines: recordLines, discount, payments, customer_name: customer.name, customer_phone: customer.phone });
       setPayOpen(false);
       setCartSheet(false);
       reset();
@@ -223,19 +237,29 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
         ) : (
           <ul className="divide-y divide-line">
             {lines.map((l, i) => (
-              <li key={`${l.product_id ?? "q"}-${i}`} className="py-3">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-bold leading-tight">{l.name}{!l.product_id && <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">QUICK</span>}</p>
-                  <button aria-label={`Remove ${l.name}`} onClick={() => setQty(i, 0)} className="text-ink/35 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
-                </div>
-                <div className="mt-2 flex items-center justify-between gap-2">
-                  <div className="flex items-center rounded-full border border-line">
-                    <button aria-label="Decrease" onClick={() => setQty(i, l.quantity - 1)} className="p-2"><Minus className="h-3.5 w-3.5" /></button>
-                    <span className="w-7 text-center text-sm font-bold">{l.quantity}</span>
-                    <button aria-label="Increase" onClick={() => setQty(i, l.quantity + 1)} className="p-2"><Plus className="h-3.5 w-3.5" /></button>
+              <li key={`${l.product_id ?? "q"}-${i}`} className="py-3.5">
+                <div className="flex gap-3">
+                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-stone-100">
+                    {l.product_id && products.find((p) => p.id === l.product_id)?.image && <img src={products.find((p) => p.id === l.product_id)!.image!} alt="" className="h-full w-full object-cover" />}
                   </div>
-                  <label className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-ink/40">each<input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => setPrice(i, toNumber(e.target.value))} title="Change price" className={`w-24 rounded-lg px-2 py-1 text-right text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-primary ${l.product_id && l.unit_price !== priceOf(l.product_id) ? "bg-amber-50 text-amber-800 ring-1 ring-amber-300" : "bg-stone-50"} read-only:cursor-default read-only:bg-transparent`} /></label>
-                  <span className="w-24 text-right text-sm font-extrabold tabular-nums">{formatPrice(l.unit_price * l.quantity)}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[15px] font-bold leading-snug">{l.name}{!l.product_id && <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">QUICK</span>}</p>
+                      <button aria-label={`Remove ${l.name}`} onClick={() => setQty(i, 0)} className="p-1 text-ink/35 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center rounded-xl border border-line">
+                        <button aria-label="Decrease" onClick={() => setQty(i, l.quantity - 1)} className="flex h-10 w-10 items-center justify-center"><Minus className="h-4 w-4" /></button>
+                        <span className="w-8 text-center text-base font-extrabold">{l.quantity}</span>
+                        <button aria-label="Increase" onClick={() => setQty(i, l.quantity + 1)} className="flex h-10 w-10 items-center justify-center"><Plus className="h-4 w-4" /></button>
+                      </div>
+                      <span className="text-base font-extrabold tabular-nums">{formatPrice(l.unit_price * l.quantity)}</span>
+                    </div>
+                    <label className="mt-2 flex items-center justify-between gap-2 text-xs text-ink/50">
+                      <span>Price each{l.product_id && l.unit_price < listOf(l) ? <b className="ml-1 text-emerald-700">−{formatPrice((listOf(l) - l.unit_price) * l.quantity)} discount</b> : null}</span>
+                      <input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => setPrice(i, toNumber(e.target.value))} className={`w-28 rounded-lg px-2 py-1.5 text-right text-sm font-semibold text-ink focus:outline-none focus:ring-1 focus:ring-primary ${l.product_id && l.unit_price !== listOf(l) ? "bg-amber-50 ring-1 ring-amber-300" : l.product_id && l.unit_price < listOf(l) ? "" : "bg-stone-50"} ${l.product_id && l.unit_price < listOf(l) ? "bg-emerald-50 ring-1 ring-emerald-300" : ""}`} />
+                    </label>
+                  </div>
                 </div>
               </li>
             ))}
@@ -322,7 +346,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               </button>
             </div>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {DEPTS.map((d) => (
+              {depts.map((d) => (
                 <button key={d} onClick={() => setDept(d)} className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${dept === d ? "bg-ink text-white shadow-sm" : "bg-stone-100 text-ink/65"}`}>{d}</button>
               ))}
             </div>
@@ -387,7 +411,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             )}
           </div>
         </section>
-        <aside className="hidden w-[400px] shrink-0 border-l border-line bg-white lg:block">{cart}</aside>
+        <aside className="hidden w-[440px] shrink-0 border-l border-line bg-white lg:block">{cart}</aside>
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white p-3 lg:hidden">

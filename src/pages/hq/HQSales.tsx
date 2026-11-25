@@ -178,7 +178,7 @@ const HQSales = () => {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Refund {refunding?.receipt_no}?</DialogTitle>
-            <DialogDescription>Give back {refunding && formatPrice(refunding.total)}. Listed items go back into stock. The owner gets a WhatsApp alert. This can't be undone.</DialogDescription>
+            <DialogDescription>Give back {refunding && formatPrice(refunding.total)}. Listed items go back into stock. The owner gets an email. This can't be undone.</DialogDescription>
           </DialogHeader>
           <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (e.g. faulty, changed mind)" className="w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
           <div className="grid grid-cols-2 gap-2">

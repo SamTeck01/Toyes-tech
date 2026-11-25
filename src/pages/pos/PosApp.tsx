@@ -40,7 +40,7 @@ const Shell = ({ children, store }: { children: React.ReactNode; store?: string 
       <ul className="relative space-y-2.5 text-sm text-ink/65">
         <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Keeps selling with no internet</li>
         <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Every sale syncs automatically, once</li>
-        <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> The owner is alerted on WhatsApp</li>
+        <li className="flex items-center gap-2.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> The owner is alerted by email</li>
       </ul>
     </aside>
     <main className="flex items-center justify-center p-4 sm:p-8">

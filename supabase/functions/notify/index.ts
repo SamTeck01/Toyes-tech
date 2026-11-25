@@ -1,41 +1,37 @@
-// Sends queued alerts (sales, refunds, low stock, cash shortages, daily summary) to the owner's WhatsApp
-// using the WhatsApp Business Cloud API. Safe to call often: it only processes what is still pending.
+// Sends queued alerts (sales, refunds, low stock, cash shortages, daily summary) to the owner by email
+// using Resend (resend.com). Safe to call often: it only processes what is still pending.
 // Triggered by tills after they sync, and every minute by pg_cron as a safety net.
 //
 // Secrets (Supabase → Edge Functions → Secrets):
-//   WHATSAPP_TOKEN            permanent access token from Meta
-//   WHATSAPP_PHONE_NUMBER_ID  the business sender number's ID
-//   WHATSAPP_TEMPLATE         approved template name with one body variable {{1}} (e.g. "store_alert")
-//   WHATSAPP_TEMPLATE_LANG    template language code (default "en")
-// Recipients and which alerts to send are set by the owner in the admin (app_settings.whatsapp).
+//   RESEND_API_KEY  API key from resend.com
+//   EMAIL_FROM      optional sender, e.g. "Toyes Tech <alerts@toyestech.com>" (needs that domain verified in Resend).
+//                   Without it, Resend's test sender is used, which only delivers to the Resend account's own email.
+// Recipients and which alerts to send are set by the owner in the admin (app_settings.email).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { corsHeaders, json } from "./cors.ts";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
-const TOKEN = Deno.env.get("WHATSAPP_TOKEN");
-const PHONE_ID = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID");
-const TEMPLATE = Deno.env.get("WHATSAPP_TEMPLATE");
-const LANG = Deno.env.get("WHATSAPP_TEMPLATE_LANG") ?? "en";
+const KEY = Deno.env.get("RESEND_API_KEY");
+const FROM = Deno.env.get("EMAIL_FROM") ?? "Toyes Tech <onboarding@resend.dev>";
 
 type Settings = { enabled: boolean; recipients: string[]; kinds: Record<string, boolean> };
 const DEFAULT_KINDS = { sale: true, quick_sale: true, refund: true, low_stock: true, negative_stock: true, shift_short: true, daily_summary: true };
 
 const naira = (n: number) => "₦" + Math.round(n).toLocaleString("en-NG");
+const esc = (t: string) => t.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
 
-// WhatsApp template variables can't contain new lines, tabs or more than 4 spaces in a row.
-const forTemplate = (msg: string) => msg.replace(/\s*\n+\s*/g, " · ").replace(/\t/g, " ").replace(/ {4,}/g, "   ").slice(0, 1000);
-
-const send = async (to: string, message: string) => {
-  const body = TEMPLATE
-    ? { messaging_product: "whatsapp", to, type: "template", template: { name: TEMPLATE, language: { code: LANG }, components: [{ type: "body", parameters: [{ type: "text", text: forTemplate(message) }] }] } }
-    : { messaging_product: "whatsapp", to, type: "text", text: { body: message } }; // only delivered inside a 24h chat window
-  const res = await fetch(`https://graph.facebook.com/v21.0/${PHONE_ID}/messages`, {
+const send = async (to: string[], message: string) => {
+  const subject = message.split("\n")[0].replace(/^[^\p{L}\p{N}₦]+/u, "").slice(0, 120) || "Toyes Tech alert";
+  const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from: FROM, to, subject, text: message,
+      html: `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#111">${esc(message).replace(/\n/g, "<br>")}<p style="color:#888;font-size:12px;margin-top:16px">Toyes Tech POS</p></div>`,
+    }),
   });
-  if (!res.ok) throw new Error(`WhatsApp ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok) throw new Error(`Email ${res.status}: ${(await res.text()).slice(0, 300)}`);
 };
 
 const dailySummary = async () => {
@@ -70,14 +66,14 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     if (body.summary) await dailySummary();
 
-    const { data: row } = await db.from("app_settings").select("value").eq("key", "whatsapp").maybeSingle();
+    const { data: row } = await db.from("app_settings").select("value").eq("key", "email").maybeSingle();
     const settings: Settings = { enabled: false, recipients: [], kinds: DEFAULT_KINDS, ...(row?.value ?? {}) };
-    const configured = Boolean(TOKEN && PHONE_ID) && settings.enabled && settings.recipients.length > 0;
+    const configured = Boolean(KEY) && settings.enabled && settings.recipients.length > 0;
 
     // Anything older than 2 days that never went out is marked skipped so a backlog never floods the owner.
-    await db.from("notifications").update({ status: "skipped", error: "Expired before WhatsApp was set up" })
+    await db.from("notifications").update({ status: "skipped", error: "Expired before email was set up" })
       .eq("status", "pending").lt("created_at", new Date(Date.now() - 2 * 864e5).toISOString());
-    if (!configured) return json({ ok: true, sent: 0, note: "WhatsApp not configured yet; alerts stay queued for 2 days." });
+    if (!configured) return json({ ok: true, sent: 0, note: "Email isn't connected yet; alerts stay queued for 2 days." });
 
     const { data: pending } = await db.from("notifications").select("*").eq("status", "pending").order("created_at").limit(40);
     let sent = 0;
@@ -90,7 +86,7 @@ Deno.serve(async (req) => {
       const { data: claimed } = await db.from("notifications").update({ attempts: n.attempts + 1 }).eq("id", n.id).eq("status", "pending").eq("attempts", n.attempts).select("id");
       if (!claimed?.length) continue;
       try {
-        for (const to of settings.recipients) await send(to.replace(/\D/g, ""), n.message);
+        await send(settings.recipients, n.message);
         await db.from("notifications").update({ status: "sent", sent_at: new Date().toISOString(), error: null }).eq("id", n.id);
         sent++;
       } catch (e) {

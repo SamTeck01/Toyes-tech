@@ -24,7 +24,7 @@ const Alerts = () => {
 
   const load = async () => {
     const [{ data: row }, { data: notes }] = await Promise.all([
-      supabase!.from("app_settings").select("value").eq("key", "whatsapp").maybeSingle(),
+      supabase!.from("app_settings").select("value").eq("key", "email").maybeSingle(),
       supabase!.from("notifications").select("*").order("created_at", { ascending: false }).limit(40),
     ]);
     if (row?.value) {
@@ -40,11 +40,11 @@ const Alerts = () => {
   }, []);
 
   const save = async () => {
-    const list = recipients.split(/[\n,]/).map((r) => r.replace(/\D/g, "")).filter(Boolean).map((r) => (r.startsWith("0") ? "234" + r.slice(1) : r));
-    if (list.some((r) => !/^234[789][01]\d{8}$/.test(r))) return toast.error("Enter Nigerian WhatsApp numbers, e.g. 0803 123 4567.");
+    const list = recipients.split(/[\n,;\s]+/).map((r) => r.trim().toLowerCase()).filter(Boolean);
+    if (!list.length || list.some((r) => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r))) return toast.error("Enter email addresses, e.g. owner@gmail.com.");
     setBusy(true);
     try {
-      await rpc("set_setting", { p_key: "whatsapp", p_value: { ...s, recipients: list } });
+      await rpc("set_setting", { p_key: "email", p_value: { ...s, recipients: list } });
       setRecipients(list.join("\n"));
       toast.success("Alert settings saved");
     } catch (e) {
@@ -58,7 +58,7 @@ const Alerts = () => {
     try {
       await rpc("queue_test_alert", {});
       const { data } = await supabase!.functions.invoke("notify", { body: {} });
-      toast.message(data?.note ?? (data?.sent ? "Test sent. Check WhatsApp." : "Queued. It will send once WhatsApp is connected."));
+      toast.message(data?.note ?? (data?.sent ? "Test sent. Check your email (and spam folder)." : "Queued. It will send once email is connected."));
       void load();
     } catch (e) {
       toast.error((e as Error).message);
@@ -67,13 +67,13 @@ const Alerts = () => {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <Helmet><title>WhatsApp alerts | Toyes Tech HQ</title></Helmet>
-      <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">WhatsApp alerts</h1><p className="text-sm text-ink/55">Get a WhatsApp message when something happens in any store. Sales made offline are sent as soon as the POS reconnects.</p></div>
+      <Helmet><title>Email alerts | Toyes Tech HQ</title></Helmet>
+      <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Email alerts</h1><p className="text-sm text-ink/55">Get an email when something happens in any store. Sales made offline are sent as soon as the POS reconnects.</p></div>
 
       <section className="space-y-4 rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)] p-5">
-        <label className="flex items-center gap-2 font-bold"><input type="checkbox" className="h-4 w-4" checked={s.enabled} onChange={(e) => setS({ ...s, enabled: e.target.checked })} /> Send WhatsApp alerts</label>
-        <label className="block text-sm font-semibold">Send to these WhatsApp numbers (one per line)
-          <textarea rows={3} value={recipients} onChange={(e) => setRecipients(e.target.value)} placeholder="0803 123 4567" className="mt-1.5 w-full rounded-xl border border-line px-3.5 py-2.5 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
+        <label className="flex items-center gap-2 font-bold"><input type="checkbox" className="h-4 w-4" checked={s.enabled} onChange={(e) => setS({ ...s, enabled: e.target.checked })} /> Send email alerts</label>
+        <label className="block text-sm font-semibold">Send to these email addresses (one per line)
+          <textarea rows={3} value={recipients} onChange={(e) => setRecipients(e.target.value)} placeholder="owner@gmail.com" className="mt-1.5 w-full rounded-xl border border-line px-3.5 py-2.5 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
         </label>
         <fieldset>
           <legend className="mb-2 text-sm font-semibold">Alert me about</legend>
@@ -85,7 +85,7 @@ const Alerts = () => {
         </fieldset>
         <div className="flex flex-wrap gap-2">
           <button disabled={busy} onClick={save} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50 disabled:opacity-60">Save</button>
-          <button onClick={test} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40">Send a test message</button>
+          <button onClick={test} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40">Send a test email</button>
         </div>
       </section>
 
