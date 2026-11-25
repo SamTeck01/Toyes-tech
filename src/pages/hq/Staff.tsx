@@ -7,7 +7,7 @@ import { useHQ, staffAdmin, type Staff as S } from "@/hq/HQContext";
 import { supabase } from "@/lib/supabase";
 
 const input = "w-full rounded-xl border border-line px-3.5 py-2.5 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5";
-type Form = { id?: string; full_name: string; username: string; password: string; role: "manager" | "cashier"; store_id: string; pin: string; active: boolean };
+type Form = { id?: string; full_name: string; username: string; email: string; password: string; role: "manager" | "cashier"; store_id: string; pin: string; active: boolean };
 
 const Staff = () => {
   const { me, stores, isOwner } = useHQ();
@@ -16,7 +16,7 @@ const Staff = () => {
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
-    const { data } = await supabase!.from("staff").select("id,full_name,username,role,store_id,active,pin_hash").order("full_name");
+    const { data } = await supabase!.from("staff").select("id,full_name,username,email,role,store_id,active,pin_hash").order("full_name");
     setList((data ?? []) as (S & { pin_hash: string | null })[]);
   };
   useEffect(() => void load(), []);
@@ -26,7 +26,7 @@ const Staff = () => {
   useEffect(() => {
     const mine = isOwner ? stores : stores.filter((st) => st.id === me?.store_id);
     if (params.get("new") === "1" && mine.length) {
-      setForm({ full_name: "", username: "", password: "", role: "cashier", store_id: mine[0].id, pin: "", active: true });
+      setForm({ full_name: "", username: "", email: "", password: "", role: "cashier", store_id: mine[0].id, pin: "", active: true });
       setParams({}, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -34,11 +34,11 @@ const Staff = () => {
 
   const save = async () => {
     if (!form) return;
-    if (!form.id && /\s/.test(form.username.trim())) return toast.error("Usernames can't have spaces. Remove the space and try again.");
+    if ((!form.id && /\s/.test(form.username.trim())) || /\s/.test(form.email.trim())) return toast.error("Usernames and emails can't have spaces. Remove the space and try again.");
     setBusy(true);
     try {
       if (form.id) {
-        await staffAdmin({ action: "update_staff", id: form.id, full_name: form.full_name, role: form.role, store_id: form.store_id, active: form.active, pin: form.pin || undefined, password: form.password || undefined });
+        await staffAdmin({ action: "update_staff", id: form.id, full_name: form.full_name, email: form.email.trim(), role: form.role, store_id: form.store_id, active: form.active, pin: form.pin || undefined, password: form.password || undefined });
       } else {
         await staffAdmin({ action: "create_staff", ...form });
       }
@@ -60,7 +60,7 @@ const Staff = () => {
       <Helmet><title>Staff | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Staff</h1><p className="text-sm text-ink/55">Cashiers unlock the POS with their PIN. Managers can also sign in here.</p></div>
-        <button onClick={() => setForm({ full_name: "", username: "", password: "", role: "cashier", store_id: visibleStores[0]?.id ?? "", pin: "", active: true })} disabled={!visibleStores.length} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50 disabled:opacity-40">+ Add staff</button>
+        <button onClick={() => setForm({ full_name: "", username: "", email: "", password: "", role: "cashier", store_id: visibleStores[0]?.id ?? "", pin: "", active: true })} disabled={!visibleStores.length} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50 disabled:opacity-40">+ Add staff</button>
       </div>
       <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
         {list === null ? <p className="p-6 text-sm text-ink/50">Loading…</p> : (
@@ -70,13 +70,13 @@ const Staff = () => {
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{s.full_name[0]}</span>
                 <div className="min-w-0 flex-1">
                   <p className={`font-semibold ${s.active ? "" : "text-ink/40 line-through"}`}>{s.full_name}</p>
-                  <p className="text-xs capitalize text-ink/50">{s.role.replace("_", " ")} · {storeName(s.store_id)}{!s.pin_hash && s.role !== "super_admin" ? " · no PIN" : ""}</p>
+                  <p className="text-xs text-ink/50"><span className="capitalize">{s.role.replace("_", " ")}</span> · {storeName(s.store_id)} · @{s.username}{(s as S & { email?: string | null }).email ? ` · ${(s as S & { email?: string | null }).email}` : ""}{!s.pin_hash && s.role !== "super_admin" ? " · no PIN" : ""}</p>
                 </div>
                 {s.role !== "super_admin" && (isOwner || s.role === "cashier") && (
-                  <button onClick={() => setForm({ id: s.id, full_name: s.full_name, username: s.username, password: "", role: s.role as "manager" | "cashier", store_id: s.store_id ?? "", pin: "", active: s.active })} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-stone-100">Edit</button>
+                  <button onClick={() => setForm({ id: s.id, full_name: s.full_name, username: s.username, email: (s as S & { email?: string | null }).email ?? "", password: "", role: s.role as "manager" | "cashier", store_id: s.store_id ?? "", pin: "", active: s.active })} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-stone-100">Edit</button>
                 )}
                 {s.role === "super_admin" && s.id === me?.id && (
-                  <button onClick={() => setForm({ id: s.id, full_name: s.full_name, username: s.username, password: "", role: "manager", store_id: "", pin: "", active: true })} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-stone-100">Set my PIN</button>
+                  <button onClick={() => setForm({ id: s.id, full_name: s.full_name, username: s.username, email: (s as S & { email?: string | null }).email ?? "", password: "", role: "manager", store_id: "", pin: "", active: true })} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-stone-100">Set my PIN</button>
                 )}
               </li>
             ))}
@@ -88,12 +88,13 @@ const Staff = () => {
         <DialogContent className="max-h-[92dvh] max-w-md overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{form?.id ? `Edit ${form.full_name}` : "Add staff"}</DialogTitle>
-            <DialogDescription>{form?.id ? "Leave PIN and password blank to keep them." : "They sign in with this username and password, and use the PIN on the POS."}</DialogDescription>
+            <DialogDescription>{form?.id ? "Leave PIN and password blank to keep them." : "They sign in with their username (or email) and password. The PIN is for switching cashier on the POS."}</DialogDescription>
           </DialogHeader>
           {form && (
             <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); void save(); }}>
               <label className="block text-sm font-semibold">Full name<input autoFocus required className={`${input} mt-1`} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></label>
-              {!form.id && <label className="block text-sm font-semibold">Username<input required className={`${input} mt-1`} autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="e.g. Tolu" /></label>}
+              {!form.id && <label className="block text-sm font-semibold">Username<input required className={`${input} mt-1`} autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="e.g. tolu" /></label>}
+              <label className="block text-sm font-semibold">Their email <span className="font-normal text-ink/45">(optional, they can sign in with it too)</span><input type="email" autoCapitalize="none" className={`${input} mt-1`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="e.g. tolu@gmail.com" /></label>
               {!(form.id === me?.id) && (
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block text-sm font-semibold">Role

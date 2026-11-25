@@ -11,13 +11,24 @@ const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE
 // Usernames: no spaces allowed; capitals and symbols are ignored when matching ("Tolu-Ade" = "toluade").
 const keyOf = (name: string) => String(name ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-/** Accepts a username (any text) or an email. Returns the sign-in email and the stored username. */
+/**
+ * Every account has a username. The person's own email is optional; when given, it is the account's sign-in
+ * email (so they can log in with it too). Without one, an internal address is used that nobody ever sees or types.
+ */
 const loginFor = (body: { username?: string; email?: string }) => {
-  const raw = String(body.email || body.username || "").trim();
-  if (/\s/.test(raw)) return null;
-  if (raw.includes("@")) return EMAIL.test(raw) ? { email: raw.toLowerCase(), username: raw.toLowerCase() } : null;
-  const key = keyOf(raw);
-  return key ? { email: `${key}@staff.toyestech.app`, username: key } : null;
+  const rawUser = String(body.username ?? "").trim();
+  const rawEmail = String(body.email ?? "").trim().toLowerCase();
+  if (/\s/.test(rawUser) || /\s/.test(rawEmail)) return null;
+  const username = keyOf(rawUser.includes("@") ? rawUser.split("@")[0] : rawUser);
+  if (!username) return null;
+  if (rawEmail && !EMAIL.test(rawEmail)) return null;
+  const realEmail = rawEmail || (rawUser.includes("@") && EMAIL.test(rawUser.toLowerCase()) ? rawUser.toLowerCase() : "");
+  return { username, realEmail: realEmail || null, authEmail: realEmail || `${username}@staff.toyestech.app` };
+};
+
+const usernameTaken = async (username: string, exceptId?: string) => {
+  const { data } = await admin.from("staff").select("id").eq("username", username);
+  return (data ?? []).some((r) => r.id !== exceptId);
 };
 
 const hashPin = async (pin: string, id: string) => {
@@ -38,12 +49,12 @@ Deno.serve(async (req) => {
       const { count } = await admin.from("staff").select("id", { count: "exact", head: true }).eq("role", "super_admin");
       if ((count ?? 0) > 0) return fail("The owner account already exists.", 409);
       const login = loginFor(body);
-      if (!login) return fail("Enter a username with no spaces.");
+      if (!login) return fail("Enter a username with no spaces (and a valid email, if you add one).");
       if (String(body.password ?? "").length < 8) return fail("Password must be at least 8 characters.");
-      const { email, username } = login;
-      const { data, error } = await admin.auth.admin.createUser({ email, password: body.password, email_confirm: true });
+      const { authEmail, realEmail, username } = login;
+      const { data, error } = await admin.auth.admin.createUser({ email: authEmail, password: body.password, email_confirm: true });
       if (error) return fail(error.message);
-      const { error: e2 } = await admin.from("staff").insert({ id: data.user.id, full_name: body.full_name, username, role: "super_admin" });
+      const { error: e2 } = await admin.from("staff").insert({ id: data.user.id, full_name: body.full_name, username, email: realEmail, role: "super_admin" });
       if (e2) {
         await admin.auth.admin.deleteUser(data.user.id);
         return fail(e2.message);
@@ -63,17 +74,18 @@ Deno.serve(async (req) => {
       const login = loginFor(body);
       const role = body.role as string;
       const storeId = isOwner ? body.store_id : me.store_id;
-      if (!login) return fail("Enter a username with no spaces.");
-      const { email, username } = login;
+      if (!login) return fail("Enter a username with no spaces (and a valid email, if you add one).");
+      const { authEmail, realEmail, username } = login;
+      if (await usernameTaken(username)) return fail("That username is already used. Try adding a number.");
       if (!["manager", "cashier"].includes(role)) return fail("Choose manager or cashier.");
       if (!isOwner && role !== "cashier") return fail("Managers can only add cashiers.", 403);
       if (!storeId) return fail("Choose a store.");
       if (String(body.password ?? "").length < 8) return fail("Password must be at least 8 characters.");
       if (body.pin && !/^\d{4,6}$/.test(body.pin)) return fail("PIN must be 4 to 6 digits.");
-      const { data, error } = await admin.auth.admin.createUser({ email, password: body.password, email_confirm: true });
-      if (error) return fail(/already/i.test(error.message) ? "That username is already used. Try adding a number." : error.message);
+      const { data, error } = await admin.auth.admin.createUser({ email: authEmail, password: body.password, email_confirm: true });
+      if (error) return fail(/already/i.test(error.message) ? "That email is already used by another account." : error.message);
       const pin_hash = body.pin ? await hashPin(body.pin, data.user.id) : null;
-      const { error: e2 } = await admin.from("staff").insert({ id: data.user.id, full_name: body.full_name, username, role, store_id: storeId, pin_hash });
+      const { error: e2 } = await admin.from("staff").insert({ id: data.user.id, full_name: body.full_name, username, email: realEmail, role, store_id: storeId, pin_hash });
       if (e2) {
         await admin.auth.admin.deleteUser(data.user.id);
         return fail(e2.message);
@@ -95,6 +107,13 @@ Deno.serve(async (req) => {
       if (body.pin) {
         if (!/^\d{4,6}$/.test(body.pin)) return fail("PIN must be 4 to 6 digits.");
         patch.pin_hash = await hashPin(body.pin, target.id);
+      }
+      if (typeof body.email === "string" && body.email.trim().toLowerCase() !== (target.email ?? "")) {
+        const e = body.email.trim().toLowerCase();
+        if (e && !EMAIL.test(e)) return fail("That email doesn't look right.");
+        const { error } = await admin.auth.admin.updateUserById(target.id, { email: e || `${target.username}@staff.toyestech.app`, email_confirm: true });
+        if (error) return fail(/already/i.test(error.message) ? "That email is already used by another account." : error.message);
+        patch.email = e || null;
       }
       if (body.password) {
         if (String(body.password).length < 8) return fail("Password must be at least 8 characters.");

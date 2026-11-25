@@ -141,6 +141,21 @@ const Lock = ({ storeId, storeName }: { storeId: string; storeName: string }) =>
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [signingOut, setSigningOut] = useState("");
+  const [wrong, setWrong] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState(0);
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (lockedUntil <= Date.now()) return;
+    const t = setInterval(() => tick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, [lockedUntil]);
+  const locked = lockedUntil > Date.now();
+  const badPin = () => {
+    const n = wrong + 1;
+    setPin("");
+    if (n >= 5) { setWrong(0); setLockedUntil(Date.now() + 60_000); setError("Too many wrong PINs. Wait a minute."); }
+    else { setWrong(n); setError(`Wrong PIN. ${5 - n} tr${5 - n === 1 ? "y" : "ies"} left.`); }
+  };
   const people = (staff ?? []).filter((s) => s.store_id === storeId || s.role === "super_admin");
   useEffect(() => {
     if (!who && people.length === 1) setWho(people[0]);
@@ -151,10 +166,7 @@ const Lock = ({ storeId, storeName }: { storeId: string; storeName: string }) =>
     if (!who) return;
     if (await checkPin(who, value)) {
       await setCashier(who);
-    } else if (value.length === 6) {
-      setError("Wrong PIN. Try again.");
-      setPin("");
-    }
+    } else if (value.length === 6) badPin();
   };
 
   return (
@@ -193,24 +205,26 @@ const Lock = ({ storeId, storeName }: { storeId: string; storeName: string }) =>
               <span key={i} className={`h-3.5 w-3.5 rounded-full transition ${i < pin.length ? "scale-110 bg-ink" : "bg-stone-300"}`} />
             ))}
           </div>
-          {error && <p role="alert" className="mb-3 text-center text-sm font-semibold text-red-600">{error}</p>}
+          {(error || locked) && <p role="alert" className="mb-3 text-center text-sm font-semibold text-red-600">{locked ? `Too many wrong PINs. Try again in ${Math.ceil((lockedUntil - Date.now()) / 1000)}s.` : error}</p>}
           <div className="grid grid-cols-3 gap-2">
             {["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "✓"].map((k) => (
               <button
                 key={k}
+                disabled={locked}
                 onClick={async () => {
+                  if (locked) return;
                   setError("");
                   if (k === "⌫") return setPin((p) => p.slice(0, -1));
                   if (k === "✓") {
                     if (await checkPin(who, pin)) await setCashier(who);
-                    else { setError("Wrong PIN. Try again."); setPin(""); }
+                    else badPin();
                     return;
                   }
                   const next = (pin + k).slice(0, 6);
                   setPin(next);
                   if (next.length >= 4) await tryPin(next);
                 }}
-                className="rounded-2xl border border-line bg-white py-4 font-display text-2xl font-bold shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:bg-stone-50 active:scale-95 active:bg-stone-100"
+                className="rounded-2xl border border-line bg-white py-4 font-display text-2xl font-bold shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:bg-stone-50 active:scale-95 active:bg-stone-100 disabled:opacity-40"
               >
                 {k}
               </button>

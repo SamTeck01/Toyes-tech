@@ -1,4 +1,4 @@
-import { supabase, staffEmail } from "@/lib/supabase";
+import { supabase, signInStaff } from "@/lib/supabase";
 import { getMeta, setMeta, localDb, type LocalStaff } from "./localdb";
 import { setDevice, syncNow, getDevice, configureServer } from "./engine";
 import { supabaseServer } from "./supabaseServer";
@@ -15,9 +15,13 @@ const friendly = (msg: string) =>
 
 export const signIn = async (username: string, password: string): Promise<Me> => {
   if (!supabase) throw new Error("The POS isn't connected to the cloud yet.");
-  const { data, error } = await supabase.auth.signInWithPassword({ email: staffEmail(username), password });
-  if (error) throw new Error(friendly(error.message));
-  return loadMe(data.user.id);
+  let user;
+  try {
+    user = await signInStaff(username, password);
+  } catch (e) {
+    throw new Error(friendly((e as Error).message));
+  }
+  return loadMe(user.id);
 };
 
 /** Turn a signed-in account into the POS user. The person who signs in is also the first cashier: no PIN needed. */

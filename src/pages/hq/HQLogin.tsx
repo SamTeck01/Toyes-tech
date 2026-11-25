@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { supabase, staffEmail, isCloudConfigured } from "@/lib/supabase";
+import { supabase, signInStaff, isCloudConfigured } from "@/lib/supabase";
 import { useHQ, staffAdmin, errMsg } from "@/hq/HQContext";
 import { LogoMark } from "@/components/Logo";
 
@@ -24,8 +24,7 @@ const HQLogin = () => {
     setBusy(true);
     try {
       if (mode === "owner") await staffAdmin({ action: "bootstrap_owner", full_name: f.full_name, username: f.username, password: f.password });
-      const { error: err } = await supabase!.auth.signInWithPassword({ email: staffEmail(f.username), password: f.password });
-      if (err) throw new Error(/invalid login/i.test(err.message) ? "Wrong username or password." : errMsg(err));
+      await signInStaff(f.username, f.password);
       const { data: u } = await supabase!.auth.getUser();
       const { data: staff } = await supabase!.from("staff").select("role,active").eq("id", u.user!.id).maybeSingle();
       if (!staff || !staff.active) {
