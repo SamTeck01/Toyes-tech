@@ -153,8 +153,8 @@ const Lock = ({ storeId, storeName }: { storeId: string; storeName: string }) =>
   const badPin = () => {
     const n = wrong + 1;
     setPin("");
-    if (n >= 5) { setWrong(0); setLockedUntil(Date.now() + 60_000); setError("Too many wrong PINs. Wait a minute."); }
-    else { setWrong(n); setError(`Wrong PIN. ${5 - n} tr${5 - n === 1 ? "y" : "ies"} left.`); }
+    if (n >= 20) { setWrong(0); setLockedUntil(Date.now() + 60_000); setError("Too many wrong PINs. Wait a minute."); }
+    else { setWrong(n); setError(`Wrong PIN. ${20 - n} tr${20 - n === 1 ? "y" : "ies"} left.`); }
   };
   const people = (staff ?? []).filter((s) => s.store_id === storeId || s.role === "super_admin");
   useEffect(() => {
