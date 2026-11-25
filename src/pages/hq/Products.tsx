@@ -130,13 +130,29 @@ const Products = () => {
   const save = async () => {
     if (!form) return;
     if (!form.name.trim()) return toast.error("Enter the product name.");
-    if (!toNumber(form.price)) return toast.error("Enter the selling price.");
     setSaving(true);
     try {
       await rpc("save_store_product", {
         p: { id: form.id ?? "", store_id: form.store_id ?? "", name: form.name, price: toNumber(form.price), add_qty: form.add_qty, category: form.category, condition: form.condition, brand: form.brand, subcategory: form.category === "Gadgets" ? form.subcategory : "", barcode: form.barcode, image: form.image, active: form.active },
       });
       toast.success(form.id ? "Product updated" : `${form.name} added${form.add_qty ? ` with ${form.add_qty} in stock` : ""}`);
+      setForm(null);
+      void load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const removeFromStore = async () => {
+    if (!form?.id || !window.confirm(`Remove ${form.name} from ${storeName(form.store_id ?? null)}? It will stop showing on this store's POS. Sales history is kept.`)) return;
+    setSaving(true);
+    try {
+      await rpc("save_store_product", {
+        p: { id: form.id, store_id: form.store_id ?? "", name: form.name, price: toNumber(form.price), add_qty: 0, category: form.category, condition: form.condition, brand: form.brand, subcategory: form.subcategory, barcode: form.barcode, image: form.image, active: false },
+      });
+      toast.success(`${form.name} removed from this store`);
       setForm(null);
       void load();
     } catch (e) {
@@ -322,6 +338,7 @@ const Products = () => {
           )}
           <div className="border-t border-line p-4">
             <button form="product-form" disabled={saving || uploading} className={cn(btn.primary, "w-full py-3.5 text-base")}>{saving ? "Saving…" : form?.id ? "Save changes" : "Add product"}</button>
+            {form?.id && form.store_id && <button type="button" onClick={removeFromStore} disabled={saving} className="mt-2 w-full rounded-xl py-3 text-sm font-semibold text-red-600 hover:bg-red-50">Remove from this store</button>}
           </div>
         </SheetContent>
       </Sheet>
