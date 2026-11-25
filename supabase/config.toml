@@ -422,3 +422,6 @@ verify_jwt = false
 # notify checks its own callers: the scheduler secret or a signed-in user.
 [functions.notify]
 verify_jwt = false
+
+[functions.login]
+verify_jwt = false
