@@ -31,15 +31,25 @@ const ImportProducts = ({ storeId, storeName, onDone }: { storeId: string; store
 
   const run = async () => {
     if (!data) return;
-    const { data: inv } = await supabase!.from("inventory").select("product_id").eq("store_id", storeId);
+    const [{ data: inv }, { data: store }, { data: taken }] = await Promise.all([
+      supabase!.from("inventory").select("product_id").eq("store_id", storeId),
+      supabase!.from("stores").select("code").eq("id", storeId).single(),
+      supabase!.from("products").select("id,store_id").in("id", data.rows.map((r) => r.id)),
+    ]);
     const already = new Set((inv ?? []).map((i) => i.product_id as string));
+    // A product id belongs to one store. If another branch already uses it, this branch gets its own copy
+    // ("<id>-<store code>", the same naming used when products were copied to every branch).
+    const ownerOf = new Map((taken ?? []).map((t) => [t.id as string, t.store_id as string | null] as const));
+    const code = String(store?.code ?? "").toLowerCase();
+    const idFor = (id: string) => (!ownerOf.has(id) || ownerOf.get(id) === storeId ? id : `${id}-${code}`);
     const failed: { name: string; why: string }[] = [];
     let done = 0;
     setProgress({ done, failed });
     const one = async (r: ImportRow) => {
       try {
-        await rpc("save_store_product", { p: { id: r.id, store_id: storeId, name: r.name, category: r.category, subcategory: r.type, price: r.price, add_qty: already.has(r.id) ? 0 : r.qty } });
-        if (r.low !== null) await rpc("set_store_price", { p_store: storeId, p_product: r.id, p_price: r.price, p_low_stock_at: Math.max(0, Math.floor(r.low)) });
+        const id = idFor(r.id);
+        await rpc("save_store_product", { p: { id, store_id: storeId, name: r.name, category: r.category, subcategory: r.type, price: r.price, add_qty: already.has(id) ? 0 : r.qty } });
+        if (r.low !== null) await rpc("set_store_price", { p_store: storeId, p_product: id, p_price: r.price, p_low_stock_at: Math.max(0, Math.floor(r.low)) });
       } catch (e) {
         failed.push({ name: r.name, why: (e as Error).message });
       }
