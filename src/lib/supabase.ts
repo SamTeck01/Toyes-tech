@@ -23,7 +23,7 @@ export const staffEmail = (login: string) => {
 
 /**
  * Sign a staff member in with their username or their own email. The check happens on the server
- * (so no one can look up emails from usernames) and locks a login for 15 minutes after 5 wrong passwords.
+ * (so no one can look up emails from usernames) and locks a login for 15 minutes after 20 wrong passwords.
  */
 export const signInStaff = async (login: string, password: string) => {
   if (!supabase) throw new Error("Not connected to the cloud yet.");

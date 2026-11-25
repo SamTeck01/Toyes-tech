@@ -1,12 +1,12 @@
 // Staff sign-in by username OR their own email. The browser never learns anyone's email from a username,
-// and wrong passwords lock that login for 15 minutes after 5 tries.
+// and wrong passwords lock that login for 15 minutes after 20 tries.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { corsHeaders, json } from "./cors.ts";
 
 const URL = Deno.env.get("SUPABASE_URL")!;
 const admin = createClient(URL, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
-const MAX_FAILS = 5;
+const MAX_FAILS = 20;
 const LOCK_MINUTES = 15;
 const keyOf = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 const WRONG = "Wrong username or password.";
