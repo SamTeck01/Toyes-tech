@@ -263,7 +263,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                     </div>
                     <label className="mt-2 flex items-center justify-between gap-2 text-xs text-ink/70">
                       <span>Price each{l.product_id && l.unit_price < listOf(l) ? <b className="ml-1 text-emerald-700">−{formatPrice((listOf(l) - l.unit_price) * l.quantity)} discount</b> : null}</span>
-                      <input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => setPrice(i, parseMoney(e.target.value))} onFocus={(e) => e.target.select()} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} enterKeyHint="done" className={`w-28 rounded-lg px-2 py-1.5 text-right text-sm font-semibold text-ink focus:outline-none focus:ring-1 focus:ring-primary ${l.product_id && l.unit_price !== listOf(l) ? "bg-amber-50 ring-1 ring-amber-300" : l.product_id && l.unit_price < listOf(l) ? "" : "bg-stone-50"} ${l.product_id && l.unit_price < listOf(l) ? "bg-emerald-50 ring-1 ring-emerald-300" : ""}`} />
+                      <input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => setPrice(i, parseMoney(e.target.value))} onFocus={(e) => e.target.select()} onBlur={() => { if (!(l.unit_price > 0) && l.product_id && priceOf(l.product_id) > 0) setPrice(i, priceOf(l.product_id)); }} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} enterKeyHint="done" className={`${!(l.unit_price > 0) ? "!bg-red-50 !ring-2 !ring-red-400 " : ""}w-28 rounded-lg px-2 py-1.5 text-right text-sm font-semibold text-ink focus:outline-none focus:ring-1 focus:ring-primary ${l.product_id && l.unit_price !== listOf(l) ? "bg-amber-50 ring-1 ring-amber-300" : l.product_id && l.unit_price < listOf(l) ? "" : "bg-stone-50"} ${l.product_id && l.unit_price < listOf(l) ? "bg-emerald-50 ring-1 ring-emerald-300" : ""}`} />
                     </label>
                   </div>
                 </div>
@@ -495,6 +495,11 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             <DialogDescription>Check the receipt, then confirm payment.</DialogDescription>
           </DialogHeader>
           <div className="rounded-xl border border-line"><PosReceipt sale={preview} /></div>
+          {lines.some((l) => !(l.unit_price > 0)) && (
+            <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              Can't take payment yet: {lines.filter((l) => !(l.unit_price > 0)).map((l) => l.name).join(", ")} {lines.filter((l) => !(l.unit_price > 0)).length === 1 ? "has" : "have"} no price. Tap Cancel and type the price in the sale.
+            </p>
+          )}
           <button autoFocus onClick={() => complete(true)} disabled={!canComplete} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-5 text-lg font-extrabold text-white disabled:opacity-40">
             <Check className="h-6 w-6" /> {paying ? "Saving…" : "Paid · print receipt"} <span className="hidden rounded-md bg-black/20 px-1.5 py-0.5 text-xs font-semibold lg:inline">Enter</span>
           </button>
