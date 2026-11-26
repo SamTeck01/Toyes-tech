@@ -109,7 +109,21 @@ const HQLayout = () => {
             </div>
           </div>
         )}
-        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 md:px-8 md:py-8"><Outlet /></main>
+        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 pb-28 pt-6 md:px-8 md:py-8"><Outlet /></main>
+        {/* Phones: the main sections are always one tap away at the bottom, like a banking app. */}
+        <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+          {[
+            { to: "/admin", label: "Home", icon: LayoutDashboard, end: true },
+            { to: "/admin/sales", label: "Sales", icon: TrendingUp },
+            { to: "/admin/inventory", label: "Stock", icon: Package },
+            { to: "/admin/products", label: "Products", icon: Tag },
+          ].map((t) => (
+            <NavLink key={t.to} to={t.to} end={t.end} className={({ isActive }) => cn("flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold", isActive ? "text-primary" : "text-ink/70")}>
+              <t.icon className="h-6 w-6" />{t.label}
+            </NavLink>
+          ))}
+          <button onClick={() => setOpen(true)} className="flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold text-ink/70"><Menu className="h-6 w-6" />More</button>
+        </nav>
       </div>
     </div>
   );

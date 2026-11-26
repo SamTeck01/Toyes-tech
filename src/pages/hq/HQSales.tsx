@@ -3,14 +3,13 @@ import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useHQ, rpc } from "@/hq/HQContext";
-import { fetchSales, fetchStaffNames, takings, startOfDay, asReceipt, type SaleRow } from "@/hq/data";
+import { fetchSales, fetchStaffNames, startOfDay, asReceipt, type SaleRow } from "@/hq/data";
 import { formatPrice } from "@/lib/format";
 import PosReceipt from "@/pages/pos/PosReceipt";
 import { Pill } from "@/components/hq/kit";
 
 const RANGES = { today: ["Today", 0], yesterday: ["Yesterday", 1], week: ["Last 7 days", 6], month: ["Last 30 days", 29] } as const;
 type Range = keyof typeof RANGES;
-const METHOD = { cash: "Cash", transfer: "Transfer", card: "Card" } as const;
 const card = "rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)] p-5";
 
 const HQSales = () => {
@@ -46,7 +45,6 @@ const HQSales = () => {
 
   const done = (sales ?? []).filter((s) => s.status === "completed");
   const revenue = done.reduce((t, s) => t + s.total, 0);
-  const m = takings(sales ?? []);
   const storeName = (id: string) => stores.find((s) => s.id === id)?.name ?? "Store";
 
   const byCashier = useMemo(() => {
@@ -61,8 +59,8 @@ const HQSales = () => {
   const quickItems = useMemo(() => done.flatMap((s) => s.sale_lines.filter((l) => !l.product_id).map((l) => ({ ...l, store: s.store_id, at: s.created_at }))), [done]);
 
   const exportCsv = () => {
-    const rows = [["Receipt", "Date", "Store", "Cashier", "Items", "Subtotal", "Discount", "Total", "Paid by", "Status", "Made offline"],
-      ...(sales ?? []).map((s) => [s.receipt_no, new Date(s.created_at).toLocaleString("en-NG"), storeName(s.store_id), names.get(s.cashier_id) ?? "", s.sale_lines.map((l) => `${l.quantity}x ${l.name}${l.product_id ? "" : " (quick)"}`).join("; "), s.subtotal, s.discount, s.total, s.payments.map((p) => `${METHOD[p.method]} ${p.amount}`).join("; "), s.status, s.offline ? "yes" : "no"])];
+    const rows = [["Receipt", "Date", "Store", "Cashier", "Items", "Subtotal", "Discount", "Total", "Status", "Made offline"],
+      ...(sales ?? []).map((s) => [s.receipt_no, new Date(s.created_at).toLocaleString("en-NG"), storeName(s.store_id), names.get(s.cashier_id) ?? "", s.sale_lines.map((l) => `${l.quantity}x ${l.name}${l.product_id ? "" : " (quick)"}`).join("; "), s.subtotal, s.discount, s.total, s.status, s.offline ? "yes" : "no"])];
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" }));
@@ -96,9 +94,7 @@ const HQSales = () => {
       <div className="print-area space-y-6">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           <div className={card}><p className="text-sm text-ink/70">Revenue</p><p className="mt-1 text-2xl font-extrabold tabular-nums">{formatPrice(revenue)}</p><p className="text-xs text-ink/70">{done.length} sales</p></div>
-          <div className={card}><p className="text-sm text-ink/70">Cash (net)</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.cash)}</p></div>
-          <div className={card}><p className="text-sm text-ink/70">Transfer</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.transfer)}</p></div>
-          <div className={card}><p className="text-sm text-ink/70">Card</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.card)}</p></div>
+          <div className={card}><p className="text-sm text-ink/70">Discounts given</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice((sales ?? []).filter((s) => s.status === "completed").reduce((t, s) => t + s.discount, 0))}</p></div>
           <div className={card}><p className="text-sm text-ink/70">Refunds</p><p className="mt-1 text-xl font-extrabold">{(sales ?? []).filter((s) => s.status === "refunded").length}</p></div>
         </div>
         <div className="grid gap-6 lg:grid-cols-2">
@@ -132,7 +128,6 @@ const HQSales = () => {
                 </div>
                 <p className="mt-1 truncate text-sm text-ink/70">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                  <Pill>{s.payments.map((p) => METHOD[p.method]).join(" + ")}</Pill>
                   {s.status === "refunded" && <Pill tone="bad">Refunded</Pill>}
                   <span className="ml-auto" />
                   <button onClick={() => setViewing(s)} className="rounded-lg border border-line px-3 py-1.5 text-xs font-bold">Receipt</button>
@@ -143,7 +138,7 @@ const HQSales = () => {
           </ul>
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-left text-sm">
-              <thead className="bg-stone-50 text-xs font-semibold text-ink/70"><tr><th className="px-4 py-3">Receipt</th><th className="px-4 py-3">Time</th><th className="px-4 py-3">Cashier</th><th className="px-4 py-3">Items</th><th className="px-4 py-3">Paid by</th><th className="px-4 py-3 text-right">Total</th><th className="px-4 py-3" /></tr></thead>
+              <thead className="bg-stone-50 text-xs font-semibold text-ink/70"><tr><th className="px-4 py-3">Receipt</th><th className="px-4 py-3">Time</th><th className="px-4 py-3">Cashier</th><th className="px-4 py-3">Items</th><th className="px-4 py-3 text-right">Total</th><th className="px-4 py-3" /></tr></thead>
               <tbody className="divide-y divide-line">
                 {sales.map((s) => (
                   <tr key={s.id} className={s.status === "refunded" ? "text-ink/70" : ""}>
@@ -151,7 +146,6 @@ const HQSales = () => {
                     <td className="whitespace-nowrap px-4 py-3">{new Date(s.created_at).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
                     <td className="whitespace-nowrap px-4 py-3">{names.get(s.cashier_id)}<span className="block text-xs text-ink/70">{storeName(s.store_id)}</span></td>
                     <td className="max-w-[220px] truncate px-4 py-3">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{s.payments.map((p) => METHOD[p.method]).join(" + ")}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-right font-extrabold tabular-nums">{formatPrice(s.total)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-right">
                       <button onClick={() => setViewing(s)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-stone-100">Receipt</button>
