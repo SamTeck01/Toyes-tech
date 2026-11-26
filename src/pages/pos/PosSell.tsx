@@ -273,24 +273,22 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
         )}
       </div>
       <div className="space-y-3 border-t border-line p-4">
+        <div className="flex items-center gap-2 rounded-xl bg-stone-50 p-2.5">
+            <span className="text-sm text-ink/70">Discount</span>
+            <div className="flex rounded-lg bg-white p-0.5 text-xs font-bold ring-1 ring-line">
+              {(["amount", "percent"] as const).map((m) => (
+                <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-ink text-white" : "text-ink/70"}`}>{m === "amount" ? "₦" : "%"}</button>
+              ))}
+            </div>
+            <input aria-label="Discount" inputMode="numeric" placeholder="0" onFocus={(e) => e.target.select()} value={discountMode === "amount" && toNumber(discountInput) ? toNumber(discountInput).toLocaleString("en-NG") : discountInput} onChange={(e) => setDiscountInput(e.target.value.replace(/[^\d.]/g, ""))} className="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-right text-sm font-semibold tabular-nums outline-none focus:border-ink/40" />
+        </div>
         {extrasOpen ? (
-          <div className="space-y-2 rounded-xl bg-stone-50 p-3">
             <div className="grid grid-cols-2 gap-2">
               <input placeholder="Customer name" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} className="rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none focus:border-ink/40" />
               <input placeholder="Phone" inputMode="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} className="rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none focus:border-ink/40" />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-ink/70">Discount</span>
-              <div className="flex rounded-lg bg-white p-0.5 text-xs font-bold ring-1 ring-line">
-                {(["amount", "percent"] as const).map((m) => (
-                  <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-ink text-white" : "text-ink/70"}`}>{m === "amount" ? "₦" : "%"}</button>
-                ))}
-              </div>
-              <input aria-label="Discount" inputMode="numeric" placeholder="0" value={discountMode === "amount" && toNumber(discountInput) ? toNumber(discountInput).toLocaleString("en-NG") : discountInput} onChange={(e) => setDiscountInput(e.target.value.replace(/[^\d.]/g, ""))} className="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-right text-sm font-semibold tabular-nums outline-none focus:border-ink/40" />
-            </div>
-          </div>
         ) : (
-          <button onClick={() => setExtrasOpen(true)} className="text-sm font-semibold text-ink/70 hover:text-ink">+ Customer name or discount</button>
+          <button onClick={() => setExtrasOpen(true)} className="text-sm font-semibold text-ink/70 hover:text-ink">+ Customer name</button>
         )}
         <div className="flex items-baseline justify-between">
           <span className="text-sm font-semibold text-ink/70">Total{discount > 0 ? ` (−${formatPrice(discount)})` : ""}</span>
