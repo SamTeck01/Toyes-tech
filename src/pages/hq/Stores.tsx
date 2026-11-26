@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -58,7 +59,7 @@ const Stores = () => {
               </div>
               <label className="block text-sm font-semibold">Address<input className={`${input} mt-1`} value={editing.address ?? ""} onChange={(e) => setEditing({ ...editing, address: e.target.value })} /></label>
               <label className="block text-sm font-semibold">Phone<input className={`${input} mt-1`} value={editing.phone ?? ""} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} /></label>
-              {editing.id && <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={editing.active ?? true} onChange={(e) => setEditing({ ...editing, active: e.target.checked })} className="h-4 w-4" /> Store is open</label>}
+              {editing.id && <label className="flex items-center gap-2 text-sm font-semibold"><Switch checked={editing.active ?? true} onCheckedChange={(v) => setEditing({ ...editing, active: v })} className="data-[state=checked]:bg-primary" /> Store is open</label>}
               <button disabled={busy} className="w-full rounded-xl bg-primary py-3 font-bold text-white disabled:opacity-60">{busy ? "Saving…" : "Save store"}</button>
             </form>
           )}

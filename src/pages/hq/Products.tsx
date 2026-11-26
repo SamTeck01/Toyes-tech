@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Switch } from "@/components/ui/switch";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
@@ -13,6 +14,8 @@ import { PageHeader, Pill, EmptyState, btn, field, label } from "@/components/hq
 import { Plus, Minus, Search, Image as ImageIcon, Tag, X, ChevronDown } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import ImportProducts from "@/components/hq/ImportProducts";
+import { confirmAction } from "@/components/Confirm";
+import Picker from "@/components/hq/Picker";
 
 interface P {
   id: string;
@@ -146,7 +149,7 @@ const Products = () => {
   };
 
   const removeFromStore = async () => {
-    if (!form?.id || !window.confirm(`Remove ${form.name} from ${storeName(form.store_id ?? null)}? It will stop showing on this store's POS. Sales history is kept.`)) return;
+    if (!form?.id || !(await confirmAction({ title: `Remove ${form.name}?`, body: `It stops showing on ${storeName(form.store_id ?? null)}'s POS. Sales history is kept.`, confirm: "Remove", danger: true }))) return;
     setSaving(true);
     try {
       await rpc("save_store_product", {
@@ -163,7 +166,7 @@ const Products = () => {
   };
 
   const importWebsite = async () => {
-    if (!window.confirm(`Add the ${websiteCatalogue.length} website products as shared products (available to every store)?`)) return;
+    if (!(await confirmAction({ title: `Add the ${websiteCatalogue.length} website products?`, body: "They are added as shared products, available to every store.", confirm: "Add them" }))) return;
     setImporting(true);
     try {
       for (const p of websiteCatalogue) {
@@ -318,16 +321,13 @@ const Products = () => {
                     <label className={label}>Brand<input className={cn(field, "mt-1.5")} value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="e.g. Oraimo" /></label>
                     {form.category === "Gadgets" && (
                       <label className={label}>Gadget type
-                        <select className={cn(field, "mt-1.5")} value={form.subcategory} onChange={(e) => setForm({ ...form, subcategory: e.target.value })}>
-                          <option value="">Choose…</option>
-                          {gadgetTypes.map((t) => <option key={t}>{t}</option>)}
-                        </select>
+                        <div className="mt-1.5"><Picker ariaLabel="Type" placeholder="Choose a type" value={form.subcategory} onChange={(v) => setForm({ ...form, subcategory: v })} options={gadgetTypes.map((t) => ({ value: t, label: t }))} /></div>
                       </label>
                     )}
                     <label className={label}>Barcode<input className={cn(field, "mt-1.5")} value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} placeholder="Click here, then scan the box" /></label>
                     {form.id && (
                       <label className="flex items-center gap-2.5 text-sm font-medium">
-                        <input type="checkbox" className="h-4 w-4 accent-[hsl(var(--primary))]" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
+                        <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} className="data-[state=checked]:bg-primary" />
                         Show on the POS (untick to hide it)
                       </label>
                     )}

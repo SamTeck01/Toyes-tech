@@ -13,6 +13,7 @@ import { formatPrice } from "@/lib/format";
 import PosReceipt from "./PosReceipt";
 import MoneyInput, { parse as parseMoney } from "@/components/MoneyInput";
 import { LogoMark } from "@/components/Logo";
+import { confirmAction } from "@/components/Confirm";
 import { Kbd } from "@/components/hq/kit";
 
 /** Small live clock for the till header. */
@@ -134,11 +135,11 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     return () => window.removeEventListener("keydown", onKey);
   }, [lines.length]);
 
-  const add = (id: string) => {
+  const add = async (id: string) => {
     const p = products.find((x) => x.id === id);
     if (!p) return;
     // Stock counts can be off (e.g. a delivery not yet entered). Warn, but let the sale happen.
-    if (qtyLeft(id) <= 0 && !window.confirm(`The system shows no ${p.name} left in stock. Sell it anyway?`)) return;
+    if (qtyLeft(id) <= 0 && !(await confirmAction({ title: `No ${p.name} left?`, body: "The system shows none in stock at this store. Sell it anyway?", confirm: "Sell anyway" }))) return;
     const inSale = lines.find((l) => l.product_id === id);
     if (!inSale && priceOf(id) <= 0) { setAskPrice({ id, name: p.name, price: "" }); return; }
     setLines((prev) => {
@@ -231,7 +232,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
         <p className="font-bold">Current sale <span className="text-ink/70">({itemCount})</span></p>
         <div className="flex gap-2">
           <button onClick={() => setHeldOpen(true)} className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-bold"><Clock className="h-3.5 w-3.5" /> Held ({held.length})</button>
-          {lines.length > 0 && <button onClick={() => window.confirm("Clear this sale?") && reset()} className="rounded-full px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Clear</button>}
+          {lines.length > 0 && <button onClick={async () => { if (await confirmAction({ title: "Clear this sale?", body: "All items in the current sale will be removed.", confirm: "Clear sale", danger: true })) reset(); }} className="rounded-full px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Clear</button>}
         </div>
       </div>
       <div className="flex-1 overflow-y-auto px-4">
@@ -567,7 +568,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             {[
               { label: "Today's sales", on: () => setHistoryOpen(true) },
               { label: "Sync now", on: () => void syncNow() },
-              { label: "Sign out (switch person)", on: () => { if (window.confirm("Sign out of this POS? The next person signs in with their own username and password.")) signOutTill().catch((e) => toast.error((e as Error).message)); } },
+              { label: "Sign out (switch person)", on: async () => { if (await confirmAction({ title: "Sign out of this POS?", body: "The next person signs in with their own username and password.", confirm: "Sign out" })) signOutTill().catch((e) => toast.error((e as Error).message)); } },
               ...(cashier.role !== "cashier" ? [{ label: "Back to HQ", on: () => { window.location.href = "/admin"; } }] : []),
             ].map((x) => (
               <button key={x.label} onClick={() => { setMenuOpen(false); x.on(); }} className="w-full rounded-xl border border-line px-4 py-3 text-left font-semibold hover:border-black/40">{x.label}</button>

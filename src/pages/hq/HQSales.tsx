@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Picker from "@/components/hq/Picker";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -83,10 +84,7 @@ const HQSales = () => {
           <button key={r} onClick={() => setRange(r)} className={`rounded-full px-4 py-2 text-sm font-bold ${range === r ? "bg-ink text-white shadow-sm" : "border border-line bg-white"}`}>{RANGES[r][0]}</button>
         ))}
         {isOwner && (
-          <select aria-label="Store" value={storeId} onChange={(e) => setStoreId(e.target.value)} className="rounded-full bg-white px-4 py-2 text-sm font-bold ring-1 ring-black/10">
-            <option value="">All stores</option>
-            {stores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
+          <Picker ariaLabel="Store" className="h-10 w-auto min-w-[160px] rounded-full" value={storeId || "all"} onChange={(v) => setStoreId(v === "all" ? "" : v)} options={[{ value: "all", label: "All stores" }, ...stores.map((s) => ({ value: s.id, label: s.name }))]} />
         )}
       </div>
       {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}

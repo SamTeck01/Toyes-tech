@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Picker from "@/components/hq/Picker";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -97,9 +98,7 @@ const Inventory = () => {
           <h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Inventory</h1>
           <p className="text-sm text-ink/70">Each store has its own stock. Stock value: {formatPrice(value)}</p>
         </div>
-        <select aria-label="Store" value={storeId} onChange={(e) => setStoreId(e.target.value)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40">
-          {myStores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
+        <Picker ariaLabel="Store" className="w-auto min-w-[200px]" value={storeId} onChange={setStoreId} options={myStores.map((s) => ({ value: s.id, label: s.name }))} />
       </div>
       <div className="space-y-2 md:flex md:gap-2 md:space-y-0">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or barcode" className="w-full md:min-w-[220px] md:flex-1 rounded-full bg-white px-4 py-2.5 text-sm outline-none ring-1 ring-black/10 focus:ring-primary" />
@@ -170,10 +169,7 @@ const Inventory = () => {
               <>
                 {action?.kind === "transfer" && (
                   <label className="block text-sm font-semibold">To store
-                    <select aria-label="Move to store" required className={`${input} mt-1.5`} value={a.to} onChange={(e) => setA({ ...a, to: e.target.value })}>
-                      <option value="">Choose…</option>
-                      {stores.filter((s) => s.id !== storeId).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </select>
+                    <div className="mt-1.5"><Picker ariaLabel="Move to store" placeholder="Choose a store" value={a.to} onChange={(v) => setA({ ...a, to: v })} options={stores.filter((s) => s.id !== storeId).map((s) => ({ value: s.id, label: s.name }))} /></div>
                   </label>
                 )}
                 <label className="block text-sm font-semibold">{action?.kind === "count" ? "How many are actually on the shelf?" : "Quantity"}

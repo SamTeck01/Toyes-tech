@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Switch } from "@/components/ui/switch";
+import Picker from "@/components/hq/Picker";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
@@ -125,9 +127,7 @@ const Staff = () => {
                       </div>
                     </div>
                     <label className={labelCls}>Store
-                      <select required className={`${input} mt-1.5`} value={form.store_id} disabled={!isOwner} onChange={(e) => setForm({ ...form, store_id: e.target.value })}>
-                        {visibleStores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                      </select>
+                      <div className="mt-1.5"><Picker ariaLabel="Store" disabled={!isOwner} value={form.store_id} onChange={(v) => setForm({ ...form, store_id: v })} options={visibleStores.map((s) => ({ value: s.id, label: s.name }))} /></div>
                     </label>
                   </>
                 )}
@@ -151,7 +151,7 @@ const Staff = () => {
               {form.id && form.id !== me?.id && (
                 <label className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4">
                   <span><span className="block text-sm font-bold">Active</span><span className="block text-xs text-ink/70">Switch off when someone leaves. They're signed out at once.</span></span>
-                  <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="h-5 w-5 accent-[hsl(var(--primary))]" />
+                  <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} className="data-[state=checked]:bg-primary" />
                 </label>
               )}
               {!form.id && form.password && (

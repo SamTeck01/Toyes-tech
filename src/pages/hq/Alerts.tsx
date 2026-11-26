@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Switch } from "@/components/ui/switch";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { rpc } from "@/hq/HQContext";
@@ -70,7 +71,7 @@ const Alerts = () => {
       <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Email alerts</h1><p className="text-sm text-ink/70">Get an email when something happens in any store. Sales made offline are sent as soon as the POS reconnects.</p></div>
 
       <section className="space-y-4 rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)] p-5">
-        <label className="flex items-center gap-2 font-bold"><input type="checkbox" className="h-4 w-4" checked={s.enabled} onChange={(e) => setS({ ...s, enabled: e.target.checked })} /> Send email alerts</label>
+        <label className="flex items-center gap-2 font-bold"><Switch checked={s.enabled} onCheckedChange={(v) => setS({ ...s, enabled: v })} className="data-[state=checked]:bg-primary" /> Send email alerts</label>
         <label className="block text-sm font-semibold">Send to these email addresses (one per line)
           <textarea rows={3} value={recipients} onChange={(e) => setRecipients(e.target.value)} placeholder="owner@gmail.com" className="mt-1.5 w-full rounded-xl border border-line px-3.5 py-2.5 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
         </label>
@@ -78,7 +79,7 @@ const Alerts = () => {
           <legend className="mb-2 text-sm font-semibold">Alert me about</legend>
           <div className="grid gap-2 sm:grid-cols-2">
             {KINDS.map(([k, label]) => (
-              <label key={k} className="flex items-center gap-2 text-sm"><input type="checkbox" className="h-4 w-4" checked={s.kinds[k] !== false} onChange={(e) => setS({ ...s, kinds: { ...s.kinds, [k]: e.target.checked } })} /> {label}</label>
+              <label key={k} className="flex items-center gap-2 text-sm"><Switch checked={s.kinds[k] !== false} onCheckedChange={(v) => setS({ ...s, kinds: { ...s.kinds, [k]: v } })} className="data-[state=checked]:bg-primary" /> {label}</label>
             ))}
           </div>
         </fieldset>
