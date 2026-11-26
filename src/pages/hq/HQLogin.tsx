@@ -62,9 +62,9 @@ const HQLogin = () => {
               {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
               <button disabled={busy} className="w-full rounded-xl bg-primary py-3.5 font-bold text-white disabled:opacity-60">{busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create owner account"}</button>
             </form>
-            <button onClick={() => { setMode(mode === "signin" ? "owner" : "signin"); setError(""); }} className="mt-4 w-full text-center text-sm font-semibold text-ink/50 hover:text-black">
+            {(mode === "owner" || new URLSearchParams(window.location.search).has("setup")) && <button onClick={() => { setMode(mode === "signin" ? "owner" : "signin"); setError(""); }} className="mt-4 w-full text-center text-sm font-semibold text-ink/50 hover:text-black">
               {mode === "signin" ? "First time setting up? Create the owner account" : "Back to sign in"}
-            </button>
+            </button>}
           </>
         )}
       </div>

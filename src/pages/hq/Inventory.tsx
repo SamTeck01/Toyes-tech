@@ -135,7 +135,7 @@ const Inventory = () => {
               <tbody className="divide-y divide-line">
                 {shown.map((r) => (
                   <tr key={r.id}>
-                    <td className="px-4 py-3"><p className="font-semibold">{r.name}</p><p className="text-xs text-ink/45">{r.category} · {r.barcode ?? r.id}</p></td>
+                    <td className="px-4 py-3"><p className="font-semibold">{r.name}</p><p className="text-xs text-ink/45">{r.category}{r.barcode ? ` · ${r.barcode}` : ""}</p></td>
                     <td className={`px-4 py-3 text-right font-extrabold ${r.qty < 0 ? "text-red-600" : r.qty <= r.low ? "text-amber-600" : ""}`}>{r.qty}</td>
                     <td className="px-4 py-3 text-right">{formatPrice(r.price ?? r.base_price)}{r.price != null && r.price !== r.base_price && <span className="block text-[11px] text-ink/45">store price</span>}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-right">

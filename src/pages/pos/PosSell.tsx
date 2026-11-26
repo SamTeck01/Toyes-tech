@@ -559,7 +559,6 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           <div className="mt-6 space-y-2">
             {[
               { label: "Today's sales", on: () => setHistoryOpen(true) },
-              { label: shift ? "Close shift / count cash" : "Open shift", on: () => setShiftOpen(true) },
               { label: "Sync now", on: () => void syncNow() },
               { label: "Sign out (switch person)", on: () => { if (window.confirm("Sign out of this POS? The next person signs in with their own username and password.")) signOutTill().catch((e) => toast.error((e as Error).message)); } },
               ...(cashier.role !== "cashier" ? [{ label: "Back to HQ", on: () => { window.location.href = "/admin"; } }] : []),
