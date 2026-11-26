@@ -68,6 +68,7 @@ import {
   UserGroupIcon,
   UserIcon,
   ViewIcon,
+  ViewOffSlashIcon,
   YoutubeIcon,
   ZapIcon,
 } from "@hugeicons/core-free-icons";
@@ -104,6 +105,7 @@ export const CreditCard = make(CreditCardIcon, "CreditCard");
 export const DollarSign = make(Dollar01Icon, "DollarSign");
 export const Dot = make(CircleIcon, "Dot");
 export const Edit3 = make(Edit02Icon, "Edit3");
+export const EyeOff = make(ViewOffSlashIcon, "EyeOff");
 export const Eye = make(ViewIcon, "Eye");
 export const Facebook = make(Facebook01Icon, "Facebook");
 export const Filter = make(FilterHorizontalIcon, "Filter");

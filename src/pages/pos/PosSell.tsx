@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { localDb, getMeta, setMeta, type LocalSale, type LocalStaff, type SaleLine, type PaymentMethod, type LocalShift } from "@/pos/localdb";
 import { recordSale, computeTotals, subscribe, syncNow, retryFailed, openShift, closeShift, expectedCash, type Device, type SyncStatus } from "@/pos/engine";
-import { setCashier, type Me } from "@/pos/session";
+import { signOutTill, type Me } from "@/pos/session";
 import { searchProducts } from "@/lib/search";
 import { formatPrice } from "@/lib/format";
 import PosReceipt from "./PosReceipt";
@@ -561,7 +561,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               { label: "Today's sales", on: () => setHistoryOpen(true) },
               { label: shift ? "Close shift / count cash" : "Open shift", on: () => setShiftOpen(true) },
               { label: "Sync now", on: () => void syncNow() },
-              { label: "Switch cashier (lock)", on: () => void setCashier(null) },
+              { label: "Sign out (switch person)", on: () => { if (window.confirm("Sign out of this POS? The next person signs in with their own username and password.")) signOutTill().catch((e) => toast.error((e as Error).message)); } },
               ...(cashier.role !== "cashier" ? [{ label: "Back to HQ", on: () => { window.location.href = "/admin"; } }] : []),
             ].map((x) => (
               <button key={x.label} onClick={() => { setMenuOpen(false); x.on(); }} className="w-full rounded-xl border border-line px-4 py-3 text-left font-semibold hover:border-black/40">{x.label}</button>

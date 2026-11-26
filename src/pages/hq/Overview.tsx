@@ -75,7 +75,7 @@ const Overview = () => {
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-white p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
           <div>
             <p className="font-display text-xl font-extrabold">Let's set up your stores</p>
-            <p className="mt-1 text-sm text-ink/55">Add stores → add stock → add staff with PINs → sign in on each store's laptop at /pos.</p>
+            <p className="mt-1 text-sm text-ink/55">Add stores → add stock → add staff → sign in on each store's laptop at /pos.</p>
           </div>
           <Link to="/admin/stores" className={btn.primary}><MapPin className="h-4 w-4" /> Add your first store</Link>
         </div>

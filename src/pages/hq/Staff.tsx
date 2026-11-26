@@ -2,11 +2,26 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import PasswordInput from "@/components/PasswordInput";
+import { field, label as labelCls } from "@/components/hq/kit";
+import { cn } from "@/lib/utils";
 import { useHQ, staffAdmin, type Staff as S } from "@/hq/HQContext";
 import { supabase } from "@/lib/supabase";
 
-const input = "w-full rounded-xl border border-line px-3.5 py-2.5 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5";
+const input = field;
+/** A readable random password: no look-alike letters, 10 characters. */
+const makePassword = () => {
+  const chars = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const a = crypto.getRandomValues(new Uint32Array(10));
+  return Array.from(a, (n) => chars[n % chars.length]).join("");
+};
+const Section = ({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) => (
+  <section className="space-y-3 rounded-2xl border border-line bg-white p-4">
+    <div><h3 className="text-sm font-bold">{title}</h3>{hint && <p className="mt-0.5 text-xs text-ink/50">{hint}</p>}</div>
+    {children}
+  </section>
+);
 type Form = { id?: string; full_name: string; username: string; email: string; password: string; role: "manager" | "cashier"; store_id: string; pin: string; active: boolean };
 
 const Staff = () => {
@@ -47,7 +62,7 @@ const Staff = () => {
       } else {
         await staffAdmin({ action: "create_staff", ...form });
       }
-      toast.success(form.id ? "Staff updated" : `${form.full_name} added. They can now unlock the POS with their PIN.`);
+      toast.success(form.id ? "Staff updated" : `${form.full_name} added. They sign in with their username or email.`);
       setForm(null);
       void load();
     } catch (e) {
@@ -64,7 +79,7 @@ const Staff = () => {
     <div className="space-y-5">
       <Helmet><title>Staff | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Staff</h1><p className="text-sm text-ink/55">Cashiers unlock the POS with their PIN. Managers can also sign in here.</p></div>
+        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Staff</h1><p className="text-sm text-ink/55">Everyone signs in with their own username (or email) and password. Cashiers use the POS only; managers can also use HQ.</p></div>
         <button onClick={() => setForm({ full_name: "", username: "", email: "", password: "", role: "cashier", store_id: visibleStores[0]?.id ?? "", pin: "", active: true })} disabled={!visibleStores.length} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50 disabled:opacity-40">+ Add staff</button>
       </div>
       <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
@@ -75,13 +90,10 @@ const Staff = () => {
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{s.full_name[0]}</span>
                 <div className="min-w-0 flex-1">
                   <p className={`font-semibold ${s.active ? "" : "text-ink/40 line-through"}`}>{s.full_name}</p>
-                  <p className="text-xs text-ink/50"><span className="capitalize">{s.role.replace("_", " ")}</span> · {storeName(s.store_id)} · @{s.username}{(s as S & { email?: string | null }).email ? ` · ${(s as S & { email?: string | null }).email}` : ""}{!s.pin_hash && s.role !== "super_admin" ? " · no PIN" : ""}</p>
+                  <p className="text-xs text-ink/50"><span className="capitalize">{s.role.replace("_", " ")}</span> · {storeName(s.store_id)} · @{s.username}{(s as S & { email?: string | null }).email ? ` · ${(s as S & { email?: string | null }).email}` : ""}</p>
                 </div>
                 {s.role !== "super_admin" && (isOwner || s.role === "cashier") && (
                   <button onClick={() => setForm({ id: s.id, full_name: s.full_name, username: s.username, email: (s as S & { email?: string | null }).email ?? "", password: "", role: s.role as "manager" | "cashier", store_id: s.store_id ?? "", pin: "", active: s.active })} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-stone-100">Edit</button>
-                )}
-                {s.role === "super_admin" && s.id === me?.id && (
-                  <button onClick={() => setForm({ id: s.id, full_name: s.full_name, username: s.username, email: (s as S & { email?: string | null }).email ?? "", password: "", role: "manager", store_id: "", pin: "", active: true })} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-stone-100">Set my PIN</button>
                 )}
               </li>
             ))}
@@ -89,42 +101,69 @@ const Staff = () => {
         )}
       </section>
 
-      <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
-        <DialogContent className="max-h-[92dvh] max-w-md overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{form?.id ? `Edit ${form.full_name}` : "Add staff"}</DialogTitle>
-            <DialogDescription>{form?.id ? "Leave PIN and password blank to keep them." : "They sign in with their username (or email) and password. The PIN is for switching cashier on the POS."}</DialogDescription>
-          </DialogHeader>
+      <Sheet open={!!form} onOpenChange={(o) => !o && setForm(null)}>
+        <SheetContent side="right" className="w-full overflow-y-auto bg-stone-50 p-0 sm:max-w-lg">
+          <SheetHeader className="border-b border-line bg-white px-5 py-4 text-left">
+            <SheetTitle className="font-display text-xl font-extrabold">{form?.id ? `Edit ${form.full_name}` : "Add staff"}</SheetTitle>
+            <SheetDescription>{form?.id ? "Change only what you need. Leave the password empty to keep it." : "Create their account in two short steps."}</SheetDescription>
+          </SheetHeader>
           {form && (
-            <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); void save(); }}>
-              <label className="block text-sm font-semibold">Full name<input autoFocus required className={`${input} mt-1`} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></label>
-              {!form.id && <label className="block text-sm font-semibold">Username<input required className={`${input} mt-1`} autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="e.g. tolu" /></label>}
-              <label className="block text-sm font-semibold">Their email <span className="font-normal text-ink/45">(optional, they can sign in with it too)</span><input type="email" autoCapitalize="none" className={`${input} mt-1`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="e.g. tolu@gmail.com" /></label>
-              {!(form.id === me?.id) && (
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="block text-sm font-semibold">Role
-                    <select className={`${input} mt-1`} value={form.role} disabled={!isOwner} onChange={(e) => setForm({ ...form, role: e.target.value as Form["role"] })}>
-                      <option value="cashier">Cashier</option>{isOwner && <option value="manager">Manager</option>}
-                    </select>
-                  </label>
-                  <label className="block text-sm font-semibold">Store
-                    <select required className={`${input} mt-1`} value={form.store_id} disabled={!isOwner} onChange={(e) => setForm({ ...form, store_id: e.target.value })}>
-                      {visibleStores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </select>
-                  </label>
+            <form className="space-y-4 p-5" onSubmit={(e) => { e.preventDefault(); void save(); }}>
+              <Section title="1. Who are they?">
+                <label className={labelCls}>Full name<input autoFocus required className={`${input} mt-1.5`} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} placeholder="e.g. Tolu Ade" /></label>
+                {!(form.id === me?.id) && (
+                  <>
+                    <div>
+                      <p className={labelCls}>Role</p>
+                      <div className="mt-1.5 grid grid-cols-2 gap-2">
+                        {(["cashier", "manager"] as const).filter((r) => r === "cashier" || isOwner).map((r) => (
+                          <button key={r} type="button" onClick={() => setForm({ ...form, role: r })} className={cn("rounded-xl border p-3 text-left transition", form.role === r ? "border-ink bg-ink text-white" : "border-line bg-white hover:border-ink/30")}>
+                            <span className="block text-sm font-bold capitalize">{r}</span>
+                            <span className={cn("block text-xs", form.role === r ? "text-white/70" : "text-ink/50")}>{r === "cashier" ? "Sells on the POS only" : "POS + HQ for their store"}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <label className={labelCls}>Store
+                      <select required className={`${input} mt-1.5`} value={form.store_id} disabled={!isOwner} onChange={(e) => setForm({ ...form, store_id: e.target.value })}>
+                        {visibleStores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      </select>
+                    </label>
+                  </>
+                )}
+              </Section>
+
+              <Section title="2. How they sign in" hint="They can type their username or their email, with the password.">
+                {!form.id
+                  ? <label className={labelCls}>Username<input required className={`${input} mt-1.5`} autoCapitalize="none" autoComplete="off" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="e.g. tolu (no spaces)" /></label>
+                  : <p className="text-sm">Username: <b>@{form.username}</b></p>}
+                <label className={labelCls}>Email <span className="font-normal text-ink/45">· optional</span><input type="email" autoCapitalize="none" autoComplete="off" className={`${input} mt-1.5`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="e.g. tolu@gmail.com" /></label>
+                <div>
+                  <div className="flex items-end justify-between">
+                    <span className={labelCls}>{form.id ? "New password" : "Password"} <span className="font-normal text-ink/45">· 8+ characters</span></span>
+                    <button type="button" onClick={() => setForm({ ...form, password: makePassword() })} className="text-xs font-bold text-primary hover:underline">Generate one</button>
+                  </div>
+                  <div className="mt-1.5"><PasswordInput minLength={8} autoComplete="new-password" className={input} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required={!form.id} placeholder={form.id ? "Leave empty to keep it" : "Type or generate a password"} /></div>
                 </div>
+              </Section>
+
+
+              {form.id && form.id !== me?.id && (
+                <label className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4">
+                  <span><span className="block text-sm font-bold">Active</span><span className="block text-xs text-ink/50">Switch off when someone leaves. They're signed out at once.</span></span>
+                  <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="h-5 w-5 accent-[hsl(var(--primary))]" />
+                </label>
               )}
-              <div className="grid grid-cols-2 gap-2">
-                <label className="block text-sm font-semibold">POS PIN (4–6 digits)<input inputMode="numeric" maxLength={6} className={`${input} mt-1 tracking-widest`} value={form.pin} onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })} required={!form.id} /></label>
-                <label className="block text-sm font-semibold">{form.id ? "New password" : "Password"}<input type="password" minLength={8} autoComplete="new-password" className={`${input} mt-1`} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required={!form.id} placeholder="8+ characters" /></label>
+              {!form.id && form.password && (
+                <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-900">Write down or send them the password now. For security it can't be shown again later (you can always set a new one).</p>
+              )}
+              <div className="sticky bottom-0 -mx-5 border-t border-line bg-stone-50/95 px-5 py-4 backdrop-blur">
+                <button disabled={busy} className="w-full rounded-xl bg-primary py-3.5 font-bold text-white shadow-lg shadow-primary/20 disabled:opacity-60">{busy ? "Saving…" : form.id ? "Save changes" : "Create account"}</button>
               </div>
-              {form.id && form.id !== me?.id && <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="h-4 w-4" /> Active (untick when someone leaves)</label>}
-              <p className="text-xs text-ink/50">POS computers pick up new staff and PIN changes next time they're online.</p>
-              <button disabled={busy} className="w-full rounded-xl bg-primary py-3 font-bold text-white disabled:opacity-60">{busy ? "Saving…" : "Save"}</button>
             </form>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

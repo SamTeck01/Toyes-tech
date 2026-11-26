@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PasswordInput from "@/components/PasswordInput";
 import { Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase, signInStaff, isCloudConfigured } from "@/lib/supabase";
@@ -56,8 +57,8 @@ const HQLogin = () => {
             <form onSubmit={submit} className="mt-6 space-y-3">
               {mode === "owner" && <input className={input} placeholder="Your full name" value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} required />}
               <input className={input} placeholder={mode === "owner" ? "Username (no spaces)" : "Username or email"} autoComplete="username" autoCapitalize="none" value={f.username} onChange={(e) => setF({ ...f, username: e.target.value })} required />
-              <input className={input} placeholder="Password" type="password" autoComplete={mode === "owner" ? "new-password" : "current-password"} minLength={mode === "owner" ? 8 : undefined} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} required />
-              {mode === "owner" && <input className={input} placeholder="Confirm password" type="password" autoComplete="new-password" value={f.confirm} onChange={(e) => setF({ ...f, confirm: e.target.value })} required />}
+              <PasswordInput className={input} placeholder="Password" autoComplete={mode === "owner" ? "new-password" : "current-password"} minLength={mode === "owner" ? 8 : undefined} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} required />
+              {mode === "owner" && <PasswordInput className={input} placeholder="Confirm password" autoComplete="new-password" value={f.confirm} onChange={(e) => setF({ ...f, confirm: e.target.value })} required />}
               {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
               <button disabled={busy} className="w-full rounded-xl bg-primary py-3.5 font-bold text-white disabled:opacity-60">{busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create owner account"}</button>
             </form>

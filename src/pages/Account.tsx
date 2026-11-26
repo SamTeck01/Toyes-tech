@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PasswordInput from "@/components/PasswordInput";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { LogOut, Package, Heart, MapPin, ChevronRight } from "@/components/icons";
@@ -64,7 +65,7 @@ const AuthForms = () => {
           <input required type="email" className={`${inputCls} mt-1.5`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="email" />
         </label>
         <label className="block text-sm font-medium">Password
-          <input required type="password" minLength={6} className={`${inputCls} mt-1.5`} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete={mode === "signin" ? "current-password" : "new-password"} />
+          <PasswordInput required minLength={6} className={`${inputCls} mt-1.5`} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} autoComplete={mode === "signin" ? "current-password" : "new-password"} />
         </label>
         {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
         <button disabled={busy} className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition hover:opacity-90 disabled:opacity-60">

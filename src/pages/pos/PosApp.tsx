@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import PasswordInput from "@/components/PasswordInput";
 import { Helmet } from "react-helmet-async";
 import { useLiveQuery } from "dexie-react-hooks";
 import { isCloudConfigured } from "@/lib/supabase";
 import { localDb, type LocalStaff } from "@/pos/localdb";
-import { configureServer, getDevice, startSync, checkPin } from "@/pos/engine";
+import { configureServer, getDevice, startSync } from "@/pos/engine";
 import { supabaseServer } from "@/pos/supabaseServer";
-import { getMe, signIn, listStores, setupTill, setCashier, getCashier, signOutTill, resumeFromSession } from "@/pos/session";
+import { getMe, signIn, listStores, setupTill, setCashier, getCashier, resumeFromSession } from "@/pos/session";
+import { supabase } from "@/lib/supabase";
+import { setMeta } from "@/pos/localdb";
 import PosSell from "./PosSell";
 import { LogoMark } from "@/components/Logo";
 
@@ -79,7 +82,7 @@ const SignIn = () => {
         }}
       >
         <input className={inputCls} placeholder="Username or email" autoComplete="username" autoCapitalize="none" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
-        <input className={inputCls} placeholder="Password" type="password" autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+        <PasswordInput className={inputCls} placeholder="Password" autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
         {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <button disabled={busy} className="w-full rounded-xl bg-primary py-3.5 font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-60">{busy ? "Signing in…" : "Sign in"}</button>
       </form>
@@ -134,109 +137,6 @@ const ChooseStore = ({ role, storeId }: { role: string; storeId: string | null }
   );
 };
 
-/** Cashier picks their name and enters their PIN. Works offline (PINs are checked against cached hashes). */
-const Lock = ({ storeId, storeName }: { storeId: string; storeName: string }) => {
-  const staff = useLiveQuery(() => localDb.staff.toArray(), []);
-  const [who, setWho] = useState<LocalStaff | null>(null);
-  const [pin, setPin] = useState("");
-  const [error, setError] = useState("");
-  const [signingOut, setSigningOut] = useState("");
-  const [wrong, setWrong] = useState(0);
-  const [lockedUntil, setLockedUntil] = useState(0);
-  const [, tick] = useState(0);
-  useEffect(() => {
-    if (lockedUntil <= Date.now()) return;
-    const t = setInterval(() => tick((n) => n + 1), 1000);
-    return () => clearInterval(t);
-  }, [lockedUntil]);
-  const locked = lockedUntil > Date.now();
-  const badPin = () => {
-    const n = wrong + 1;
-    setPin("");
-    if (n >= 20) { setWrong(0); setLockedUntil(Date.now() + 60_000); setError("Too many wrong PINs. Wait a minute."); }
-    else { setWrong(n); setError(`Wrong PIN. ${20 - n} tr${20 - n === 1 ? "y" : "ies"} left.`); }
-  };
-  const people = (staff ?? []).filter((s) => s.store_id === storeId || s.role === "super_admin");
-  useEffect(() => {
-    if (!who && people.length === 1) setWho(people[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [people.length]);
-
-  const tryPin = async (value: string) => {
-    if (!who) return;
-    if (await checkPin(who, value)) {
-      await setCashier(who);
-    } else if (value.length === 6) badPin();
-  };
-
-  return (
-    <Shell store={storeName}>
-      <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">{who ? `Hi ${who.full_name.split(" ")[0]}` : "Who's selling?"}</h1>
-      <p className="mt-1 text-sm text-ink/55">{storeName}</p>
-      {!who ? (
-        <>
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            {people.map((s) => (
-              <button key={s.id} onClick={() => { setWho(s); setPin(""); setError(""); }} className="group rounded-2xl border border-line bg-white p-4 text-left shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-md">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 text-base font-bold text-primary transition group-hover:from-primary group-hover:to-red-700 group-hover:text-white">{s.full_name[0]}</span>
-                <span className="mt-2 block font-bold leading-tight">{s.full_name}</span>
-                <span className="text-xs capitalize text-ink/45">{s.role.replace("_", " ")}{!s.pin_hash ? " · no PIN set" : ""}</span>
-              </button>
-            ))}
-          </div>
-          {people.length === 0 && <p className="mt-6 text-sm text-ink/55">No staff found for this store yet. Add staff in the admin, then reconnect.</p>}
-          <button
-            onClick={async () => { try { await signOutTill(); } catch (e) { setSigningOut((e as Error).message); } }}
-            className="mt-6 w-full text-sm font-semibold text-ink/50 hover:text-black"
-          >
-            Sign this POS out
-          </button>
-          {signingOut && <p className="mt-2 text-center text-sm text-red-700">{signingOut}</p>}
-        </>
-      ) : !who.pin_hash ? (
-        <div className="mt-6 space-y-3">
-          <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">{who.full_name} has no PIN yet. A manager can set one in the admin under Staff.</p>
-          <button onClick={() => setWho(null)} className="w-full rounded-xl border border-line py-3 font-bold">Back</button>
-        </div>
-      ) : (
-        <div className="mt-6">
-          <div className="mb-4 flex justify-center gap-3" aria-label={`${pin.length} digits entered`}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <span key={i} className={`h-3.5 w-3.5 rounded-full transition ${i < pin.length ? "scale-110 bg-ink" : "bg-stone-300"}`} />
-            ))}
-          </div>
-          {(error || locked) && <p role="alert" className="mb-3 text-center text-sm font-semibold text-red-600">{locked ? `Too many wrong PINs. Try again in ${Math.ceil((lockedUntil - Date.now()) / 1000)}s.` : error}</p>}
-          <div className="grid grid-cols-3 gap-2">
-            {["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "✓"].map((k) => (
-              <button
-                key={k}
-                disabled={locked}
-                onClick={async () => {
-                  if (locked) return;
-                  setError("");
-                  if (k === "⌫") return setPin((p) => p.slice(0, -1));
-                  if (k === "✓") {
-                    if (await checkPin(who, pin)) await setCashier(who);
-                    else badPin();
-                    return;
-                  }
-                  const next = (pin + k).slice(0, 6);
-                  setPin(next);
-                  if (next.length >= 4) await tryPin(next);
-                }}
-                className="rounded-2xl border border-line bg-white py-4 font-display text-2xl font-bold shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:bg-stone-50 active:scale-95 active:bg-stone-100 disabled:opacity-40"
-              >
-                {k}
-              </button>
-            ))}
-          </div>
-          <button onClick={() => setWho(null)} className="mt-4 w-full text-sm font-semibold text-ink/50">Not you?</button>
-        </div>
-      )}
-    </Shell>
-  );
-};
-
 const PosApp = () => {
   const me = useLiveQuery(getMe, [], undefined);
   const device = useLiveQuery(getDevice, [], undefined);
@@ -246,11 +146,31 @@ const PosApp = () => {
     configureServer(supabaseServer);
     startSync();
   }, []);
+  // The POS always follows who is signed in on this browser: sign out of HQ and the POS is signed out too;
+  // sign in as someone else and the POS sells as them. No PINs.
   const [resuming, setResuming] = useState(true);
   useEffect(() => {
-    if (me === null) resumeFromSession().finally(() => setResuming(false));
-    else if (me) setResuming(false);
-  }, [me]);
+    if (!supabase) return;
+    const sync = async () => {
+      const { data } = await supabase!.auth.getSession();
+      const uid = data.session?.user.id;
+      const current = await getMe();
+      if (!uid) {
+        if (current) { await setMeta("me", null); await setMeta("cashier", null); }
+      } else if (!current || current.id !== uid) {
+        await resumeFromSession();
+      }
+      setResuming(false);
+    };
+    void sync();
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => { if (event !== "TOKEN_REFRESHED") void sync(); });
+    const onFocus = () => void sync();
+    window.addEventListener("focus", onFocus);
+    return () => { sub.subscription.unsubscribe(); window.removeEventListener("focus", onFocus); };
+  }, []);
+  useEffect(() => {
+    if (me && cashier !== undefined && (!cashier || cashier.id !== me.id)) void setCashier(me);
+  }, [me, cashier]);
 
   if (!isCloudConfigured) {
     return (
@@ -263,7 +183,7 @@ const PosApp = () => {
   if (me === undefined || device === undefined || cashier === undefined) return <div className="min-h-[100dvh] bg-stone-100" />;
   if (!me) return resuming ? <div className="min-h-[100dvh] bg-stone-100" /> : <SignIn />;
   if (!device) return <ChooseStore role={me.role} storeId={me.store_id} />;
-  if (!cashier) return <Lock storeId={device.store_id} storeName={device.store_name} />;
+  if (!cashier) return <div className="min-h-[100dvh] bg-stone-100" />;
   return <PosSell device={device} cashier={cashier} me={me} />;
 };
 
