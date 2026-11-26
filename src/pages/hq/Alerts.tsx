@@ -10,7 +10,6 @@ const KINDS: [string, string][] = [
   ["refund", "Refunds"],
   ["low_stock", "Low stock"],
   ["negative_stock", "Stock went below zero (needs checking)"],
-  ["shift_short", "Cash short at end of shift"],
   ["daily_summary", "End-of-day summary for every store"],
 ];
 type Settings = { enabled: boolean; recipients: string[]; kinds: Record<string, boolean> };

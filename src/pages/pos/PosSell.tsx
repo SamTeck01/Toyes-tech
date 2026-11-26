@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { ArrowLeft, Search, Plus, Minus, Trash2, X, ShoppingCart, Clock, Check, Menu } from "@/components/icons";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { localDb, getMeta, setMeta, type LocalSale, type LocalStaff, type SaleLine, type PaymentMethod, type LocalShift } from "@/pos/localdb";
-import { recordSale, computeTotals, subscribe, syncNow, retryFailed, openShift, closeShift, expectedCash, type Device, type SyncStatus } from "@/pos/engine";
+import { localDb, getMeta, setMeta, type LocalSale, type LocalStaff, type SaleLine, type PaymentMethod } from "@/pos/localdb";
+import { recordSale, computeTotals, subscribe, syncNow, retryFailed, type Device, type SyncStatus } from "@/pos/engine";
 import { signOutTill, type Me } from "@/pos/session";
 import { searchProducts } from "@/lib/search";
 import { formatPrice } from "@/lib/format";
@@ -72,7 +72,6 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     return localDb.sales.where("created_at").aboveOrEqual(start.toISOString()).reverse().toArray();
   }, [], []);
   const held = useLiveQuery(() => getMeta<Held[]>("held", []), [], []);
-  const shift = useLiveQuery(async () => (await localDb.shifts.where("cashier_id").equals(cashier.id).toArray()).find((s) => !s.closed_at) ?? null, [cashier.id], undefined);
 
   const [query, setQuery] = useState("");
   const [dept, setDept] = useState("All");
@@ -94,7 +93,6 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
   const [menuOpen, setMenuOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [heldOpen, setHeldOpen] = useState(false);
-  const [shiftOpen, setShiftOpen] = useState(false);
   const [reprint, setReprint] = useState<LocalSale | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -102,6 +100,13 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
   const qtyLeft = (id: string) => (stock.get(id)?.qty ?? 0) - lines.filter((l) => l.product_id === id).reduce((s, l) => s + l.quantity, 0);
 
   const stock = useMemo(() => new Map(inventory.map((i) => [i.product_id, i] as const)), [inventory]);
+  // Best sellers first (last 500 sales on this POS): busy counters find popular items without scrolling.
+  const soldCount = useLiveQuery(async () => {
+    const m = new Map<string, number>();
+    for (const sale of await localDb.sales.orderBy("created_at").reverse().limit(500).toArray())
+      for (const l of sale.lines) if (l.product_id) m.set(l.product_id, (m.get(l.product_id) ?? 0) + l.quantity);
+    return m;
+  }, [], new Map<string, number>());
   const visible = useMemo(() => {
     const asProducts = products.map((p) => ({ ...p, price: p.base_price, inStock: true, stock: 0 }) as unknown as Product);
     const base = query.trim() ? searchProducts(asProducts, query).map((p) => products.find((x) => x.id === p.id)!) : products;
@@ -109,8 +114,9 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
     const list = [...barcodeHit, ...base.filter((p) => !barcodeHit.includes(p))].filter((p) => dept === "All" || typeOf(p) === dept);
     // Items this store actually has come first; when not searching, keep them in name order.
     const inStock = (id: string) => ((stock.get(id)?.qty ?? 0) > 0 ? 0 : 1);
-    return query.trim() ? list : [...list].sort((a, b) => inStock(a.id) - inStock(b.id) || a.name.localeCompare(b.name));
-  }, [products, query, dept, stock]);
+    const sold = (id: string) => soldCount.get(id) ?? 0;
+    return query.trim() ? list : [...list].sort((a, b) => inStock(a.id) - inStock(b.id) || sold(b.id) - sold(a.id) || a.name.localeCompare(b.name));
+  }, [products, query, dept, stock, soldCount]);
   // Category chips come from the products themselves, biggest first.
   const depts = useMemo(() => {
     const n = new Map<string, number>();
@@ -249,9 +255,9 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <div className="flex items-center rounded-xl border border-line">
-                        <button aria-label="Decrease" onClick={() => setQty(i, l.quantity - 1)} className="flex h-10 w-10 items-center justify-center"><Minus className="h-4 w-4" /></button>
+                        <button aria-label="Decrease" onClick={() => setQty(i, l.quantity - 1)} className="flex h-12 w-12 items-center justify-center"><Minus className="h-5 w-5" /></button>
                         <span className="w-8 text-center text-base font-extrabold">{l.quantity}</span>
-                        <button aria-label="Increase" onClick={() => setQty(i, l.quantity + 1)} className="flex h-10 w-10 items-center justify-center"><Plus className="h-4 w-4" /></button>
+                        <button aria-label="Increase" onClick={() => setQty(i, l.quantity + 1)} className="flex h-12 w-12 items-center justify-center"><Plus className="h-5 w-5" /></button>
                       </div>
                       <span className="text-base font-extrabold tabular-nums">{formatPrice(l.unit_price * l.quantity)}</span>
                     </div>
@@ -290,12 +296,10 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           <span className="text-sm font-semibold text-ink/60">Total{discount > 0 ? ` (−${formatPrice(discount)})` : ""}</span>
           <span className="font-display text-[32px] font-extrabold leading-none tracking-tight tabular-nums">{formatPrice(total)}</span>
         </div>
-        <button onClick={() => { if (method === "split") setMethod("cash"); setPayOpen(true); }} disabled={!lines.length} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-lg font-extrabold text-white shadow-lg shadow-primary/25 transition hover:brightness-110 disabled:opacity-40 disabled:shadow-none">
+        <button onClick={() => { if (method === "split") setMethod("cash"); setPayOpen(true); }} disabled={!lines.length} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-5 text-xl font-extrabold text-white shadow-lg shadow-primary/25 transition hover:brightness-110 disabled:opacity-40 disabled:shadow-none">
           Charge {lines.length ? formatPrice(total) : ""} <span className="hidden lg:inline"><Kbd dark>F9</Kbd></span>
         </button>
-        <div className="flex justify-between text-sm font-semibold text-ink/55">
-          <button onClick={holdSale} disabled={!lines.length} className="hover:text-ink disabled:opacity-40">Put on hold</button>
-        </div>
+        <button onClick={holdSale} disabled={!lines.length} className="w-full rounded-2xl border border-line bg-white py-3.5 text-base font-bold text-ink/80 transition hover:bg-stone-50 disabled:opacity-40">Put on hold (next customer)</button>
       </div>
     </div>
   );
@@ -337,17 +341,17 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") onSearchEnter(); if (e.key === "Escape") setQuery(""); }}
                   placeholder="Search or scan"
-                  className="w-full rounded-xl border border-line bg-stone-50 py-3 pl-12 pr-10 text-[15px] outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5 focus:bg-white"
+                  className="w-full rounded-xl border border-line bg-stone-50 py-4 pl-12 text-base pr-10 text-[15px] outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5 focus:bg-white"
                 />
                 {query && <button aria-label="Clear search" onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 p-1"><X className="h-4 w-4" /></button>}
               </div>
-              <button onClick={() => { setQuick({ name: "", price: "", qty: "1" }); setQuickOpen(true); }} className="flex shrink-0 items-center gap-2 rounded-xl bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/90">
+              <button onClick={() => { setQuick({ name: "", price: "", qty: "1" }); setQuickOpen(true); }} className="flex shrink-0 items-center gap-2 rounded-xl bg-ink px-5 text-base font-bold text-white transition hover:bg-ink/90">
                 <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Quick sale</span><span className="sm:hidden">Quick</span> <span className="hidden lg:inline"><Kbd dark>F4</Kbd></span>
               </button>
             </div>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {depts.map((d) => (
-                <button key={d} onClick={() => setDept(d)} className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${dept === d ? "bg-ink text-white shadow-sm" : "bg-stone-100 text-ink/65"}`}>{d}</button>
+                <button key={d} onClick={() => setDept(d)} className={`shrink-0 rounded-full px-5 py-3 text-[15px] font-bold ${dept === d ? "bg-ink text-white shadow-sm" : "bg-stone-100 text-ink/65"}`}>{d}</button>
               ))}
             </div>
           </div>
@@ -366,21 +370,21 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                   return (
                     <div key={p.id} className="relative">
                     <button onClick={() => add(p.id)} aria-label={`Add ${p.name}`} className={`group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-white text-left shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 ${inCart > 0 ? "border-primary ring-2 ring-primary/15" : "border-line hover:border-ink/20"}`}>
-                      <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
+                      <div className={`relative overflow-hidden bg-stone-100 ${p.image ? "aspect-[4/3]" : "h-14"}`}>
                         {p.image && <img src={p.image} alt="" loading="lazy" className={`h-full w-full object-cover transition duration-300 group-hover:scale-[1.03] ${left <= 0 ? "opacity-50 grayscale" : ""}`} />}
                         {left <= 0 && <span className="absolute left-2 top-2 rounded-md bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold text-ink/60 backdrop-blur">Not in stock here</span>}
                       </div>
                       {inCart > 0 && <span className="absolute right-2 top-2 flex h-7 min-w-7 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-white shadow-lg shadow-primary/30">{inCart}</span>}
                       <div className="flex flex-1 flex-col p-3">
-                        <p className="line-clamp-2 text-sm font-bold leading-tight">{p.name}</p>
+                        <p className="line-clamp-2 text-[15px] font-bold leading-tight">{p.name}</p>
                         <p className="mt-0.5 text-[11px] text-ink/45">{[p.condition, p.barcode && !/^PRD-/i.test(p.barcode) ? p.barcode : null].filter(Boolean).join(" · ")}</p>
                         <div className="mt-auto flex items-end justify-between pt-2">
-                          {priceOf(p.id) > 0 ? <span className="text-base font-extrabold tabular-nums">{formatPrice(priceOf(p.id))}</span> : <span className="text-sm font-bold text-amber-700">Enter price</span>}
+                          {priceOf(p.id) > 0 ? <span className="text-lg font-extrabold tabular-nums">{formatPrice(priceOf(p.id))}</span> : <span className="text-sm font-bold text-amber-700">Enter price</span>}
                           {left > 0 && <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${left <= 3 ? "bg-amber-50 text-amber-700" : "bg-stone-100 text-ink/55"}`}>{left} left</span>}
                         </div>
                       </div>
                     </button>
-                    {inCart > 0 && <button aria-label={`Remove one ${p.name}`} onClick={() => removeOne(p.id)} className="absolute left-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-ink shadow-md ring-1 ring-line active:scale-95"><Minus className="h-4 w-4" /></button>}
+                    {inCart > 0 && <button aria-label={`Remove one ${p.name}`} onClick={() => removeOne(p.id)} className="absolute left-2 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink shadow-md ring-1 ring-line active:scale-95"><Minus className="h-4 w-4" /></button>}
                     </div>
                   );
                 })}
@@ -415,7 +419,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white p-3 lg:hidden">
-        <button onClick={() => setCartSheet(true)} className="flex w-full items-center justify-between rounded-xl bg-primary px-5 py-4 text-white">
+        <button onClick={() => setCartSheet(true)} className="flex w-full items-center justify-between rounded-2xl bg-primary px-5 py-5 text-lg text-white">
           <span className="font-bold">View sale ({itemCount})</span>
           <span className="text-lg font-extrabold tabular-nums">{formatPrice(total)}</span>
         </button>
@@ -491,12 +495,12 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             <DialogDescription>Check the receipt, then confirm payment.</DialogDescription>
           </DialogHeader>
           <div className="rounded-xl border border-line"><PosReceipt sale={preview} /></div>
-          <button autoFocus onClick={() => complete(true)} disabled={!canComplete} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-extrabold text-white disabled:opacity-40">
-            <Check className="h-5 w-5" /> {paying ? "Saving…" : "Paid · print receipt"}
+          <button autoFocus onClick={() => complete(true)} disabled={!canComplete} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-5 text-lg font-extrabold text-white disabled:opacity-40">
+            <Check className="h-6 w-6" /> {paying ? "Saving…" : "Paid · print receipt"} <span className="hidden text-xs font-semibold opacity-70 lg:inline">Enter</span>
           </button>
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => complete(false)} disabled={!canComplete} className="rounded-xl border border-line py-3 text-sm font-bold disabled:opacity-40">Paid · don't print</button>
-            <button onClick={() => setPayOpen(false)} disabled={paying} className="rounded-xl border border-line py-3 text-sm font-bold text-ink/60">Cancel</button>
+            <button onClick={() => complete(false)} disabled={!canComplete} className="rounded-2xl border border-line py-4 text-base font-bold disabled:opacity-40">Paid · don't print</button>
+            <button onClick={() => setPayOpen(false)} disabled={paying} className="rounded-2xl border border-line py-4 text-base font-bold text-ink/60">Cancel</button>
           </div>
         </DialogContent>
       </Dialog>
@@ -597,56 +601,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
         </SheetContent>
       </Sheet>
 
-      <ShiftDialog open={shiftOpen} onOpenChange={setShiftOpen} shift={shift ?? null} cashierId={cashier.id} />
     </div>
-  );
-};
-
-const ShiftDialog = ({ open, onOpenChange, shift, cashierId }: { open: boolean; onOpenChange: (o: boolean) => void; shift: LocalShift | null; cashierId: string }) => {
-  const [amount, setAmount] = useState("");
-  const [expected, setExpected] = useState<number | null>(null);
-  const [result, setResult] = useState<{ expected: number; difference: number } | null>(null);
-  useEffect(() => {
-    setAmount("");
-    setResult(null);
-    if (open && shift) expectedCash(shift).then(setExpected);
-  }, [open, shift]);
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>{result ? "Shift closed" : shift ? "Close shift" : "Open shift"}</DialogTitle>
-          <DialogDescription>{shift ? "Count all the cash in the drawer." : "How much cash is in the drawer to start (your float)?"}</DialogDescription>
-        </DialogHeader>
-        {result ? (
-          <div className="space-y-3">
-            <div className={`rounded-xl p-4 text-center ${Math.abs(result.difference) < 1 ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
-              <p className="text-sm">Expected {formatPrice(result.expected)}</p>
-              <p className="text-xl font-extrabold">{Math.abs(result.difference) < 1 ? "Cash balances ✓" : result.difference < 0 ? `Short by ${formatPrice(-result.difference)}` : `Over by ${formatPrice(result.difference)}`}</p>
-            </div>
-            <button onClick={() => onOpenChange(false)} className="w-full rounded-xl bg-primary py-3 font-bold text-white">Done</button>
-          </div>
-        ) : (
-          <form
-            className="space-y-3"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const value = toNumber(amount);
-              if (shift) setResult(await closeShift(shift, value));
-              else {
-                await openShift(cashierId, value);
-                onOpenChange(false);
-                toast.success("Shift opened");
-              }
-            }}
-          >
-            {shift && expected !== null && <p className="text-sm text-ink/60">Count the notes carefully, then enter the total. We'll compare it with the POS.</p>}
-            <MoneyInput size="lg" autoFocus value={toNumber(amount)} onChange={(n) => setAmount(String(n || ""))} />
-            <button className="w-full rounded-xl bg-primary py-3.5 font-bold text-white">{shift ? "Close shift" : "Open shift"}</button>
-          </form>
-        )}
-      </DialogContent>
-    </Dialog>
   );
 };
 
