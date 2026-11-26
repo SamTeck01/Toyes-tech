@@ -496,7 +496,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           </DialogHeader>
           <div className="rounded-xl border border-line"><PosReceipt sale={preview} /></div>
           <button autoFocus onClick={() => complete(true)} disabled={!canComplete} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-5 text-lg font-extrabold text-white disabled:opacity-40">
-            <Check className="h-6 w-6" /> {paying ? "Saving…" : "Paid · print receipt"} <span className="hidden text-xs font-semibold opacity-70 lg:inline">Enter</span>
+            <Check className="h-6 w-6" /> {paying ? "Saving…" : "Paid · print receipt"} <span className="hidden rounded-md bg-black/20 px-1.5 py-0.5 text-xs font-semibold lg:inline">Enter</span>
           </button>
           <div className="grid grid-cols-2 gap-2">
             <button onClick={() => complete(false)} disabled={!canComplete} className="rounded-2xl border border-line py-4 text-base font-bold disabled:opacity-40">Paid · don't print</button>
