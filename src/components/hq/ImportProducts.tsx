@@ -77,7 +77,7 @@ const ImportProducts = ({ storeId, storeName, onDone }: { storeId: string; store
           {!progress && (
             <label className="flex cursor-pointer flex-col items-center gap-1 rounded-2xl border-2 border-dashed border-line p-6 text-center hover:border-ink/30">
               <span className="font-bold">{data ? "Choose a different file" : "Choose CSV file"}</span>
-              <span className="text-xs text-ink/50">inventory-….csv</span>
+              <span className="text-xs text-ink/70">inventory-….csv</span>
               <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => e.target.files?.[0] && readFile(e.target.files[0])} />
             </label>
           )}
@@ -85,22 +85,22 @@ const ImportProducts = ({ storeId, storeName, onDone }: { storeId: string; store
           {data && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="rounded-xl bg-stone-50 p-3"><p className="text-2xl font-extrabold">{data.rows.length}</p><p className="text-xs text-ink/55">products</p></div>
-                <div className="rounded-xl bg-stone-50 p-3"><p className="text-2xl font-extrabold">{totalQty.toLocaleString("en-NG")}</p><p className="text-xs text-ink/55">items in stock</p></div>
+                <div className="rounded-xl bg-stone-50 p-3"><p className="text-2xl font-extrabold">{data.rows.length}</p><p className="text-xs text-ink/70">products</p></div>
+                <div className="rounded-xl bg-stone-50 p-3"><p className="text-2xl font-extrabold">{totalQty.toLocaleString("en-NG")}</p><p className="text-xs text-ink/70">items in stock</p></div>
               </div>
               {data.rows.some((r) => !r.price) && <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-800">{data.rows.filter((r) => !r.price).length} product(s) have no price. Cashiers will type the price when selling; add it later under Products.</p>}
-              {data.storeColumn && <p className="text-xs text-ink/55">Stock and prices taken from “{data.storeColumn}” in the file.</p>}
+              {data.storeColumn && <p className="text-xs text-ink/70">Stock and prices taken from “{data.storeColumn}” in the file.</p>}
               <div className="max-h-48 overflow-y-auto rounded-xl border border-line text-sm">
                 {data.rows.slice(0, 50).map((r) => (
                   <div key={r.id} className="flex justify-between gap-2 border-b border-line px-3 py-1.5 last:border-0">
-                    <span className="truncate">{r.name} <span className="text-ink/45">· {r.type || r.category}</span></span>
+                    <span className="truncate">{r.name} <span className="text-ink/70">· {r.type || r.category}</span></span>
                     <span className="shrink-0 tabular-nums">{r.price ? formatPrice(r.price) : "no price"} · {r.qty}</span>
                   </div>
                 ))}
-                {data.rows.length > 50 && <p className="px-3 py-1.5 text-xs text-ink/50">…and {data.rows.length - 50} more</p>}
+                {data.rows.length > 50 && <p className="px-3 py-1.5 text-xs text-ink/70">…and {data.rows.length - 50} more</p>}
               </div>
               {data.skipped.length > 0 && (
-                <p className="text-xs text-ink/55">Left out: {data.skipped.map((s) => `${s.name} (${s.why})`).join(", ")}.</p>
+                <p className="text-xs text-ink/70">Left out: {data.skipped.map((s) => `${s.name} (${s.why})`).join(", ")}.</p>
               )}
               {progress ? (
                 <div className="space-y-2">
@@ -112,7 +112,7 @@ const ImportProducts = ({ storeId, storeName, onDone }: { storeId: string; store
               ) : (
                 <button onClick={run} disabled={!data.rows.length} className="w-full rounded-xl bg-primary py-3.5 font-bold text-white disabled:opacity-40">Import {data.rows.length} products into {storeName}</button>
               )}
-              <p className="text-xs text-ink/45">Running it again won't double the stock. It only updates names and prices.</p>
+              <p className="text-xs text-ink/70">Running it again won't double the stock. It only updates names and prices.</p>
             </div>
           )}
         </DialogContent>

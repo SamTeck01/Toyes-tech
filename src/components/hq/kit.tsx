@@ -10,7 +10,7 @@ export const PageHeader = ({ title, subtitle, actions }: { title: string; subtit
   <div className="flex flex-wrap items-end justify-between gap-4 pb-2">
     <div className="min-w-0">
       <h1 className="font-display text-[28px] font-extrabold leading-tight tracking-tight text-ink md:text-[32px]">{title}</h1>
-      {subtitle && <p className="mt-1 text-sm text-ink/55">{subtitle}</p>}
+      {subtitle && <p className="mt-1 text-sm text-ink/70">{subtitle}</p>}
     </div>
     {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
   </div>
@@ -29,15 +29,15 @@ export const Panel = ({ title, action, children, className, padded = true }: { t
 );
 
 export const StatCard = ({ label, value, sub, icon: Icon, tone = "neutral" }: { label: string; value: ReactNode; sub?: ReactNode; icon?: ComponentType<{ className?: string }>; tone?: "neutral" | "good" | "warn" | "accent" }) => {
-  const chip = { neutral: "bg-stone-100 text-ink/70", good: "bg-emerald-50 text-emerald-700", warn: "bg-amber-50 text-amber-700", accent: "bg-primary/10 text-primary" }[tone];
+  const chip = { neutral: "bg-stone-100 text-ink/70", good: "bg-emerald-50 text-emerald-700", warn: "bg-amber-50 text-amber-700", accent: "bg-primary/10 text-red-700" }[tone];
   return (
     <div className="rounded-2xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[13px] font-medium text-ink/55">{label}</p>
+        <p className="text-[13px] font-medium text-ink/70">{label}</p>
         {Icon && <span className={cn("flex h-8 w-8 items-center justify-center rounded-lg", chip)}><Icon className="h-4 w-4" /></span>}
       </div>
       <p className="mt-2 font-display text-[26px] font-extrabold leading-none tracking-tight text-ink tabular-nums">{value}</p>
-      {sub && <p className="mt-2 text-xs text-ink/50">{sub}</p>}
+      {sub && <p className="mt-2 text-xs text-ink/70">{sub}</p>}
     </div>
   );
 };
@@ -49,7 +49,7 @@ const toneCls: Record<Tone, string> = {
   warn: "bg-amber-50 text-amber-800 ring-amber-200",
   bad: "bg-red-50 text-red-700 ring-red-200",
   info: "bg-sky-50 text-sky-700 ring-sky-200",
-  accent: "bg-primary/10 text-primary ring-primary/20",
+  accent: "bg-primary/10 text-red-700 ring-primary/20",
 };
 export const Pill = ({ tone = "neutral", children, dot }: { tone?: Tone; children: ReactNode; dot?: boolean }) => (
   <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset", toneCls[tone])}>
@@ -59,7 +59,7 @@ export const Pill = ({ tone = "neutral", children, dot }: { tone?: Tone; childre
 );
 
 export const Kbd = ({ children, dark }: { children: ReactNode; dark?: boolean }) => (
-  <kbd className={cn("rounded-md border px-1.5 py-0.5 font-sans text-[10px] font-semibold", dark ? "border-white/25 bg-white/10 text-white/80" : "border-line bg-stone-50 text-ink/55")}>{children}</kbd>
+  <kbd className={cn("rounded-md border px-1.5 py-0.5 font-sans text-[10px] font-semibold", dark ? "border-white/30 bg-black/20 text-white" : "border-line bg-stone-50 text-ink/70")}>{children}</kbd>
 );
 
 export const Segmented = <T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: { value: T; label: ReactNode }[] }) => (
@@ -70,7 +70,7 @@ export const Segmented = <T extends string>({ value, onChange, options }: { valu
         role="tab"
         aria-selected={value === o.value}
         onClick={() => onChange(o.value)}
-        className={cn("rounded-lg px-3.5 py-1.5 text-[13px] font-semibold transition", value === o.value ? "bg-ink text-white shadow-sm" : "text-ink/60 hover:text-ink")}
+        className={cn("rounded-lg px-3.5 py-1.5 text-[13px] font-semibold transition", value === o.value ? "bg-ink text-white shadow-sm" : "text-ink/70 hover:text-ink")}
       >
         {o.label}
       </button>
@@ -80,9 +80,9 @@ export const Segmented = <T extends string>({ value, onChange, options }: { valu
 
 export const EmptyState = ({ icon: Icon, title, children, action }: { icon?: ComponentType<{ className?: string }>; title: string; children?: ReactNode; action?: ReactNode }) => (
   <div className="flex flex-col items-center px-6 py-14 text-center">
-    {Icon && <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 text-ink/50"><Icon className="h-6 w-6" /></span>}
+    {Icon && <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 text-ink/70"><Icon className="h-6 w-6" /></span>}
     <p className="font-bold text-ink">{title}</p>
-    {children && <p className="mt-1 max-w-sm text-sm text-ink/55">{children}</p>}
+    {children && <p className="mt-1 max-w-sm text-sm text-ink/70">{children}</p>}
     {action && <div className="mt-5">{action}</div>}
   </div>
 );
@@ -114,7 +114,7 @@ export const label = "block text-[13px] font-semibold text-ink/80";
 export const table = {
   wrap: "overflow-x-auto",
   table: "w-full text-left text-sm",
-  thead: "sticky top-0 z-10 bg-stone-50/95 text-xs font-semibold text-ink/50 backdrop-blur",
+  thead: "sticky top-0 z-10 bg-stone-50/95 text-xs font-semibold text-ink/70 backdrop-blur",
   th: "px-5 py-3 font-semibold",
   tr: "border-t border-line transition hover:bg-stone-50/70",
   td: "px-5 py-3.5 align-middle",

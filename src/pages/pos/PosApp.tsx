@@ -21,7 +21,7 @@ const LiveClock = () => {
   return (
     <div>
       <p className="font-display text-6xl font-extrabold tracking-tight tabular-nums">{now.toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit" })}</p>
-      <p className="mt-1 text-sm text-ink/55">{now.toLocaleDateString("en-NG", { weekday: "long", day: "numeric", month: "long" })}</p>
+      <p className="mt-1 text-sm text-ink/70">{now.toLocaleDateString("en-NG", { weekday: "long", day: "numeric", month: "long" })}</p>
     </div>
   );
 };
@@ -36,7 +36,7 @@ const Shell = ({ children, store }: { children: React.ReactNode; store?: string 
         <LogoMark className="h-10 w-10" />
         <div className="leading-tight">
           <p className="text-lg font-extrabold">Toyes<span className="text-primary">Tech</span></p>
-          <p className="text-xs text-ink/50">Point of sale{store ? ` · ${store}` : ""}</p>
+          <p className="text-xs text-ink/70">Point of sale{store ? ` · ${store}` : ""}</p>
         </div>
       </div>
       <div className="relative"><LiveClock /></div>
@@ -48,7 +48,7 @@ const Shell = ({ children, store }: { children: React.ReactNode; store?: string 
     </aside>
     <main className="flex items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-md">
-        <div className="mb-8 flex items-center gap-2.5 lg:hidden"><LogoMark className="h-9 w-9" /><span className="text-lg font-extrabold">Toyes<span className="text-primary">Tech</span> <span className="text-xs font-semibold text-ink/45">POS</span></span></div>
+        <div className="mb-8 flex items-center gap-2.5 lg:hidden"><LogoMark className="h-9 w-9" /><span className="text-lg font-extrabold">Toyes<span className="text-primary">Tech</span> <span className="text-xs font-semibold text-ink/70">POS</span></span></div>
         {children}
       </div>
     </main>
@@ -64,7 +64,7 @@ const SignIn = () => {
   return (
     <Shell>
       <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Sign in to the POS</h1>
-      <p className="mt-1 text-sm text-ink/55">Same username and password as HQ. You stay signed in on this computer.</p>
+      <p className="mt-1 text-sm text-ink/70">Same username and password as HQ. You stay signed in on this computer.</p>
       <form
         className="mt-6 space-y-3"
         onSubmit={async (e) => {
@@ -119,8 +119,8 @@ const ChooseStore = ({ role, storeId }: { role: string; storeId: string | null }
   return (
     <Shell>
       <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Set up this POS</h1>
-      <p className="mt-1 text-sm text-ink/55">Tap the store this computer sells for. You only do this once.</p>
-      {stores === null && !error && <p className="mt-6 text-sm text-ink/55">Loading stores…</p>}
+      <p className="mt-1 text-sm text-ink/70">Tap the store this computer sells for. You only do this once.</p>
+      {stores === null && !error && <p className="mt-6 text-sm text-ink/70">Loading stores…</p>}
       {stores?.length === 0 && <p className="mt-6 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">No stores yet. The owner needs to add stores in the admin first.</p>}
       {stores && stores.length > 0 && (
         <div className="mt-6 space-y-3">
@@ -176,7 +176,7 @@ const PosApp = () => {
     return (
       <Shell>
         <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-tight">Almost ready</h1>
-        <p className="mt-2 text-sm text-ink/60">The POS isn't connected to the Toyes Tech cloud database yet. Once it's connected, sign in here to set up this POS.</p>
+        <p className="mt-2 text-sm text-ink/70">The POS isn't connected to the Toyes Tech cloud database yet. Once it's connected, sign in here to set up this POS.</p>
       </Shell>
     );
   }

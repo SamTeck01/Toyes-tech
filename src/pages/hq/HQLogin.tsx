@@ -47,13 +47,13 @@ const HQLogin = () => {
     <div className="flex min-h-[100dvh] items-center justify-center bg-stone-100 p-4">
       <Helmet><title>Admin sign in | Toyes Tech</title></Helmet>
       <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5 md:p-8">
-        <div className="mb-6 flex items-center gap-2.5"><LogoMark /><span className="text-xl font-extrabold">Toyes<span className="text-primary">Tech</span> <span className="text-sm font-semibold text-ink/45">HQ</span></span></div>
+        <div className="mb-6 flex items-center gap-2.5"><LogoMark /><span className="text-xl font-extrabold">Toyes<span className="text-primary">Tech</span> <span className="text-sm font-semibold text-ink/70">HQ</span></span></div>
         {!isCloudConfigured ? (
-          <p className="text-sm text-ink/60">The admin isn't connected to the cloud database yet.</p>
+          <p className="text-sm text-ink/70">The admin isn't connected to the cloud database yet.</p>
         ) : (
           <>
             <h1 className="text-2xl font-extrabold">{mode === "signin" ? "Sign in" : "Create the owner account"}</h1>
-            <p className="mt-1 text-sm text-ink/55">{mode === "signin" ? "For the owner and store managers." : "One time only: this account controls all stores."}</p>
+            <p className="mt-1 text-sm text-ink/70">{mode === "signin" ? "For the owner and store managers." : "One time only: this account controls all stores."}</p>
             <form onSubmit={submit} className="mt-6 space-y-3">
               {mode === "owner" && <input className={input} placeholder="Your full name" value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} required />}
               <input className={input} placeholder={mode === "owner" ? "Username (no spaces)" : "Username or email"} autoComplete="username" autoCapitalize="none" value={f.username} onChange={(e) => setF({ ...f, username: e.target.value })} required />
@@ -62,7 +62,7 @@ const HQLogin = () => {
               {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
               <button disabled={busy} className="w-full rounded-xl bg-primary py-3.5 font-bold text-white disabled:opacity-60">{busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create owner account"}</button>
             </form>
-            {(mode === "owner" || new URLSearchParams(window.location.search).has("setup")) && <button onClick={() => { setMode(mode === "signin" ? "owner" : "signin"); setError(""); }} className="mt-4 w-full text-center text-sm font-semibold text-ink/50 hover:text-black">
+            {(mode === "owner" || new URLSearchParams(window.location.search).has("setup")) && <button onClick={() => { setMode(mode === "signin" ? "owner" : "signin"); setError(""); }} className="mt-4 w-full text-center text-sm font-semibold text-ink/70 hover:text-black">
               {mode === "signin" ? "First time setting up? Create the owner account" : "Back to sign in"}
             </button>}
           </>

@@ -18,7 +18,7 @@ const makePassword = () => {
 };
 const Section = ({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) => (
   <section className="space-y-3 rounded-2xl border border-line bg-white p-4">
-    <div><h3 className="text-sm font-bold">{title}</h3>{hint && <p className="mt-0.5 text-xs text-ink/50">{hint}</p>}</div>
+    <div><h3 className="text-sm font-bold">{title}</h3>{hint && <p className="mt-0.5 text-xs text-ink/70">{hint}</p>}</div>
     {children}
   </section>
 );
@@ -79,18 +79,18 @@ const Staff = () => {
     <div className="space-y-5">
       <Helmet><title>Staff | Toyes Tech HQ</title></Helmet>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Staff</h1><p className="text-sm text-ink/55">Everyone signs in with their own username (or email) and password. Cashiers use the POS only; managers can also use HQ.</p></div>
+        <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Staff</h1><p className="text-sm text-ink/70">Everyone signs in with their own username (or email) and password. Cashiers use the POS only; managers can also use HQ.</p></div>
         <button onClick={() => setForm({ full_name: "", username: "", email: "", password: "", role: "cashier", store_id: visibleStores[0]?.id ?? "", pin: "", active: true })} disabled={!visibleStores.length} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(225,20,20,0.3)] transition hover:brightness-110 disabled:opacity-50 disabled:opacity-40">+ Add staff</button>
       </div>
       <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-        {list === null ? <p className="p-6 text-sm text-ink/50">Loading…</p> : (
+        {list === null ? <p className="p-6 text-sm text-ink/70">Loading…</p> : (
           <ul className="divide-y divide-line">
             {list.map((s) => (
               <li key={s.id} className="flex items-center gap-3 px-4 py-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{s.full_name[0]}</span>
                 <div className="min-w-0 flex-1">
-                  <p className={`font-semibold ${s.active ? "" : "text-ink/40 line-through"}`}>{s.full_name}</p>
-                  <p className="text-xs text-ink/50"><span className="capitalize">{s.role.replace("_", " ")}</span> · {storeName(s.store_id)} · @{s.username}{(s as S & { email?: string | null }).email ? ` · ${(s as S & { email?: string | null }).email}` : ""}</p>
+                  <p className={`font-semibold ${s.active ? "" : "text-ink/70 line-through"}`}>{s.full_name}</p>
+                  <p className="text-xs text-ink/70"><span className="capitalize">{s.role.replace("_", " ")}</span> · {storeName(s.store_id)} · @{s.username}{(s as S & { email?: string | null }).email ? ` · ${(s as S & { email?: string | null }).email}` : ""}</p>
                 </div>
                 {s.role !== "super_admin" && (isOwner || s.role === "cashier") && (
                   <button onClick={() => setForm({ id: s.id, full_name: s.full_name, username: s.username, email: (s as S & { email?: string | null }).email ?? "", password: "", role: s.role as "manager" | "cashier", store_id: s.store_id ?? "", pin: "", active: s.active })} className="rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-stone-100">Edit</button>
@@ -119,7 +119,7 @@ const Staff = () => {
                         {(["cashier", "manager"] as const).filter((r) => r === "cashier" || isOwner).map((r) => (
                           <button key={r} type="button" onClick={() => setForm({ ...form, role: r })} className={cn("rounded-xl border p-3 text-left transition", form.role === r ? "border-ink bg-ink text-white" : "border-line bg-white hover:border-ink/30")}>
                             <span className="block text-sm font-bold capitalize">{r}</span>
-                            <span className={cn("block text-xs", form.role === r ? "text-white/70" : "text-ink/50")}>{r === "cashier" ? "Sells on the POS only" : "POS + HQ for their store"}</span>
+                            <span className={cn("block text-xs", form.role === r ? "text-white/70" : "text-ink/70")}>{r === "cashier" ? "Sells on the POS only" : "POS + HQ for their store"}</span>
                           </button>
                         ))}
                       </div>
@@ -137,10 +137,10 @@ const Staff = () => {
                 {!form.id
                   ? <label className={labelCls}>Username<input required className={`${input} mt-1.5`} autoCapitalize="none" autoComplete="off" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="e.g. tolu (no spaces)" /></label>
                   : <p className="text-sm">Username: <b>@{form.username}</b></p>}
-                <label className={labelCls}>Email <span className="font-normal text-ink/45">· optional</span><input type="email" autoCapitalize="none" autoComplete="off" className={`${input} mt-1.5`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="e.g. tolu@gmail.com" /></label>
+                <label className={labelCls}>Email <span className="font-normal text-ink/70">· optional</span><input type="email" autoCapitalize="none" autoComplete="off" className={`${input} mt-1.5`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="e.g. tolu@gmail.com" /></label>
                 <div>
                   <div className="flex items-end justify-between">
-                    <span className={labelCls}>{form.id ? "New password" : "Password"} <span className="font-normal text-ink/45">· 8+ characters</span></span>
+                    <span className={labelCls}>{form.id ? "New password" : "Password"} <span className="font-normal text-ink/70">· 8+ characters</span></span>
                     <button type="button" onClick={() => setForm({ ...form, password: makePassword() })} className="text-xs font-bold text-primary hover:underline">Generate one</button>
                   </div>
                   <div className="mt-1.5"><PasswordInput minLength={8} autoComplete="new-password" className={input} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required={!form.id} placeholder={form.id ? "Leave empty to keep it" : "Type or generate a password"} /></div>
@@ -150,7 +150,7 @@ const Staff = () => {
 
               {form.id && form.id !== me?.id && (
                 <label className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4">
-                  <span><span className="block text-sm font-bold">Active</span><span className="block text-xs text-ink/50">Switch off when someone leaves. They're signed out at once.</span></span>
+                  <span><span className="block text-sm font-bold">Active</span><span className="block text-xs text-ink/70">Switch off when someone leaves. They're signed out at once.</span></span>
                   <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="h-5 w-5 accent-[hsl(var(--primary))]" />
                 </label>
               )}

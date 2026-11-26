@@ -67,7 +67,7 @@ const Alerts = () => {
   return (
     <div className="max-w-3xl space-y-6">
       <Helmet><title>Email alerts | Toyes Tech HQ</title></Helmet>
-      <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Email alerts</h1><p className="text-sm text-ink/55">Get an email when something happens in any store. Sales made offline are sent as soon as the POS reconnects.</p></div>
+      <div><h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Email alerts</h1><p className="text-sm text-ink/70">Get an email when something happens in any store. Sales made offline are sent as soon as the POS reconnects.</p></div>
 
       <section className="space-y-4 rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)] p-5">
         <label className="flex items-center gap-2 font-bold"><input type="checkbox" className="h-4 w-4" checked={s.enabled} onChange={(e) => setS({ ...s, enabled: e.target.checked })} /> Send email alerts</label>
@@ -90,13 +90,13 @@ const Alerts = () => {
 
       <section className="rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)] p-5">
         <div className="mb-3 flex items-center justify-between"><h2 className="font-bold">Recent alerts</h2><button onClick={load} className="text-sm font-semibold text-primary">Refresh</button></div>
-        {log.length === 0 ? <p className="text-sm text-ink/50">No alerts yet.</p> : (
+        {log.length === 0 ? <p className="text-sm text-ink/70">No alerts yet.</p> : (
           <ul className="divide-y divide-line">
             {log.map((n) => (
               <li key={n.id} className="py-3 text-sm">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs text-ink/50">{new Date(n.created_at).toLocaleString("en-NG", { dateStyle: "short", timeStyle: "short" })}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${n.status === "sent" ? "bg-green-100 text-green-800" : n.status === "failed" ? "bg-red-100 text-red-700" : n.status === "skipped" ? "bg-stone-100 text-ink/55" : "bg-amber-100 text-amber-900"}`}>{n.status}</span>
+                  <span className="text-xs text-ink/70">{new Date(n.created_at).toLocaleString("en-NG", { dateStyle: "short", timeStyle: "short" })}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${n.status === "sent" ? "bg-green-100 text-green-800" : n.status === "failed" ? "bg-red-100 text-red-700" : n.status === "skipped" ? "bg-stone-100 text-ink/70" : "bg-amber-100 text-amber-900"}`}>{n.status}</span>
                 </div>
                 <p className="mt-1 whitespace-pre-line">{n.message}</p>
                 {n.error && <p className="mt-1 text-xs text-red-600">{n.error}</p>}

@@ -119,7 +119,7 @@ const Overview = () => {
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-white p-6 shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
           <div>
             <p className="font-display text-xl font-extrabold">Let's set up your stores</p>
-            <p className="mt-1 text-sm text-ink/55">Add stores → add stock → add staff → sign in on each store's laptop at /pos.</p>
+            <p className="mt-1 text-sm text-ink/70">Add stores → add stock → add staff → sign in on each store's laptop at /pos.</p>
           </div>
           <Link to="/admin/stores" className={btn.primary}><MapPin className="h-4 w-4" /> Add your first store</Link>
         </div>
@@ -135,7 +135,7 @@ const Overview = () => {
         ].map((a) => (
           <Link key={a.title} to={a.to} className="group flex items-center gap-3 rounded-2xl border border-line bg-white p-4 shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-md">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white"><a.icon className="h-5 w-5" /></span>
-            <span className="min-w-0"><span className="block text-[15px] font-bold leading-tight">{a.title}</span><span className="block truncate text-xs text-ink/50">{a.sub}</span></span>
+            <span className="min-w-0"><span className="block text-[15px] font-bold leading-tight">{a.title}</span><span className="block truncate text-xs text-ink/70">{a.sub}</span></span>
           </Link>
         ))}
       </div>
@@ -153,9 +153,9 @@ const Overview = () => {
           { label: "Items sold", value: items.toLocaleString("en-NG"), sub: discounts > 0 ? `${formatPrice(discounts)} given as discount` : "No discounts given" },
         ].map((k) => (
           <div key={k.label} className={`rounded-2xl border p-5 shadow-[0_1px_2px_rgba(16,16,20,0.04)] ${k.hero ? "border-transparent bg-gradient-to-br from-[#E11414] to-[#9F0E0E] text-white" : "border-line bg-white"}`}>
-            <p className={`text-[13px] font-medium ${k.hero ? "text-white/75" : "text-ink/55"}`}>{k.label}</p>
+            <p className={`text-[13px] font-medium ${k.hero ? "text-white/75" : "text-ink/70"}`}>{k.label}</p>
             <p className="mt-2 font-display text-[28px] font-extrabold leading-none tracking-tight tabular-nums">{sales === null ? "…" : k.value}</p>
-            <p className={`mt-2.5 text-xs font-semibold ${k.hero ? "text-white/80" : "text-ink/50"}`}>
+            <p className={`mt-2.5 text-xs font-semibold ${k.hero ? "text-white/80" : "text-ink/70"}`}>
               {"delta" in k && k.delta !== undefined
                 ? k.delta === null ? `No sales in the ${periodWord}` : <><span className={k.hero ? "" : k.delta >= 0 ? "text-emerald-700" : "text-red-600"}>{k.delta >= 0 ? "▲" : "▼"} {Math.abs(k.delta)}%</span> vs {periodWord}</>
                 : k.sub}
@@ -185,13 +185,13 @@ const Overview = () => {
             </div>
           )}
         </Panel>
-        <Panel title="Top products" action={<span className="text-xs text-ink/45">by revenue</span>} padded={false}>
+        <Panel title="Top products" action={<span className="text-xs text-ink/70">by revenue</span>} padded={false}>
           {topProducts.length === 0 ? <EmptyState icon={Tag} title="No sales in this period">Best sellers show here.</EmptyState> : (
             <ol className="divide-y divide-line">
               {topProducts.map((t, i) => (
                 <li key={t.name + i} className="flex items-center gap-3 px-5 py-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-stone-100 text-xs font-bold text-ink/60">{i + 1}</span>
-                  <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{t.name}</span><span className="text-xs text-ink/50">{t.qty} sold</span></span>
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-stone-100 text-xs font-bold text-ink/70">{i + 1}</span>
+                  <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{t.name}</span><span className="text-xs text-ink/70">{t.qty} sold</span></span>
                   <span className="text-sm font-bold tabular-nums">{formatPrice(t.revenue)}</span>
                 </li>
               ))}
@@ -202,7 +202,7 @@ const Overview = () => {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel title={range === "today" ? "By store · today" : `By store · ${days} days`}>
-          {stores.length === 0 ? <p className="text-sm text-ink/50">No stores yet.</p> : (
+          {stores.length === 0 ? <p className="text-sm text-ink/70">No stores yet.</p> : (
             <ul className="space-y-4">
               {best.map(({ st, total }) => (
                 <li key={st.id}>
@@ -227,16 +227,16 @@ const Overview = () => {
             <ul className="divide-y divide-line">
               {sales.slice(0, 10).map((s) => (
                 <li key={s.id} className="flex items-center gap-4 px-5 py-3.5">
-                  <span className="hidden w-14 shrink-0 text-xs font-semibold tabular-nums text-ink/45 sm:block">{new Date(s.created_at).toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit" })}</span>
+                  <span className="hidden w-14 shrink-0 text-xs font-semibold tabular-nums text-ink/70 sm:block">{new Date(s.created_at).toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit" })}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</p>
-                    <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-ink/50">
+                    <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-ink/70">
                       {storeName(s.store_id)} · {names.get(s.cashier_id) ?? "Staff"}
                       
                       {s.status === "refunded" && <Pill tone="bad">Refunded</Pill>}
                     </p>
                   </div>
-                  <span className={`shrink-0 text-sm font-bold tabular-nums ${s.status === "refunded" ? "text-ink/35 line-through" : ""}`}>{formatPrice(s.total)}</span>
+                  <span className={`shrink-0 text-sm font-bold tabular-nums ${s.status === "refunded" ? "text-ink/70 line-through" : ""}`}>{formatPrice(s.total)}</span>
                 </li>
               ))}
             </ul>
@@ -246,12 +246,12 @@ const Overview = () => {
 
       <Panel title="Stock to watch" action={<Link to="/admin/inventory" className="text-[13px] font-semibold text-primary hover:underline">Inventory</Link>}>
         {lowStock.length === 0 ? (
-          <p className="flex items-center gap-2 text-sm text-ink/55"><Package className="h-4 w-4" /> Nothing running low.</p>
+          <p className="flex items-center gap-2 text-sm text-ink/70"><Package className="h-4 w-4" /> Nothing running low.</p>
         ) : (
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {lowStock.slice(0, 12).map((i, k) => (
               <div key={k} className="flex items-center justify-between gap-3 rounded-xl border border-line px-3.5 py-2.5 text-sm">
-                <span className="min-w-0"><span className="block truncate font-semibold">{i.products?.name}</span><span className="text-xs text-ink/50">{storeName(i.store_id)}</span></span>
+                <span className="min-w-0"><span className="block truncate font-semibold">{i.products?.name}</span><span className="text-xs text-ink/70">{storeName(i.store_id)}</span></span>
                 <Pill tone={i.qty < 0 ? "bad" : i.qty === 0 ? "warn" : "neutral"}>{i.qty < 0 ? `${i.qty} · check` : `${i.qty} left`}</Pill>
               </div>
             ))}

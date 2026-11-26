@@ -11,7 +11,7 @@ import { signOutTill, type Me } from "@/pos/session";
 import { searchProducts } from "@/lib/search";
 import { formatPrice } from "@/lib/format";
 import PosReceipt from "./PosReceipt";
-import MoneyInput from "@/components/MoneyInput";
+import MoneyInput, { parse as parseMoney } from "@/components/MoneyInput";
 import { LogoMark } from "@/components/Logo";
 import { Kbd } from "@/components/hq/kit";
 
@@ -228,7 +228,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
   const cart = (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-line py-3 pl-4 pr-14 lg:pr-4">
-        <p className="font-bold">Current sale <span className="text-ink/45">({itemCount})</span></p>
+        <p className="font-bold">Current sale <span className="text-ink/70">({itemCount})</span></p>
         <div className="flex gap-2">
           <button onClick={() => setHeldOpen(true)} className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-bold"><Clock className="h-3.5 w-3.5" /> Held ({held.length})</button>
           {lines.length > 0 && <button onClick={() => window.confirm("Clear this sale?") && reset()} className="rounded-full px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Clear</button>}
@@ -236,7 +236,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       </div>
       <div className="flex-1 overflow-y-auto px-4">
         {lines.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 py-12 text-center text-ink/45">
+          <div className="flex h-full flex-col items-center justify-center gap-2 py-12 text-center text-ink/70">
             <ShoppingCart className="h-10 w-10" />
             <p className="text-sm">Tap a product, scan a barcode, or use Quick sale for anything not listed.</p>
           </div>
@@ -251,7 +251,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-[15px] font-bold leading-snug">{l.name}{!l.product_id && <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">QUICK</span>}</p>
-                      <button aria-label={`Remove ${l.name}`} onClick={() => setQty(i, 0)} className="p-1 text-ink/35 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                      <button aria-label={`Remove ${l.name}`} onClick={() => setQty(i, 0)} className="p-1 text-ink/70 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <div className="flex items-center rounded-xl border border-line">
@@ -261,9 +261,9 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                       </div>
                       <span className="text-base font-extrabold tabular-nums">{formatPrice(l.unit_price * l.quantity)}</span>
                     </div>
-                    <label className="mt-2 flex items-center justify-between gap-2 text-xs text-ink/50">
+                    <label className="mt-2 flex items-center justify-between gap-2 text-xs text-ink/70">
                       <span>Price each{l.product_id && l.unit_price < listOf(l) ? <b className="ml-1 text-emerald-700">−{formatPrice((listOf(l) - l.unit_price) * l.quantity)} discount</b> : null}</span>
-                      <input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => setPrice(i, toNumber(e.target.value))} className={`w-28 rounded-lg px-2 py-1.5 text-right text-sm font-semibold text-ink focus:outline-none focus:ring-1 focus:ring-primary ${l.product_id && l.unit_price !== listOf(l) ? "bg-amber-50 ring-1 ring-amber-300" : l.product_id && l.unit_price < listOf(l) ? "" : "bg-stone-50"} ${l.product_id && l.unit_price < listOf(l) ? "bg-emerald-50 ring-1 ring-emerald-300" : ""}`} />
+                      <input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => setPrice(i, parseMoney(e.target.value))} onFocus={(e) => e.target.select()} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} enterKeyHint="done" className={`w-28 rounded-lg px-2 py-1.5 text-right text-sm font-semibold text-ink focus:outline-none focus:ring-1 focus:ring-primary ${l.product_id && l.unit_price !== listOf(l) ? "bg-amber-50 ring-1 ring-amber-300" : l.product_id && l.unit_price < listOf(l) ? "" : "bg-stone-50"} ${l.product_id && l.unit_price < listOf(l) ? "bg-emerald-50 ring-1 ring-emerald-300" : ""}`} />
                     </label>
                   </div>
                 </div>
@@ -280,20 +280,20 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               <input placeholder="Phone" inputMode="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} className="rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none focus:border-ink/40" />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-ink/60">Discount</span>
+              <span className="text-sm text-ink/70">Discount</span>
               <div className="flex rounded-lg bg-white p-0.5 text-xs font-bold ring-1 ring-line">
                 {(["amount", "percent"] as const).map((m) => (
-                  <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-ink text-white" : "text-ink/50"}`}>{m === "amount" ? "₦" : "%"}</button>
+                  <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-ink text-white" : "text-ink/70"}`}>{m === "amount" ? "₦" : "%"}</button>
                 ))}
               </div>
               <input aria-label="Discount" inputMode="numeric" placeholder="0" value={discountMode === "amount" && toNumber(discountInput) ? toNumber(discountInput).toLocaleString("en-NG") : discountInput} onChange={(e) => setDiscountInput(e.target.value.replace(/[^\d.]/g, ""))} className="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-right text-sm font-semibold tabular-nums outline-none focus:border-ink/40" />
             </div>
           </div>
         ) : (
-          <button onClick={() => setExtrasOpen(true)} className="text-sm font-semibold text-ink/55 hover:text-ink">+ Customer name or discount</button>
+          <button onClick={() => setExtrasOpen(true)} className="text-sm font-semibold text-ink/70 hover:text-ink">+ Customer name or discount</button>
         )}
         <div className="flex items-baseline justify-between">
-          <span className="text-sm font-semibold text-ink/60">Total{discount > 0 ? ` (−${formatPrice(discount)})` : ""}</span>
+          <span className="text-sm font-semibold text-ink/70">Total{discount > 0 ? ` (−${formatPrice(discount)})` : ""}</span>
           <span className="font-display text-[32px] font-extrabold leading-none tracking-tight tabular-nums">{formatPrice(total)}</span>
         </div>
         <button onClick={() => { if (method === "split") setMethod("cash"); setPayOpen(true); }} disabled={!lines.length} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-5 text-xl font-extrabold text-white shadow-lg shadow-primary/25 transition hover:brightness-110 disabled:opacity-40 disabled:shadow-none">
@@ -310,7 +310,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
         <LogoMark className="h-8 w-8" />
         <div className="hidden leading-tight sm:block">
           <p className="text-[15px] font-bold">{device.store_name}</p>
-          <p className="text-[11px] text-ink/50">POS {device.device_code} · <Clock24 /></p>
+          <p className="text-[11px] text-ink/70">POS {device.device_code} · <Clock24 /></p>
         </div>
         <div className="ml-auto flex items-center gap-2">
           {cashier.role !== "cashier" && (
@@ -333,7 +333,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           <div className="space-y-3 bg-white px-3 py-3 md:px-5">
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink/40" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink/70" />
                 <input
                   ref={searchRef}
                   autoFocus
@@ -357,7 +357,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           </div>
           <div className="flex-1 overflow-y-auto p-3 pb-24 md:p-5 lg:pb-5">
             {products.length === 0 ? (
-              <div className="py-16 text-center text-ink/55">
+              <div className="py-16 text-center text-ink/70">
                 <p className="font-bold">No products on this POS yet</p>
                 <p className="mt-1 text-sm">They download automatically when the POS is online. You can still sell with Quick sale.</p>
               </div>
@@ -372,15 +372,15 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                     <button onClick={() => add(p.id)} aria-label={`Add ${p.name}`} className={`group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-white text-left shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 ${inCart > 0 ? "border-primary ring-2 ring-primary/15" : "border-line hover:border-ink/20"}`}>
                       <div className={`relative overflow-hidden bg-stone-100 ${p.image ? "aspect-[4/3]" : "h-14"}`}>
                         {p.image && <img src={p.image} alt="" loading="lazy" className={`h-full w-full object-cover transition duration-300 group-hover:scale-[1.03] ${left <= 0 ? "opacity-50 grayscale" : ""}`} />}
-                        {left <= 0 && <span className="absolute left-2 top-2 rounded-md bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold text-ink/60 backdrop-blur">Not in stock here</span>}
+                        {left <= 0 && <span className="absolute left-2 top-2 rounded-md bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold text-ink/70 backdrop-blur">Not in stock here</span>}
                       </div>
                       {inCart > 0 && <span className="absolute right-2 top-2 flex h-7 min-w-7 items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-white shadow-lg shadow-primary/30">{inCart}</span>}
                       <div className="flex flex-1 flex-col p-3">
                         <p className="line-clamp-2 text-[15px] font-bold leading-tight">{p.name}</p>
-                        <p className="mt-0.5 text-[11px] text-ink/45">{[p.condition, p.barcode && !/^PRD-/i.test(p.barcode) ? p.barcode : null].filter(Boolean).join(" · ")}</p>
+                        <p className="mt-0.5 text-[11px] text-ink/70">{[p.condition, p.barcode && !/^PRD-/i.test(p.barcode) ? p.barcode : null].filter(Boolean).join(" · ")}</p>
                         <div className="mt-auto flex items-end justify-between pt-2">
                           {priceOf(p.id) > 0 ? <span className="text-lg font-extrabold tabular-nums">{formatPrice(priceOf(p.id))}</span> : <span className="text-sm font-bold text-amber-700">Enter price</span>}
-                          {left > 0 && <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${left <= 3 ? "bg-amber-50 text-amber-700" : "bg-stone-100 text-ink/55"}`}>{left} left</span>}
+                          {left > 0 && <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${left <= 3 ? "bg-amber-50 text-amber-700" : "bg-stone-100 text-ink/70"}`}>{left} left</span>}
                         </div>
                       </div>
                     </button>
@@ -394,10 +394,10 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                 if (!out.length) return null;
                 return (
                   <details className="mt-6">
-                    <summary className="cursor-pointer text-sm font-bold text-ink/55">Not in stock at this store ({out.length})</summary>
+                    <summary className="cursor-pointer text-sm font-bold text-ink/70">Not in stock at this store ({out.length})</summary>
                     <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                       {out.map((p) => (
-                        <button key={p.id} onClick={() => add(p.id)} className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line bg-white px-3 py-2.5 text-left text-sm text-ink/60 hover:border-ink/25">
+                        <button key={p.id} onClick={() => add(p.id)} className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line bg-white px-3 py-2.5 text-left text-sm text-ink/70 hover:border-ink/25">
                           <span className="truncate">{p.name}</span><span className="shrink-0 tabular-nums">{formatPrice(priceOf(p.id))}</span>
                         </button>
                       ))}
@@ -409,7 +409,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
             )}
             {products.length > 0 && visible.length === 0 && (
               <div className="py-16 text-center">
-                <p className="text-ink/55">No products match “{query}”.</p>
+                <p className="text-ink/70">No products match “{query}”.</p>
                 <button onClick={() => { setQuick({ name: query, price: "", qty: "1" }); setQuickOpen(true); }} className="mt-3 rounded-full bg-black px-5 py-2.5 text-sm font-bold text-white">Sell “{query}” as a quick sale</button>
               </div>
             )}
@@ -473,7 +473,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               setQuery("");
             }}
           >
-            <label className="block text-sm font-semibold">What is it? <span className="font-normal text-ink/45">(optional)</span>
+            <label className="block text-sm font-semibold">What is it? <span className="font-normal text-ink/70">(optional)</span>
               <input value={quick.name} onChange={(e) => setQuick({ ...quick, name: e.target.value })} placeholder="e.g. Phone pouch" className="mt-1.5 w-full rounded-xl border border-line px-4 py-3 outline-none focus:border-ink/40 focus:ring-4 focus:ring-ink/5" />
             </label>
             <div className="grid grid-cols-[1fr_90px] items-start gap-2">
@@ -500,7 +500,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
           </button>
           <div className="grid grid-cols-2 gap-2">
             <button onClick={() => complete(false)} disabled={!canComplete} className="rounded-2xl border border-line py-4 text-base font-bold disabled:opacity-40">Paid · don't print</button>
-            <button onClick={() => setPayOpen(false)} disabled={paying} className="rounded-2xl border border-line py-4 text-base font-bold text-ink/60">Cancel</button>
+            <button onClick={() => setPayOpen(false)} disabled={paying} className="rounded-2xl border border-line py-4 text-base font-bold text-ink/70">Cancel</button>
           </div>
         </DialogContent>
       </Dialog>
@@ -527,13 +527,13 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
       <Dialog open={heldOpen} onOpenChange={setHeldOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Held sales</DialogTitle><DialogDescription>Park a sale while a customer decides, then pick it back up.</DialogDescription></DialogHeader>
-          {held.length === 0 ? <p className="py-6 text-center text-sm text-ink/50">No sales on hold.</p> : (
+          {held.length === 0 ? <p className="py-6 text-center text-sm text-ink/70">No sales on hold.</p> : (
             <ul className="divide-y divide-line">
               {held.map((h) => (
                 <li key={h.id} className="flex items-center justify-between gap-3 py-3">
                   <div>
                     <p className="text-sm font-bold">{h.label}</p>
-                    <p className="text-xs text-ink/50">{h.lines.reduce((s, l) => s + l.quantity, 0)} items · {formatPrice(h.lines.reduce((s, l) => s + l.unit_price * l.quantity, 0))}</p>
+                    <p className="text-xs text-ink/70">{h.lines.reduce((s, l) => s + l.quantity, 0)} items · {formatPrice(h.lines.reduce((s, l) => s + l.unit_price * l.quantity, 0))}</p>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => setMeta("held", held.filter((x) => x.id !== h.id))} className="rounded-lg px-3 py-1.5 text-xs font-bold text-red-600">Delete</button>
@@ -570,7 +570,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               <button key={x.label} onClick={() => { setMenuOpen(false); x.on(); }} className="w-full rounded-xl border border-line px-4 py-3 text-left font-semibold hover:border-black/40">{x.label}</button>
             ))}
           </div>
-          <p className="mt-6 text-xs text-ink/45">Shortcuts: F2 search · F4 quick sale · F9 charge</p>
+          <p className="mt-6 text-xs text-ink/70">Shortcuts: F2 search · F4 quick sale · F9 charge</p>
         </SheetContent>
       </Sheet>
 
@@ -586,7 +586,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               <li key={s.id} className="flex items-center justify-between gap-2 py-3">
                 <div className="min-w-0">
                   <p className="text-sm font-bold">{s.receipt_no} · {formatPrice(s.total)}</p>
-                  <p className="truncate text-xs text-ink/50">{new Date(s.created_at).toLocaleTimeString("en-NG", { timeStyle: "short" })} · {s.cashier_name} · {s.lines.map((l) => l.name).join(", ")}</p>
+                  <p className="truncate text-xs text-ink/70">{new Date(s.created_at).toLocaleTimeString("en-NG", { timeStyle: "short" })} · {s.cashier_name} · {s.lines.map((l) => l.name).join(", ")}</p>
                   {s.sync_error && <p className="text-xs text-red-600">{s.sync_error}</p>}
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -596,8 +596,8 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
               </li>
             ))}
           </ul>
-          {todaysSales.length === 0 && <p className="py-10 text-center text-sm text-ink/50">No sales yet today.</p>}
-          <p className="mt-4 text-xs text-ink/45">Refunds are done by a manager in the admin.</p>
+          {todaysSales.length === 0 && <p className="py-10 text-center text-sm text-ink/70">No sales yet today.</p>}
+          <p className="mt-4 text-xs text-ink/70">Refunds are done by a manager in the admin.</p>
         </SheetContent>
       </Sheet>
 

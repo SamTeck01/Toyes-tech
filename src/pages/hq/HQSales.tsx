@@ -85,7 +85,7 @@ const HQSales = () => {
           <button key={r} onClick={() => setRange(r)} className={`rounded-full px-4 py-2 text-sm font-bold ${range === r ? "bg-ink text-white shadow-sm" : "border border-line bg-white"}`}>{RANGES[r][0]}</button>
         ))}
         {isOwner && (
-          <select value={storeId} onChange={(e) => setStoreId(e.target.value)} className="rounded-full bg-white px-4 py-2 text-sm font-bold ring-1 ring-black/10">
+          <select aria-label="Store" value={storeId} onChange={(e) => setStoreId(e.target.value)} className="rounded-full bg-white px-4 py-2 text-sm font-bold ring-1 ring-black/10">
             <option value="">All stores</option>
             {stores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
@@ -95,38 +95,38 @@ const HQSales = () => {
 
       <div className="print-area space-y-6">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <div className={card}><p className="text-sm text-ink/55">Revenue</p><p className="mt-1 text-2xl font-extrabold tabular-nums">{formatPrice(revenue)}</p><p className="text-xs text-ink/45">{done.length} sales</p></div>
-          <div className={card}><p className="text-sm text-ink/55">Cash (net)</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.cash)}</p></div>
-          <div className={card}><p className="text-sm text-ink/55">Transfer</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.transfer)}</p></div>
-          <div className={card}><p className="text-sm text-ink/55">Card</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.card)}</p></div>
-          <div className={card}><p className="text-sm text-ink/55">Refunds</p><p className="mt-1 text-xl font-extrabold">{(sales ?? []).filter((s) => s.status === "refunded").length}</p></div>
+          <div className={card}><p className="text-sm text-ink/70">Revenue</p><p className="mt-1 text-2xl font-extrabold tabular-nums">{formatPrice(revenue)}</p><p className="text-xs text-ink/70">{done.length} sales</p></div>
+          <div className={card}><p className="text-sm text-ink/70">Cash (net)</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.cash)}</p></div>
+          <div className={card}><p className="text-sm text-ink/70">Transfer</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.transfer)}</p></div>
+          <div className={card}><p className="text-sm text-ink/70">Card</p><p className="mt-1 text-xl font-extrabold tabular-nums">{formatPrice(m.card)}</p></div>
+          <div className={card}><p className="text-sm text-ink/70">Refunds</p><p className="mt-1 text-xl font-extrabold">{(sales ?? []).filter((s) => s.status === "refunded").length}</p></div>
         </div>
         <div className="grid gap-6 lg:grid-cols-2">
           <section className={card}>
             <h2 className="mb-2 font-bold">By cashier</h2>
-            {byCashier.length === 0 ? <p className="text-sm text-ink/50">No sales.</p> : byCashier.map(([id, c]) => (
-              <div key={id} className="flex justify-between border-t border-line py-2 text-sm"><span>{names.get(id) ?? "Staff"} <span className="text-ink/45">({c.n})</span></span><b>{formatPrice(c.total)}</b></div>
+            {byCashier.length === 0 ? <p className="text-sm text-ink/70">No sales.</p> : byCashier.map(([id, c]) => (
+              <div key={id} className="flex justify-between border-t border-line py-2 text-sm"><span>{names.get(id) ?? "Staff"} <span className="text-ink/70">({c.n})</span></span><b>{formatPrice(c.total)}</b></div>
             ))}
           </section>
           <section className={card}>
             <h2 className="mb-2 font-bold">Unlisted items sold (quick sale)</h2>
-            {quickItems.length === 0 ? <p className="text-sm text-ink/50">None.</p> : quickItems.slice(0, 12).map((q, i) => (
-              <div key={i} className="flex justify-between gap-2 border-t border-line py-2 text-sm"><span className="truncate">{q.quantity}× {q.name} <span className="text-ink/45">· {storeName(q.store)}</span></span><b>{formatPrice(q.unit_price * q.quantity)}</b></div>
+            {quickItems.length === 0 ? <p className="text-sm text-ink/70">None.</p> : quickItems.slice(0, 12).map((q, i) => (
+              <div key={i} className="flex justify-between gap-2 border-t border-line py-2 text-sm"><span className="truncate">{q.quantity}× {q.name} <span className="text-ink/70">· {storeName(q.store)}</span></span><b>{formatPrice(q.unit_price * q.quantity)}</b></div>
             ))}
           </section>
         </div>
       </div>
 
       <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-        {sales === null ? <p className="p-6 text-sm text-ink/50">Loading…</p> : sales.length === 0 ? <p className="p-10 text-center text-sm text-ink/50">No sales in this period.</p> : (
+        {sales === null ? <p className="p-6 text-sm text-ink/70">Loading…</p> : sales.length === 0 ? <p className="p-10 text-center text-sm text-ink/70">No sales in this period.</p> : (
           <>
           <ul className="divide-y divide-line md:hidden">
             {sales.map((s) => (
-              <li key={s.id} className={`p-4 ${s.status === "refunded" ? "text-ink/40" : ""}`}>
+              <li key={s.id} className={`p-4 ${s.status === "refunded" ? "text-ink/70" : ""}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold">{s.receipt_no}</p>
-                    <p className="text-xs text-ink/50">{new Date(s.created_at).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · {names.get(s.cashier_id)} · {storeName(s.store_id)}</p>
+                    <p className="text-xs text-ink/70">{new Date(s.created_at).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · {names.get(s.cashier_id)} · {storeName(s.store_id)}</p>
                   </div>
                   <p className="shrink-0 text-base font-extrabold tabular-nums">{formatPrice(s.total)}</p>
                 </div>
@@ -143,13 +143,13 @@ const HQSales = () => {
           </ul>
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-left text-sm">
-              <thead className="bg-stone-50 text-xs font-semibold text-ink/50"><tr><th className="px-4 py-3">Receipt</th><th className="px-4 py-3">Time</th><th className="px-4 py-3">Cashier</th><th className="px-4 py-3">Items</th><th className="px-4 py-3">Paid by</th><th className="px-4 py-3 text-right">Total</th><th className="px-4 py-3" /></tr></thead>
+              <thead className="bg-stone-50 text-xs font-semibold text-ink/70"><tr><th className="px-4 py-3">Receipt</th><th className="px-4 py-3">Time</th><th className="px-4 py-3">Cashier</th><th className="px-4 py-3">Items</th><th className="px-4 py-3">Paid by</th><th className="px-4 py-3 text-right">Total</th><th className="px-4 py-3" /></tr></thead>
               <tbody className="divide-y divide-line">
                 {sales.map((s) => (
-                  <tr key={s.id} className={s.status === "refunded" ? "text-ink/40" : ""}>
+                  <tr key={s.id} className={s.status === "refunded" ? "text-ink/70" : ""}>
                     <td className="whitespace-nowrap px-4 py-3 font-bold">{s.receipt_no}<span className="ml-2 inline-flex gap-1 align-middle">{s.status === "refunded" && <Pill tone="bad">Refunded</Pill>}</span></td>
                     <td className="whitespace-nowrap px-4 py-3">{new Date(s.created_at).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{names.get(s.cashier_id)}<span className="block text-xs text-ink/45">{storeName(s.store_id)}</span></td>
+                    <td className="whitespace-nowrap px-4 py-3">{names.get(s.cashier_id)}<span className="block text-xs text-ink/70">{storeName(s.store_id)}</span></td>
                     <td className="max-w-[220px] truncate px-4 py-3">{s.sale_lines.map((l) => `${l.quantity}× ${l.name}`).join(", ")}</td>
                     <td className="whitespace-nowrap px-4 py-3">{s.payments.map((p) => METHOD[p.method]).join(" + ")}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-right font-extrabold tabular-nums">{formatPrice(s.total)}</td>

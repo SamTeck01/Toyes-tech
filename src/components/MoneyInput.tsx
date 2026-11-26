@@ -32,7 +32,13 @@ export const nairaInWords = (amount: number): string => {
 };
 
 /** Digits only, as a number. */
-const parse = (v: string) => Number(v.replace(/[^\d]/g, "")) || 0;
+/** Digits only, plus shortcuts for speed at a busy counter: "5k" = 5,000, "2m" = 2,000,000. */
+export const parse = (v: string) => {
+  const t = v.toLowerCase().replace(/[,\s₦]/g, "");
+  const m = t.match(/^(\d*\.?\d+)([km])$/);
+  if (m) return Math.round(Number(m[1]) * (m[2] === "k" ? 1_000 : 1_000_000));
+  return Number(t.replace(/[^\d]/g, "")) || 0;
+};
 
 interface Props {
   value: number | null | undefined;
@@ -58,23 +64,24 @@ const MoneyInput = ({ value, onChange, label, size = "md", autoFocus, placeholde
     <div className={className}>
       {label && <label htmlFor={inputId} className="mb-1.5 block text-[13px] font-semibold text-ink/80">{label}</label>}
       <div className="relative">
-        <span className={cn("pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-bold text-ink/45", size === "lg" ? "text-xl" : "text-base")}>₦</span>
+        <span className={cn("pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-bold text-ink/70", size === "lg" ? "text-xl" : "text-base")}>₦</span>
         <input
           id={inputId}
           inputMode="numeric"
+          enterKeyHint="done"
           autoComplete="off"
           autoFocus={autoFocus}
           placeholder={placeholder}
           value={n ? n.toLocaleString("en-NG") : ""}
           onChange={(e) => onChange(parse(e.target.value))}
-          onFocus={(e) => requestAnimationFrame(() => e.target.setSelectionRange(e.target.value.length, e.target.value.length))}
+          onFocus={(e) => requestAnimationFrame(() => e.target.select())}
           className={cn(
             "w-full rounded-xl border border-line bg-white pl-10 pr-4 text-right font-bold tabular-nums tracking-wide text-ink outline-none transition placeholder:font-semibold placeholder:text-ink/25 focus:border-ink/40 focus:ring-4 focus:ring-ink/5",
             size === "lg" ? "py-3.5 text-2xl" : "py-2.5 text-lg",
           )}
         />
       </div>
-      {showWords && n > 0 && <p className="mt-1.5 text-right text-xs font-medium text-ink/55">{nairaInWords(n)}</p>}
+      {showWords && n > 0 && <p className="mt-1.5 text-right text-xs font-medium text-ink/70">{nairaInWords(n)}</p>}
     </div>
   );
 };

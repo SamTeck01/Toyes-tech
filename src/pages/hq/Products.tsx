@@ -206,7 +206,7 @@ const Products = () => {
       )}
 
       <div className="relative">
-        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40" />
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/70" />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products" className={cn(field, "pl-11")} />
       </div>
 
@@ -228,7 +228,7 @@ const Products = () => {
               <button key={p.id} onClick={() => openEdit(p)} className={cn("group flex flex-col overflow-hidden rounded-2xl border border-line bg-white text-left shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:-translate-y-0.5 hover:shadow-md", !p.active && "opacity-50")}>
                 <div className="relative aspect-square shrink-0 overflow-hidden bg-stone-100">
                   {p.image ? <img src={p.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : (
-                    <span className="flex h-full w-full flex-col items-center justify-center gap-1 text-ink/35"><ImageIcon className="h-7 w-7" /><span className="text-xs font-medium">No photo</span></span>
+                    <span className="flex h-full w-full flex-col items-center justify-center gap-1 text-ink/70"><ImageIcon className="h-7 w-7" /><span className="text-xs font-medium">No photo</span></span>
                   )}
                   {p.store_id === null && view !== SHARED && <span className="absolute left-2 top-2"><Pill tone="info">Shared</Pill></span>}
                   {!p.active && <span className="absolute left-2 top-2"><Pill tone="neutral">Hidden</Pill></span>}
@@ -272,14 +272,14 @@ const Products = () => {
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => { e.preventDefault(); void onPhoto(e.dataTransfer.files?.[0]); }}
                     disabled={uploading}
-                    className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line bg-stone-50 text-ink/55 transition hover:border-ink/30 hover:bg-white"
+                    className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line bg-stone-50 text-ink/70 transition hover:border-ink/30 hover:bg-white"
                   >
                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm"><ImageIcon className="h-6 w-6" /></span>
                     <span className="text-sm font-semibold text-ink">{uploading ? "Uploading photo…" : "Add a photo"}</span>
                     <span className="text-xs">Take a picture or choose one from your phone or computer</span>
                   </button>
                 )}
-                {uploading && form.image && <p className="mt-2 text-xs text-ink/55">Uploading photo…</p>}
+                {uploading && form.image && <p className="mt-2 text-xs text-ink/70">Uploading photo…</p>}
               </div>
 
               <label className={label}>Product name
@@ -295,7 +295,7 @@ const Products = () => {
                     <button type="button" aria-label="Fewer" onClick={() => setForm({ ...form, add_qty: Math.max(0, form.add_qty - 1) })} className="flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-white hover:bg-stone-50"><Minus className="h-5 w-5" /></button>
                     <input inputMode="numeric" aria-label="Quantity" value={form.add_qty} onChange={(e) => setForm({ ...form, add_qty: Math.max(0, Math.floor(toNumber(e.target.value))) })} className={cn(field, "h-12 w-24 text-center text-lg font-bold tabular-nums")} />
                     <button type="button" aria-label="More" onClick={() => setForm({ ...form, add_qty: form.add_qty + 1 })} className="flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-white hover:bg-stone-50"><Plus className="h-5 w-5" /></button>
-                    {form.id && stock.get(form.id) !== undefined && <span className="text-sm text-ink/55">Now: {stock.get(form.id)}</span>}
+                    {form.id && stock.get(form.id) !== undefined && <span className="text-sm text-ink/70">Now: {stock.get(form.id)}</span>}
                   </div>
                 </div>
               )}

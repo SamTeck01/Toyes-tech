@@ -95,9 +95,9 @@ const Inventory = () => {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-[28px] font-extrabold tracking-tight md:text-[32px]">Inventory</h1>
-          <p className="text-sm text-ink/55">Each store has its own stock. Stock value: {formatPrice(value)}</p>
+          <p className="text-sm text-ink/70">Each store has its own stock. Stock value: {formatPrice(value)}</p>
         </div>
-        <select value={storeId} onChange={(e) => setStoreId(e.target.value)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40">
+        <select aria-label="Store" value={storeId} onChange={(e) => setStoreId(e.target.value)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(16,16,20,0.04)] transition hover:border-ink/25 hover:bg-stone-50 disabled:opacity-40">
           {myStores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
       </div>
@@ -111,17 +111,17 @@ const Inventory = () => {
       </div>
 
       <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(16,16,20,0.04)]">
-        {rows === null ? <p className="p-6 text-sm text-ink/50">{myStores.length ? "Loading…" : "Add a store first."}</p> : (
+        {rows === null ? <p className="p-6 text-sm text-ink/70">{myStores.length ? "Loading…" : "Add a store first."}</p> : (
           <>
           <ul className="divide-y divide-line md:hidden">
             {shown.map((r) => (
               <li key={r.id} className="p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0"><p className="font-semibold">{r.name}</p><p className="text-xs text-ink/45">{r.category} · {formatPrice(r.price ?? r.base_price)}</p></div>
-                  <div className="text-right"><p className={`text-xl font-extrabold tabular-nums ${r.qty < 0 ? "text-red-600" : r.qty <= r.low ? "text-amber-600" : ""}`}>{r.qty}</p><p className="text-[11px] text-ink/45">in stock</p></div>
+                  <div className="min-w-0"><p className="font-semibold">{r.name}</p><p className="text-xs text-ink/70">{r.category} · {formatPrice(r.price ?? r.base_price)}</p></div>
+                  <div className="text-right"><p className={`text-xl font-extrabold tabular-nums ${r.qty < 0 ? "text-red-600" : r.qty <= r.low ? "text-amber-600" : ""}`}>{r.qty}</p><p className="text-[11px] text-ink/70">in stock</p></div>
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <button onClick={() => open("receive", r)} className="rounded-lg bg-primary/10 py-2 text-xs font-bold text-primary">+ Stock in</button>
+                  <button onClick={() => open("receive", r)} className="rounded-lg bg-primary/10 py-2 text-xs font-bold text-red-700">+ Stock in</button>
                   <button onClick={() => open("count", r)} className="rounded-lg border border-line py-2 text-xs font-bold">Count</button>
                   <button onClick={() => open("price", r)} className="rounded-lg border border-line py-2 text-xs font-bold">Price</button>
                   {isOwner && stores.length > 1 && <button onClick={() => open("transfer", r)} className="col-span-3 rounded-lg border border-line py-2 text-xs font-bold">Move to another store</button>}
@@ -131,15 +131,15 @@ const Inventory = () => {
           </ul>
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-left text-sm">
-              <thead className="bg-stone-50 text-xs font-semibold text-ink/50"><tr><th className="px-4 py-3">Product</th><th className="px-4 py-3 text-right">In stock</th><th className="px-4 py-3 text-right">Price here</th><th className="px-4 py-3" /></tr></thead>
+              <thead className="bg-stone-50 text-xs font-semibold text-ink/70"><tr><th className="px-4 py-3">Product</th><th className="px-4 py-3 text-right">In stock</th><th className="px-4 py-3 text-right">Price here</th><th className="px-4 py-3" /></tr></thead>
               <tbody className="divide-y divide-line">
                 {shown.map((r) => (
                   <tr key={r.id}>
-                    <td className="px-4 py-3"><p className="font-semibold">{r.name}</p><p className="text-xs text-ink/45">{r.category}{r.barcode ? ` · ${r.barcode}` : ""}</p></td>
+                    <td className="px-4 py-3"><p className="font-semibold">{r.name}</p><p className="text-xs text-ink/70">{r.category}{r.barcode ? ` · ${r.barcode}` : ""}</p></td>
                     <td className={`px-4 py-3 text-right font-extrabold ${r.qty < 0 ? "text-red-600" : r.qty <= r.low ? "text-amber-600" : ""}`}>{r.qty}</td>
-                    <td className="px-4 py-3 text-right">{formatPrice(r.price ?? r.base_price)}{r.price != null && r.price !== r.base_price && <span className="block text-[11px] text-ink/45">store price</span>}</td>
+                    <td className="px-4 py-3 text-right">{formatPrice(r.price ?? r.base_price)}{r.price != null && r.price !== r.base_price && <span className="block text-[11px] text-ink/70">store price</span>}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-right">
-                      <button onClick={() => open("receive", r)} className="rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-primary">+ Stock in</button>
+                      <button onClick={() => open("receive", r)} className="rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-bold text-red-700">+ Stock in</button>
                       <button onClick={() => open("count", r)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-stone-100">Count</button>
                       <button onClick={() => open("price", r)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-stone-100">Price</button>
                       {isOwner && stores.length > 1 && <button onClick={() => open("transfer", r)} className="rounded-lg px-2.5 py-1.5 text-xs font-bold hover:bg-stone-100">Move</button>}
@@ -149,7 +149,7 @@ const Inventory = () => {
               </tbody>
             </table>
           </div>
-          {shown.length === 0 && <p className="p-8 text-center text-sm text-ink/50">{rows.length ? "Nothing matches." : "No products yet. Add them under Products."}</p>}
+          {shown.length === 0 && <p className="p-8 text-center text-sm text-ink/70">{rows.length ? "Nothing matches." : "No products yet. Add them under Products."}</p>}
           </>
         )}
       </section>
@@ -170,7 +170,7 @@ const Inventory = () => {
               <>
                 {action?.kind === "transfer" && (
                   <label className="block text-sm font-semibold">To store
-                    <select required className={`${input} mt-1.5`} value={a.to} onChange={(e) => setA({ ...a, to: e.target.value })}>
+                    <select aria-label="Move to store" required className={`${input} mt-1.5`} value={a.to} onChange={(e) => setA({ ...a, to: e.target.value })}>
                       <option value="">Choose…</option>
                       {stores.filter((s) => s.id !== storeId).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
