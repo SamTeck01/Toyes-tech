@@ -16,3 +16,10 @@ describe("price input parsing", () => {
     expect(parse("abc")).toBe(0);
   });
 });
+
+describe("price safety", () => {
+  it("caps at one billion naira", async () => {
+    const { MAX_PRICE } = await import("@/components/MoneyInput");
+    expect(MAX_PRICE).toBe(1_000_000_000);
+  });
+});

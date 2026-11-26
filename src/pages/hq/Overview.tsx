@@ -19,7 +19,7 @@ const greetName = (full: string) => {
 /** Live view across all stores the signed-in person can see. Refreshes every 15 seconds. */
 const Overview = () => {
   const { me, stores, isOwner } = useHQ();
-  const [range, setRange] = useState<"today" | "7d" | "30d">("7d");
+  const [range, setRange] = useState<"today" | "7d" | "30d">("today");
   const days = range === "today" ? 1 : range === "7d" ? 7 : 30;
   const [sales, setSales] = useState<SaleRow[] | null>(null);
   const [prev, setPrev] = useState<SaleRow[]>([]);

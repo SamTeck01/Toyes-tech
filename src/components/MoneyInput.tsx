@@ -33,6 +33,19 @@ export const nairaInWords = (amount: number): string => {
 
 /** Digits only, as a number. */
 /** Digits only, plus shortcuts for speed at a busy counter: "5k" = 5,000, "2m" = 2,000,000. */
+/** No single price in the shop is above ₦1 billion; anything bigger is a typing mistake. */
+export const MAX_PRICE = 1_000_000_000;
+
+/**
+ * Focus selects the whole amount so typing replaces it. A mouse click would normally undo the selection
+ * on mouse-up; we skip that one mouse-up so the click-then-type flow works too.
+ */
+let skipMouseUp = false;
+export const selectAllOnFocus = {
+  onFocus: (e: React.FocusEvent<HTMLInputElement>) => { skipMouseUp = true; e.currentTarget.select(); },
+  onMouseUp: (e: React.MouseEvent<HTMLInputElement>) => { if (skipMouseUp) { e.preventDefault(); skipMouseUp = false; } },
+};
+
 export const parse = (v: string) => {
   const t = v.toLowerCase().replace(/[,\s₦]/g, "");
   const m = t.match(/^(\d*\.?\d+)([km])$/);
@@ -73,8 +86,8 @@ const MoneyInput = ({ value, onChange, label, size = "md", autoFocus, placeholde
           autoFocus={autoFocus}
           placeholder={placeholder}
           value={n ? n.toLocaleString("en-NG") : ""}
-          onChange={(e) => onChange(parse(e.target.value))}
-          onFocus={(e) => requestAnimationFrame(() => e.target.select())}
+          onChange={(e) => { const v = parse(e.target.value); if (v <= MAX_PRICE) onChange(v); }}
+          {...selectAllOnFocus}
           className={cn(
             "w-full rounded-xl border border-line bg-white pl-10 pr-4 text-right font-bold tabular-nums tracking-wide text-ink outline-none transition placeholder:font-semibold placeholder:text-ink/25 focus:border-ink/40 focus:ring-4 focus:ring-ink/5",
             size === "lg" ? "py-3.5 text-2xl" : "py-2.5 text-lg",

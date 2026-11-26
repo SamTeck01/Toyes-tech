@@ -11,7 +11,7 @@ import { signOutTill, type Me } from "@/pos/session";
 import { searchProducts } from "@/lib/search";
 import { formatPrice } from "@/lib/format";
 import PosReceipt from "./PosReceipt";
-import MoneyInput, { parse as parseMoney } from "@/components/MoneyInput";
+import MoneyInput, { parse as parseMoney, selectAllOnFocus, MAX_PRICE } from "@/components/MoneyInput";
 import { LogoMark } from "@/components/Logo";
 import { confirmAction } from "@/components/Confirm";
 import { Kbd } from "@/components/hq/kit";
@@ -264,7 +264,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                     </div>
                     <label className="mt-2 flex items-center justify-between gap-2 text-xs text-ink/70">
                       <span>Price each{l.product_id && l.unit_price < listOf(l) ? <b className="ml-1 text-emerald-700">−{formatPrice((listOf(l) - l.unit_price) * l.quantity)} discount</b> : null}</span>
-                      <input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => setPrice(i, parseMoney(e.target.value))} onFocus={(e) => e.target.select()} onBlur={() => { if (!(l.unit_price > 0) && l.product_id && priceOf(l.product_id) > 0) setPrice(i, priceOf(l.product_id)); }} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} enterKeyHint="done" className={`${!(l.unit_price > 0) ? "!bg-red-50 !ring-2 !ring-red-400 " : ""}w-28 rounded-lg px-2 py-1.5 text-right text-sm font-semibold text-ink focus:outline-none focus:ring-1 focus:ring-primary ${l.product_id && l.unit_price !== listOf(l) ? "bg-amber-50 ring-1 ring-amber-300" : l.product_id && l.unit_price < listOf(l) ? "" : "bg-stone-50"} ${l.product_id && l.unit_price < listOf(l) ? "bg-emerald-50 ring-1 ring-emerald-300" : ""}`} />
+                      <input aria-label={`Unit price for ${l.name}`} inputMode="numeric" value={l.unit_price.toLocaleString("en-NG")} onChange={(e) => { const v = parseMoney(e.target.value); if (v <= MAX_PRICE) setPrice(i, v); }} {...selectAllOnFocus} onBlur={() => { if (!(l.unit_price > 0) && l.product_id && priceOf(l.product_id) > 0) setPrice(i, priceOf(l.product_id)); }} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} enterKeyHint="done" className={`${!(l.unit_price > 0) ? "!bg-red-50 !ring-2 !ring-red-400 " : ""}w-28 rounded-lg px-2 py-1.5 text-right text-sm font-semibold text-ink focus:outline-none focus:ring-1 focus:ring-primary ${l.product_id && l.unit_price !== listOf(l) ? "bg-amber-50 ring-1 ring-amber-300" : l.product_id && l.unit_price < listOf(l) ? "" : "bg-stone-50"} ${l.product_id && l.unit_price < listOf(l) ? "bg-emerald-50 ring-1 ring-emerald-300" : ""}`} />
                     </label>
                   </div>
                 </div>
@@ -281,7 +281,7 @@ const PosSell = ({ device, cashier, me }: { device: Device; cashier: LocalStaff;
                 <button key={m} onClick={() => setDiscountMode(m)} className={`rounded-md px-2.5 py-1 ${discountMode === m ? "bg-ink text-white" : "text-ink/70"}`}>{m === "amount" ? "₦" : "%"}</button>
               ))}
             </div>
-            <input aria-label="Discount" inputMode="numeric" placeholder="0" onFocus={(e) => e.target.select()} value={discountMode === "amount" && toNumber(discountInput) ? toNumber(discountInput).toLocaleString("en-NG") : discountInput} onChange={(e) => setDiscountInput(e.target.value.replace(/[^\d.]/g, ""))} className="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-right text-sm font-semibold tabular-nums outline-none focus:border-ink/40" />
+            <input aria-label="Discount" inputMode="numeric" placeholder="0" {...selectAllOnFocus} value={discountMode === "amount" && toNumber(discountInput) ? toNumber(discountInput).toLocaleString("en-NG") : discountInput} onChange={(e) => setDiscountInput(e.target.value.replace(/[^\d.]/g, ""))} className="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-right text-sm font-semibold tabular-nums outline-none focus:border-ink/40" />
         </div>
         {extrasOpen ? (
             <div className="grid grid-cols-2 gap-2">
